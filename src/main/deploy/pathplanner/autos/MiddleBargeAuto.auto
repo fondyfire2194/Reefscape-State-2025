@@ -1,0 +1,73 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "CenterToH"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Deliver Coral L4"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "HToG"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Intake Algae L2"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "HGToBargeOne"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "DeliverBarge"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "BargeOneToIJCenter"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Intake Algae L3"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "IJCenterToBargeTwo"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "DeliverBarge"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": "SevenRiversAutos",
+  "choreoAuto": false
+}

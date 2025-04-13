@@ -1,0 +1,621 @@
+{
+  "hubs": [
+    {
+      "x": -5,
+      "y": -5,
+      "width": 1070,
+      "height": 673,
+      "state": {
+        "sidebar": {
+          "width": 303,
+          "expanded": [
+            "/NT/URCL/Spark-20/Warning",
+            "/NT/URCL/Spark-20/Fault",
+            "/PathPlanner/targetPose/translation",
+            "/PathPlanner/targetPose/rotation",
+            "/SmartDashboard/swerve/desiredStates",
+            "/SmartDashboard/swerve/measuredStates",
+            "/SmartDashboard/Swerve Drive/errors",
+            "/SmartDashboard/Swerve Drive/infos",
+            "/SmartDashboard/Swerve Drive/warnings",
+            "/NT/SmartDashboard/swerve",
+            "/NT/SmartDashboard/swerve/advantagescope",
+            "/NT/SmartDashboard/Swerve Drive/warnings",
+            "/NT/SmartDashboard/Swerve Drive/infos",
+            "/NT/SmartDashboard/Swerve Drive/errors",
+            "/NT/SmartDashboard/swerve/modules/frontleft",
+            "/SmartDashboard/Elevator/PID",
+            "/SmartDashboard/ Elevator/PID",
+            "/SmartDashboard/swerve/advantagescope",
+            "/SmartDashboard/swerve/advantagescope/desiredStates",
+            "/Monologue/drivebase",
+            "/LiveWindow",
+            "/SmartDashboard/Alerts/errors",
+            "/DriveState",
+            "/SmartDashboard/Field/OdometryPose",
+            "/DS/joystick0/buttons",
+            "/DS/joystick1",
+            "/DS/joystick0",
+            "/DS/joystick0/axes",
+            "/NT/PathPlanner/vel",
+            "/Log2/NT",
+            "/Log2/NT/limelight-front",
+            "/Log9/NT",
+            "/Log9/NT/limelight-front/rawtargets",
+            "/Log9/NT/limelight-front/rawfiducials",
+            "/Log9/DS",
+            "/Log9/NT/Monologue",
+            "/Log9/NT/URCL",
+            "/Log9/NT/URCL/Spark-10/Fault",
+            "/Log9/NT/URCL/Spark-3/Fault",
+            "/Log9/NT/URCL/Spark-4/Fault",
+            "/Log9/NT/URCL/Spark-5/Fault",
+            "/Log9/NT/URCL/Spark-8/Fault",
+            "/Log9/NT/URCL/Spark-26/Fault",
+            "/Log1/NT",
+            "/Log1/NT/limelight-front/rawtargets",
+            "/Log1/NT/SmartDashboard",
+            "/Log1/NT/SmartDashboard/LL",
+            "/Log1/NT/SmartDashboard/Climber",
+            "/Log3/NT",
+            "/Log9/NT/URCL/Spark-3",
+            "/Log9/NT/URCL/Spark-26",
+            "/Log3/NT/Monologue",
+            "/Log3/NT/Monologue/preIn",
+            "/Log3/NT/SmartDashboard",
+            "/Log3/NT/SmartDashboard/Arm/PID",
+            "/Log3/NT/URCL",
+            "/Log3/NT/URCL/Spark-24/Fault",
+            "/Log3/NT/limelight-front",
+            "/Log3/NT/limelight-front/fiducial_offset_set",
+            "/Log4/NT",
+            "/Log4/DS",
+            "/Log4/NT/Monologue",
+            "/Log4/NT/SmartDashboard",
+            "/Log4/NT/SmartDashboard/ Arm",
+            "/Log4/NT/SmartDashboard/Arm",
+            "/Log4/NT/Monologue/gamepieces",
+            "/Log4/NT/SmartDashboard/Gamepiece",
+            "/Log6",
+            "/Log6/NT",
+            "/Log6/NT/Shuffleboard",
+            "/Log6/NT/Monologue",
+            "/Log6/NT/Monologue/drivebase",
+            "/NT",
+            "/NT/URCL/Raw",
+            "/NT/SmartDashboard/swerve/advantagescope/desiredStates/0",
+            "/SmartDashboard/Controller",
+            "/RobotPose/rotation",
+            "/SmartDashboard/AutoName",
+            "/NT/SmartDashboard/swerve/modules/backleft",
+            "/NT/PathPlanner/targetPose",
+            "/NT/PathPlanner/targetPose/rotation",
+            "/NT/PathPlanner/targetPose/translation",
+            "/NT/RobotPose/translation",
+            "/NT/RobotPose/rotation",
+            "/NT/SmartDashboard/LL",
+            "/NT/URCL/Spark-5",
+            "/URCL/Spark-4/Fault",
+            "/URCL/Spark-8/Fault",
+            "/URCL/Spark-9/Fault",
+            "/RobotPose/translation",
+            "/SmartDashboard",
+            "/SmartDashboard/swerve/advantagescope/measuredChassisSpeeds",
+            "/SmartDashboard/swerve/advantagescope/robotRotation",
+            "/SmartDashboard/swerve/advantagescope/desiredChassisSpeeds",
+            "/SmartDashboard/swerve/advantagescope/desiredStates/0/angle",
+            "/SmartDashboard/swerve/advantagescope/currentStates",
+            "/SmartDashboard/swerve/advantagescope/currentStates/0/angle",
+            "/SmartDashboard/swerve/advantagescope/currentStates/2/angle",
+            "/SmartDashboard/swerve/advantagescope/desiredStates/2",
+            "/SmartDashboard/swerve/advantagescope/desiredStates/2/angle",
+            "/SmartDashboard/swerve/advantagescope/desiredStates/3",
+            "/SmartDashboard/swerve/advantagescope/desiredStates/3/angle",
+            "/SmartDashboard/swerve/advantagescope/currentStates/3",
+            "/SmartDashboard/swerve/advantagescope/currentStates/3/angle",
+            "/Monologue",
+            "/Monologue/elevator",
+            "/NT/SmartDashboard/swerve/advantagescope/desiredChassisSpeeds",
+            "/NT/SmartDashboard/swerve/advantagescope/measuredChassisSpeeds",
+            "/NT/PathPlanner/currentPose",
+            "/NT/SmartDashboard/ Elevator",
+            "/NT/SmartDashboard/ Elevator/PID/controller",
+            "/NT/SmartDashboard/Arm/PID",
+            "/NT/SmartDashboard/ Arm/PID",
+            "/NT/Monologue/arm",
+            "/NT/Monologue/llv",
+            "/NT/SmartDashboard",
+            "/NT/SmartDashboard/swerve/measuredChassisSpeeds",
+            "/NT/SmartDashboard/swerve/desiredStates"
+          ]
+        },
+        "tabs": {
+          "selected": 5,
+          "tabs": [
+            {
+              "type": 0,
+              "title": "",
+              "controller": null,
+              "controllerUUID": "rypgm50o9i0y766tudfbxgt5hfh3az3z",
+              "renderer": "#/",
+              "controlsHeight": 0
+            },
+            {
+              "type": 2,
+              "title": "Odometry",
+              "controller": {
+                "sources": [
+                  {
+                    "type": "robot",
+                    "logKey": "NT:RobotPose",
+                    "logType": "Pose2d",
+                    "visible": true,
+                    "options": {}
+                  },
+                  {
+                    "type": "ghost",
+                    "logKey": "NT:/PathPlanner/targetPose",
+                    "logType": "Pose2d",
+                    "visible": true,
+                    "options": {
+                      "color": "#00ff00"
+                    }
+                  }
+                ],
+                "game": "2025 Field (AndyMark)",
+                "bumpers": "auto",
+                "origin": "blue",
+                "orientation": 0,
+                "size": 30
+              },
+              "controllerUUID": "qs85z1z79z1xngehx9n0jc8it5uuuz1s",
+              "renderer": null,
+              "controlsHeight": 200
+            },
+            {
+              "type": 1,
+              "title": "ChassisSpeeds",
+              "controller": {
+                "leftSources": [
+                  {
+                    "type": "stepped",
+                    "logKey": "NT:/SmartDashboard/swerve/advantagescope/desiredChassisSpeeds/vy",
+                    "logType": "Number",
+                    "visible": false,
+                    "options": {
+                      "color": "#2b66a2",
+                      "size": "normal"
+                    }
+                  },
+                  {
+                    "type": "stepped",
+                    "logKey": "NT:/SmartDashboard/swerve/advantagescope/measuredChassisSpeeds/vy",
+                    "logType": "Number",
+                    "visible": false,
+                    "options": {
+                      "color": "#e5b31b",
+                      "size": "normal"
+                    }
+                  },
+                  {
+                    "type": "stepped",
+                    "logKey": "NT:/SmartDashboard/swerve/advantagescope/measuredChassisSpeeds/omega",
+                    "logType": "Number",
+                    "visible": true,
+                    "options": {
+                      "color": "#c0b487",
+                      "size": "normal"
+                    }
+                  },
+                  {
+                    "type": "stepped",
+                    "logKey": "NT:/SmartDashboard/swerve/advantagescope/desiredChassisSpeeds/omega",
+                    "logType": "Number",
+                    "visible": true,
+                    "options": {
+                      "color": "#e48b32",
+                      "size": "normal"
+                    }
+                  },
+                  {
+                    "type": "stepped",
+                    "logKey": "NT:/SmartDashboard/swerve/advantagescope/measuredChassisSpeeds/omega",
+                    "logType": "Number",
+                    "visible": true,
+                    "options": {
+                      "color": "#858584",
+                      "size": "normal"
+                    }
+                  }
+                ],
+                "rightSources": [
+                  {
+                    "type": "stepped",
+                    "logKey": "NT:/SmartDashboard/swerve/advantagescope/measuredChassisSpeeds/vx",
+                    "logType": "Number",
+                    "visible": false,
+                    "options": {
+                      "color": "#af2437",
+                      "size": "normal"
+                    }
+                  },
+                  {
+                    "type": "stepped",
+                    "logKey": "NT:/SmartDashboard/swerve/advantagescope/desiredChassisSpeeds/vx",
+                    "logType": "Number",
+                    "visible": false,
+                    "options": {
+                      "color": "#80588e",
+                      "size": "normal"
+                    }
+                  }
+                ],
+                "discreteSources": [],
+                "leftLockedRange": null,
+                "rightLockedRange": null,
+                "leftUnitConversion": {
+                  "type": null,
+                  "factor": 1
+                },
+                "rightUnitConversion": {
+                  "type": null,
+                  "factor": 1
+                },
+                "leftFilter": 0,
+                "rightFilter": 0
+              },
+              "controllerUUID": "od8fvkwkekeyfxfty9b8sm9xezjpjtf3",
+              "renderer": null,
+              "controlsHeight": 200
+            },
+            {
+              "type": 1,
+              "title": "Elevator",
+              "controller": {
+                "leftSources": [
+                  {
+                    "type": "stepped",
+                    "logKey": "NT:/SmartDashboard/Elevator/PID/currsetpos",
+                    "logType": "Number",
+                    "visible": false,
+                    "options": {
+                      "color": "#2b66a2",
+                      "size": "normal"
+                    }
+                  },
+                  {
+                    "type": "stepped",
+                    "logKey": "NT:/SmartDashboard/Elevator/PID/position",
+                    "logType": "Number",
+                    "visible": false,
+                    "options": {
+                      "color": "#e48b32",
+                      "size": "normal"
+                    }
+                  },
+                  {
+                    "type": "stepped",
+                    "logKey": "NT:/SmartDashboard/Elevator/Velleft",
+                    "logType": "Number",
+                    "visible": false,
+                    "options": {
+                      "color": "#3b875a",
+                      "size": "normal"
+                    }
+                  },
+                  {
+                    "type": "stepped",
+                    "logKey": "NT:/SmartDashboard/Elevator/LeftAmps",
+                    "logType": "Number",
+                    "visible": false,
+                    "options": {
+                      "color": "#d993aa",
+                      "size": "normal"
+                    }
+                  },
+                  {
+                    "type": "stepped",
+                    "logKey": "NT:/SmartDashboard/Elevator/RightVolts",
+                    "logType": "Number",
+                    "visible": false,
+                    "options": {
+                      "color": "#5f4528",
+                      "size": "normal"
+                    }
+                  }
+                ],
+                "rightSources": [
+                  {
+                    "type": "stepped",
+                    "logKey": "NT:/SmartDashboard/Elevator/PID/poserror",
+                    "logType": "Number",
+                    "visible": false,
+                    "options": {
+                      "color": "#80588e",
+                      "size": "normal"
+                    }
+                  },
+                  {
+                    "type": "stepped",
+                    "logKey": "NT:/SmartDashboard/Elevator/PID/setvel",
+                    "logType": "Number",
+                    "visible": false,
+                    "options": {
+                      "color": "#e5b31b",
+                      "size": "normal"
+                    }
+                  },
+                  {
+                    "type": "stepped",
+                    "logKey": "NT:/SmartDashboard/Elevator/PID/mpsRead",
+                    "logType": "Number",
+                    "visible": false,
+                    "options": {
+                      "color": "#af2437",
+                      "size": "normal"
+                    }
+                  },
+                  {
+                    "type": "stepped",
+                    "logKey": "NT:/SmartDashboard/Elevator/PID/mpsclamped",
+                    "logType": "Number",
+                    "visible": false,
+                    "options": {
+                      "color": "#c0b487",
+                      "size": "normal"
+                    }
+                  },
+                  {
+                    "type": "stepped",
+                    "logKey": "NT:/SmartDashboard/Elevator/PID/mps",
+                    "logType": "Number",
+                    "visible": false,
+                    "options": {
+                      "color": "#858584",
+                      "size": "normal"
+                    }
+                  },
+                  {
+                    "type": "stepped",
+                    "logKey": "NT:/SmartDashboard/Elevator/PID/poserror",
+                    "logType": "Number",
+                    "visible": true,
+                    "options": {
+                      "color": "#2b66a2",
+                      "size": "normal"
+                    }
+                  }
+                ],
+                "discreteSources": [],
+                "leftLockedRange": null,
+                "rightLockedRange": null,
+                "leftUnitConversion": {
+                  "type": null,
+                  "factor": 1
+                },
+                "rightUnitConversion": {
+                  "type": null,
+                  "factor": 1
+                },
+                "leftFilter": 0,
+                "rightFilter": 0
+              },
+              "controllerUUID": "9cdivi548zf5az0te1fg50uhx9ka6mz9",
+              "renderer": null,
+              "controlsHeight": 200
+            },
+            {
+              "type": 1,
+              "title": "Arm",
+              "controller": {
+                "leftSources": [
+                  {
+                    "type": "stepped",
+                    "logKey": "NT:/SmartDashboard/Arm/PID/currsetpos",
+                    "logType": "Number",
+                    "visible": true,
+                    "options": {
+                      "color": "#2b66a2",
+                      "size": "normal"
+                    }
+                  },
+                  {
+                    "type": "stepped",
+                    "logKey": "NT:/SmartDashboard/Arm/PID/setvel",
+                    "logType": "Number",
+                    "visible": false,
+                    "options": {
+                      "color": "#e5b31b",
+                      "size": "normal"
+                    }
+                  },
+                  {
+                    "type": "stepped",
+                    "logKey": "NT:/SmartDashboard/Arm/PID/radpersec",
+                    "logType": "Number",
+                    "visible": false,
+                    "options": {
+                      "color": "#af2437",
+                      "size": "normal"
+                    }
+                  }
+                ],
+                "rightSources": [],
+                "discreteSources": [],
+                "leftLockedRange": null,
+                "rightLockedRange": null,
+                "leftUnitConversion": {
+                  "type": null,
+                  "factor": 1
+                },
+                "rightUnitConversion": {
+                  "type": null,
+                  "factor": 1
+                },
+                "leftFilter": 0,
+                "rightFilter": 0
+              },
+              "controllerUUID": "u1qt67lezue90w4g0n4nfo41rwxu5xr7",
+              "renderer": null,
+              "controlsHeight": 200
+            },
+            {
+              "type": 1,
+              "title": "RobotMotion",
+              "controller": {
+                "leftSources": [
+                  {
+                    "type": "stepped",
+                    "logKey": "NT:/SmartDashboard/swerve/measuredStates/1",
+                    "logType": "Number",
+                    "visible": true,
+                    "options": {
+                      "color": "#2b66a2",
+                      "size": "normal"
+                    }
+                  },
+                  {
+                    "type": "stepped",
+                    "logKey": "NT:/SmartDashboard/swerve/desiredStates/1",
+                    "logType": "Number",
+                    "visible": true,
+                    "options": {
+                      "color": "#af2437",
+                      "size": "normal"
+                    }
+                  }
+                ],
+                "rightSources": [],
+                "discreteSources": [],
+                "leftLockedRange": null,
+                "rightLockedRange": null,
+                "leftUnitConversion": {
+                  "type": null,
+                  "factor": 1
+                },
+                "rightUnitConversion": {
+                  "type": null,
+                  "factor": 1
+                },
+                "leftFilter": 0,
+                "rightFilter": 0
+              },
+              "controllerUUID": "4xqz38uqjhx4nc6empbm3faqv0szcv4a",
+              "renderer": null,
+              "controlsHeight": 200
+            }
+          ]
+        }
+      }
+    },
+    {
+      "x": -5,
+      "y": -5,
+      "width": 1070,
+      "height": 673,
+      "state": {
+        "sidebar": {
+          "width": 300,
+          "expanded": [
+            "/NT",
+            "/NT/PathPlanner",
+            "/NT/SmartDashboard",
+            "/NT/SmartDashboard/swerve/advantagescope",
+            "/NT/SmartDashboard/LL",
+            "/NT/limelight-front"
+          ]
+        },
+        "tabs": {
+          "selected": 1,
+          "tabs": [
+            {
+              "type": 0,
+              "title": "",
+              "controller": null,
+              "controllerUUID": "4jb7o1cm6of2nmye6g036h4ulbvxmv1b",
+              "renderer": "#/",
+              "controlsHeight": 0
+            },
+            {
+              "type": 2,
+              "title": "Odometry",
+              "controller": {
+                "sources": [
+                  {
+                    "type": "robot",
+                    "logKey": "NT:RobotPose",
+                    "logType": "Pose2d",
+                    "visible": true,
+                    "options": {}
+                  },
+                  {
+                    "type": "ghost",
+                    "logKey": "NT:/PathPlanner/targetPose",
+                    "logType": "Pose2d",
+                    "visible": true,
+                    "options": {
+                      "color": "#00ff00"
+                    }
+                  }
+                ],
+                "game": "2025 Field (Welded)",
+                "bumpers": "auto",
+                "origin": "blue",
+                "orientation": 0,
+                "size": 30
+              },
+              "controllerUUID": "dbvuhvcztrrznfwyrmpt6v6kjju9hjkb",
+              "renderer": null,
+              "controlsHeight": 200
+            },
+            {
+              "type": 1,
+              "title": "Line Graph",
+              "controller": {
+                "leftSources": [],
+                "rightSources": [],
+                "discreteSources": [
+                  {
+                    "type": "stripes",
+                    "logKey": "NT:/SmartDashboard/LL//FrontLeftCamOk",
+                    "logType": "Boolean",
+                    "visible": true,
+                    "options": {
+                      "color": "#2b66a2"
+                    }
+                  },
+                  {
+                    "type": "stripes",
+                    "logKey": "NT:/limelight-front/tv",
+                    "logType": "Number",
+                    "visible": true,
+                    "options": {
+                      "color": "#e5b31b"
+                    }
+                  }
+                ],
+                "leftLockedRange": null,
+                "rightLockedRange": null,
+                "leftUnitConversion": {
+                  "type": null,
+                  "factor": 1
+                },
+                "rightUnitConversion": {
+                  "type": null,
+                  "factor": 1
+                },
+                "leftFilter": 0,
+                "rightFilter": 0
+              },
+              "controllerUUID": "5owdmyjuy5rq0ga4trdiceqma04z7asl",
+              "renderer": null,
+              "controlsHeight": 200
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "satellites": [],
+  "version": "4.1.4"
+}
