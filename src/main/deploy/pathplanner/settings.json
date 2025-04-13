@@ -4,15 +4,14 @@
   "holonomicMode": true,
   "pathFolders": [
     "CenterAuto",
-    "ProcessorElevator",
+    "PreIntakeNonProcessor",
     "NonProcessorElevator",
-    "NonProcessorSide",
-    "ProcessorSide",
+    "PreIntakeProcessor",
+    "ProcessorElevator",
     "Test Paths"
   ],
   "autoFolders": [
-    "TestAutos",
-    "SevenRiversAutos"
+    "StateAutos"
   ],
   "defaultMaxVel": 2.0,
   "defaultMaxAccel": 3.0,

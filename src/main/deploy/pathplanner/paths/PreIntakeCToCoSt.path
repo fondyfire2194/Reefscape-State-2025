@@ -1,0 +1,68 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 3.6442622950819668,
+        "y": 2.904149590163935
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 2.6865316175675247,
+        "y": 2.1064419432071424
+      },
+      "isLocked": false,
+      "linkedName": "ReefCPose"
+    },
+    {
+      "anchor": {
+        "x": 1.292208904109589,
+        "y": 1.0649400684931505
+      },
+      "prevControl": {
+        "x": 2.324087432794994,
+        "y": 1.8994017681087287
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": "RightCoralStationPoseElevator"
+    }
+  ],
+  "rotationTargets": [],
+  "constraintZones": [
+    {
+      "name": "Constraints Zone",
+      "minWaypointRelativePos": 0.6508474576271195,
+      "maxWaypointRelativePos": 1.0,
+      "constraints": {
+        "maxVelocity": 2.0,
+        "maxAcceleration": 2.0,
+        "maxAngularVelocity": 540.0,
+        "maxAngularAcceleration": 720.0,
+        "nominalVoltage": 12.0,
+        "unlimited": false
+      }
+    }
+  ],
+  "pointTowardsZones": [],
+  "eventMarkers": [],
+  "globalConstraints": {
+    "maxVelocity": 3.5,
+    "maxAcceleration": 6.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": 54.0
+  },
+  "reversed": false,
+  "folder": "PreIntakeProcessor",
+  "idealStartingState": {
+    "velocity": 0,
+    "rotation": 59.99999999999999
+  },
+  "useDefaultConstraints": false
+}

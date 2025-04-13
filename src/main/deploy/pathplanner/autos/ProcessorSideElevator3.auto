@@ -173,6 +173,6 @@
     }
   },
   "resetOdom": true,
-  "folder": "TestAutos",
+  "folder": "StateAutos",
   "choreoAuto": false
 }

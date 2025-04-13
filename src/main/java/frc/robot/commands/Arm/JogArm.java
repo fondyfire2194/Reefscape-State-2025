@@ -6,7 +6,6 @@ package frc.robot.commands.Arm;
 
 import static edu.wpi.first.units.Units.Radians;
 
-import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;

@@ -11,7 +11,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "BLBSToIElevator"
+                  "pathName": "PreIntake BLRStart2ToF1"
                 }
               }
             ]
@@ -30,7 +30,70 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "IToCoStElevator"
+                  "pathName": "PreIntakeFToCoSt"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "DelayStartPreIntake"
+                }
+              },
+              {
+                "type": "sequential",
+                "data": {
+                  "commands": [
+                    {
+                      "type": "wait",
+                      "data": {
+                        "waitTime": 0.1
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "ElevatorToHome"
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "PreIntakeCoStToD"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "IntakeToSwitch"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Deliver Coral"
+          }
+        },
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "PreIntakeDToCoSt"
                 }
               },
               {
@@ -68,64 +131,13 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "CoStToLElevator"
-                }
-              }
-            ]
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Deliver Coral"
-          }
-        },
-        {
-          "type": "parallel",
-          "data": {
-            "commands": [
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "LToCoStElevator"
+                  "pathName": "PreIntakeCoStToC"
                 }
               },
               {
                 "type": "named",
                 "data": {
-                  "name": "DelayStartIntake"
-                }
-              },
-              {
-                "type": "sequential",
-                "data": {
-                  "commands": [
-                    {
-                      "type": "wait",
-                      "data": {
-                        "waitTime": 0.1
-                      }
-                    },
-                    {
-                      "type": "named",
-                      "data": {
-                        "name": "ElevatorToHome"
-                      }
-                    }
-                  ]
-                }
-              }
-            ]
-          }
-        },
-        {
-          "type": "parallel",
-          "data": {
-            "commands": [
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "CoStToKElevator"
+                  "name": "IntakeToSwitch"
                 }
               }
             ]
@@ -144,7 +156,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "KToCoStElevator"
+                  "pathName": "PreIntakeCToCoSt"
                 }
               },
               {
@@ -164,6 +176,12 @@
                       }
                     }
                   ]
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "DelayStartPreIntake"
                 }
               }
             ]

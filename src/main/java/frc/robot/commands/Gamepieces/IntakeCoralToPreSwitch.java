@@ -26,6 +26,7 @@ public class IntakeCoralToPreSwitch extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
+    
     preInSwitchDelay = new Debouncer(.125);
 
     noCoralTimer = new Timer();

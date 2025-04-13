@@ -137,8 +137,10 @@ public class ElevatorSubsystem extends SubsystemBase implements Logged {
   @Log.NT(key = "at lower limit")
   public boolean atLowerLimit;
 
-  @Log.NT(key = "target meters")
   private double targetMeters;
+
+  @Log.NT(key = "target inches")
+  private double targetInches;
 
   @Log.NT(key = "left ff")
   private double leftff;
@@ -313,6 +315,7 @@ public class ElevatorSubsystem extends SubsystemBase implements Logged {
   }
 
   public void setGoalInches(double targetInches) {
+    this.targetInches=targetInches;
     targetMeters = Units.inchesToMeters(targetInches);
     m_goal.position = targetMeters;
 

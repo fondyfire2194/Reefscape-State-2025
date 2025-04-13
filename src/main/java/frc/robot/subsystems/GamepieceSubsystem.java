@@ -130,18 +130,6 @@ public class GamepieceSubsystem extends SubsystemBase implements Logged {
     coralEarlyDetectSwitch = new DigitalInput(1);
   }
 
-  public void setCurrentLimit(int amps) {
-    gamepieceConfig.smartCurrentLimit(amps);
-    gamepieceMotor.configure(gamepieceConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
-  }
-
-  public int getSmartCurrentLimit() {
-    return gamepieceMotor.configAccessor.getSmartCurrentLimit();
-  }
-
-  public int getSmartCurrentFreeLimit() {
-    return gamepieceMotor.configAccessor.getSmartCurrentFreeLimit();
-  }
 
   public void stopGamepieceMotor() {
     gamepieceMotor.set(0);
@@ -175,7 +163,6 @@ public class GamepieceSubsystem extends SubsystemBase implements Logged {
         Commands.runOnce(() -> disableLimitSwitch()),
         Commands.parallel(
             Commands.runOnce(() -> motorLocked = false),
-            Commands.runOnce(() -> setCurrentLimit(inOutCoralAmps)),
             Commands.runOnce(() -> gamepieceMotor.set(coralDelverSpeed))),
         new WaitCommand(0.1),
         Commands.waitUntil(() -> !coralAtIntake()),
@@ -188,7 +175,6 @@ public class GamepieceSubsystem extends SubsystemBase implements Logged {
         Commands.runOnce(() -> disableLimitSwitch()),
         Commands.parallel(
             Commands.runOnce(() -> motorLocked = false),
-            Commands.runOnce(() -> setCurrentLimit(inOutCoralAmps)),
             Commands.runOnce(() -> gamepieceMotor.set(0.8))),
         new WaitCommand(0.1),
         Commands.waitUntil(() -> !coralAtIntake()),
@@ -201,7 +187,6 @@ public class GamepieceSubsystem extends SubsystemBase implements Logged {
   }
 
   public void runGamepieceMotorAtVelocity(double rpm) {
-    setCurrentLimit(40);
     SmartDashboard.putNumber("Gamepiece/tgtrpm", rpm);
     if (RobotBase.isReal())
       gamepieceController.setReference(rpm, ControlType.kVelocity);
