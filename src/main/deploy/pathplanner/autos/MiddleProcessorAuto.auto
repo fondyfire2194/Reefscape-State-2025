@@ -72,6 +72,50 @@
           "data": {
             "name": "Deliver Processor"
           }
+        },
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "ProcessorToEFCenter"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Intake Algae L3"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "EFCenterToProcessor"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "ElevatorToProcessor"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Deliver Processor"
+          }
         }
       ]
     }

@@ -48,7 +48,7 @@
   "folder": "CenterAuto",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 121.43
+    "rotation": 119.4516997286711
   },
   "useDefaultConstraints": true
 }
