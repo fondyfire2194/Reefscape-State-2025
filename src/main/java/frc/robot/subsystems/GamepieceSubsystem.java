@@ -130,7 +130,6 @@ public class GamepieceSubsystem extends SubsystemBase implements Logged {
     coralEarlyDetectSwitch = new DigitalInput(1);
   }
 
-
   public void stopGamepieceMotor() {
     gamepieceMotor.set(0);
     gamepieceMotor.stopMotor();
@@ -173,10 +172,7 @@ public class GamepieceSubsystem extends SubsystemBase implements Logged {
   public Command deliverCoralFasterCommand() {
     return Commands.sequence(
         Commands.runOnce(() -> disableLimitSwitch()),
-        Commands.parallel(
-            Commands.runOnce(() -> motorLocked = false),
-            Commands.runOnce(() -> gamepieceMotor.set(0.8))),
-        new WaitCommand(0.1),
+        Commands.runOnce(() -> gamepieceMotor.set(0.8)),
         Commands.waitUntil(() -> !coralAtIntake()),
         new WaitCommand(0.1),
         stopGamepieceMotorsCommand());

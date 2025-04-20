@@ -16,20 +16,34 @@
     },
     {
       "anchor": {
-        "x": 5.190676229508196,
-        "y": 2.7602971311475404
+        "x": 5.479500000000001,
+        "y": 2.2894999999999994
       },
       "prevControl": {
-        "x": 5.326016240933593,
-        "y": 2.5273365539723978
+        "x": 5.614840011425398,
+        "y": 2.056539422824857
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "ReefEFCenterPose"
+      "linkedName": null
     }
   ],
   "rotationTargets": [],
-  "constraintZones": [],
+  "constraintZones": [
+    {
+      "name": "Constraints Zone",
+      "minWaypointRelativePos": 0.6255395683453226,
+      "maxWaypointRelativePos": 1.0,
+      "constraints": {
+        "maxVelocity": 1.0,
+        "maxAcceleration": 3.0,
+        "maxAngularVelocity": 540.0,
+        "maxAngularAcceleration": 720.0,
+        "nominalVoltage": 12.0,
+        "unlimited": false
+      }
+    }
+  ],
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {

@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
 import swervelib.math.Matter;
@@ -97,6 +99,11 @@ public final class Constants {
 
     public static final double reefOffset = Units.inchesToMeters(6.5);
     public static final double centerToReefBranch = Units.inchesToMeters(13 / 2);
+
+    public static Transform2d L4Approach = new Transform2d(Units.inchesToMeters(-34),
+        0, new Rotation2d());
+    public static Transform2d lowerReefApproach = new Transform2d(Units.inchesToMeters(-20),
+        0, new Rotation2d());
 
     public static int[] blueReefTags = { 0, 21, 22, 17, 18, 19, 20 };
     public static int[] blueCoralStationTags = { 13, 12 };

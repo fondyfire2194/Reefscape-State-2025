@@ -95,9 +95,9 @@ public class SwerveSubsystem extends SubsystemBase implements Logged {
 
   public int reefZoneTag = 0;
   @Log
-  public Pose2d reefTargetPose = new Pose2d();;
+  public Pose2d reefTargetPose = new Pose2d();
   @Log
-  public Pose2d reefFinalTargetPose = new Pose2d();;
+  public Pose2d reefFinalTargetPose = new Pose2d();
 
   public Pose2d poseTagActive = new Pose2d();
 

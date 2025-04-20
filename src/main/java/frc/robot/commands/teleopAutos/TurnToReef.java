@@ -45,7 +45,7 @@ public class TurnToReef extends Command {
     ppc.enableContinuousInput(-Math.PI, Math.PI);
     double initialAngle = m_swerve.getPose().getRotation().getRadians();
     ppc.reset(initialAngle, 0); // set current angle and 0 angular velocity as current state
-    ppc.setGoal(m_swerve.reefFinalTargetPose.getRotation().getRadians());
+    ppc.setGoal(m_swerve.getFinalReefTargetPose().getRotation().getRadians());
     ppc.setTolerance(tolerance);
   }
 

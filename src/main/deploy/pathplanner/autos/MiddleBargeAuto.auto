@@ -48,13 +48,13 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "HGToProcessor"
+                  "pathName": "HGToBargeOne"
                 }
               },
               {
                 "type": "named",
                 "data": {
-                  "name": "ElevatorToProcessor"
+                  "name": "ElevatorToHome"
                 }
               }
             ]
@@ -63,51 +63,13 @@
         {
           "type": "named",
           "data": {
-            "name": "Deliver Processor"
-          }
-        },
-        {
-          "type": "parallel",
-          "data": {
-            "commands": [
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "ProcessorToEFCenterApproach"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "Intake Algae L3"
-                }
-              }
-            ]
-          }
-        },
-        {
-          "type": "parallel",
-          "data": {
-            "commands": [
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "EFCenterToProcessor"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "ElevatorToProcessor"
-                }
-              }
-            ]
+            "name": "ElevatorToBarge"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "Deliver Processor"
+            "name": "DeliverAlgaeToBarge"
           }
         }
       ]

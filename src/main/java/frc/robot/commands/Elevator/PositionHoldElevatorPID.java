@@ -13,9 +13,9 @@ import frc.robot.subsystems.ElevatorSubsystem;
 
 public class PositionHoldElevatorPID extends Command {
     private final ElevatorSubsystem elevator;
- 
+
     private PIDController pidController;
-    private double kp = 10.;
+    private double kp = 6.;
     private double ki = 0;
     private double kd = 0.2;
     private double izone = .5;
@@ -26,12 +26,11 @@ public class PositionHoldElevatorPID extends Command {
     private double maxdownrate = 2;
 
     private boolean toggle;
-    
+
     private double ffGain = .2;
 
     public PositionHoldElevatorPID(ElevatorSubsystem elevator) {
         this.elevator = elevator;
-     
         pidController = new PIDController(kp, ki, kd);
         addRequirements(this.elevator);
     }
@@ -51,14 +50,13 @@ public class PositionHoldElevatorPID extends Command {
     @Override
     public void execute() {
 
-
         toggle = !toggle;
 
         elevator.nextSetpoint = elevator.m_profile.calculate(.02, elevator.currentSetpoint, elevator.m_goal);
 
         double mps = pidController.calculate(elevator.getLeftPositionMeters(), elevator.nextSetpoint.position);
 
-         mps += elevator.nextSetpoint.velocity * ffGain;
+        mps += elevator.nextSetpoint.velocity * ffGain;
 
         if (elevator.showTelemetry) {
 
@@ -77,12 +75,12 @@ public class PositionHoldElevatorPID extends Command {
                 SmartDashboard.putBoolean("Elevator/PID/atSetpoint", pidController.atSetpoint());
             }
         }
-        mps = MathUtil.clamp(mps, -maxdownrate, maxuprate);
+        double mpsclamped = MathUtil.clamp(mps, -maxdownrate, maxuprate);
 
         if (elevator.showTelemetry)
-            SmartDashboard.putNumber("Elevator/PID/mpsclamped", mps);
+            SmartDashboard.putNumber("Elevator/PID/mpsclamped", mpsclamped);
 
-        elevator.runAtVelocity(mps);
+        elevator.runAtVelocity(mpsclamped);
 
         elevator.currentSetpoint = elevator.nextSetpoint;
 
@@ -96,7 +94,5 @@ public class PositionHoldElevatorPID extends Command {
     public boolean isFinished() {
         return false;
     }
-
-  
 
 }

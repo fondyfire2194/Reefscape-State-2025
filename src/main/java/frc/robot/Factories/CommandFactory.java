@@ -4,14 +4,14 @@
 
 package frc.robot.Factories;
 
+import static edu.wpi.first.units.Units.Degrees;
+
 import java.util.Optional;
 
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
-import edu.wpi.first.wpilibj.RobotBase;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
@@ -40,7 +40,8 @@ public class CommandFactory {
         LedStrip m_ls;
 
         public CommandFactory(SwerveSubsystem swerve, ElevatorSubsystem elevator, ArmSubsystem arm,
-                        GamepieceSubsystem gamepieces, AlgaeSubsystem algae, LimelightVision llv, LedStrip ls, CommandXboxController dr,
+                        GamepieceSubsystem gamepieces, AlgaeSubsystem algae, LimelightVision llv, LedStrip ls,
+                        CommandXboxController dr,
                         CommandXboxController codr) {
                 m_swerve = swerve;
                 m_dr = dr;
@@ -49,7 +50,7 @@ public class CommandFactory {
                 m_elevator = elevator;
                 m_llv = llv;
                 m_gamepieces = gamepieces;
-                m_algae=algae;
+                m_algae = algae;
                 m_ls = ls;
 
         }
@@ -72,30 +73,41 @@ public class CommandFactory {
 
         }
 
-        public static Command rumbleDriver(RumbleType type, double timeout) {
-                return Commands.sequence(
-                                Commands.race(
-                                                Commands.either(
-                                                                Commands.run(() -> m_dr.getHID().setRumble(type,
-                                                                                1.0)),
-                                                                Commands.runOnce(() -> SmartDashboard.putString("BUZZ",
-                                                                                "BUZZ")),
-                                                                () -> RobotBase.isReal()),
-                                                Commands.waitSeconds(timeout)),
-                                Commands.runOnce(() -> m_dr.getHID().setRumble(RumbleType.kBothRumble, 0.0)));
+        static int numberRumbles = 0;
+
+        public static Command rumbleDriver(RumbleType type, double value, double timeout, int number) {
+                numberRumbles = 0;
+                return Commands.repeatingSequence(
+                                Commands.sequence(
+                                                Commands.race(
+                                                                Commands.run(() -> m_dr.getHID()
+                                                                                .setRumble(type,
+                                                                                                value)),
+                                                                Commands.waitSeconds(timeout)),
+                                                Commands.runOnce(() -> m_dr.getHID().setRumble(type, 0.0)),
+                                                Commands.waitSeconds(timeout),
+                                                Commands.runOnce(() -> numberRumbles++)))
+                                .until(() -> number < numberRumbles)
+                                .andThen(Commands.parallel(
+                                                Commands.runOnce(() -> m_dr.getHID().setRumble(type, 0.0)),
+                                                Commands.runOnce(() -> numberRumbles = 0)));
         }
 
-        public static Command rumbleCoDriver(RumbleType type, double timeout) {
-                return Commands.sequence(
-                                Commands.race(
-                                                Commands.either(
-                                                                Commands.run(() -> m_codr.getHID().setRumble(type,
-                                                                                1.0)),
-                                                                Commands.runOnce(() -> SmartDashboard.putString("BUZZ",
-                                                                                "BUZZ")),
-                                                                () -> RobotBase.isReal()),
-                                                Commands.waitSeconds(timeout)),
-                                Commands.runOnce(() -> m_codr.getHID().setRumble(RumbleType.kBothRumble, 0.0)));
+        public static Command rumbleCoDriver(RumbleType type, double value, double timeout, int number) {
+                numberRumbles = 0;
+                return Commands.repeatingSequence(
+                                Commands.sequence(
+                                                Commands.race(
+                                                                Commands.run(() -> m_codr.getHID()
+                                                                                .setRumble(type,
+                                                                                                value)),
+                                                                Commands.waitSeconds(timeout)),
+                                                Commands.runOnce(() -> m_codr.getHID().setRumble(type, 0.0)),
+                                                Commands.runOnce(() -> numberRumbles++)))
+                                .until(() -> number < numberRumbles)
+                                .andThen(Commands.parallel(
+                                                Commands.runOnce(() -> m_codr.getHID().setRumble(type, 0.0)),
+                                                Commands.runOnce(() -> numberRumbles = 0)));
         }
 
         public boolean isRedAlliance() {
@@ -187,7 +199,7 @@ public class CommandFactory {
         public Command safePositionArmBarge(double degrees, double inches) {
                 return Commands.sequence(
                                 m_elevator.setGoalInchesCommand(inches),
-                                //Commands.waitUntil(() -> m_elevator.atPosition()),
+                                // Commands.waitUntil(() -> m_elevator.atPosition()),
                                 Commands.runOnce(() -> m_arm.setGoalDegrees(degrees)));
         }
 
@@ -200,21 +212,19 @@ public class CommandFactory {
                                 m_elevator.setGoalInchesCommand(inches),
                                 new WaitCommand(0.2),
                                 Commands.waitUntil(() -> m_elevator.atPosition()),
-                                Commands.runOnce(() -> m_arm.setGoalDegrees(degrees_second)));
+                                Commands.runOnce(() -> m_arm.setGoalDegrees(degrees_second)),
+                                Commands.waitUntil(() -> m_arm.inPosition(Degrees.of(5))));
         }
 
         public Command homeElevatorAndArm() {
                 return Commands.sequence(
                                 Commands.runOnce(() -> m_arm.setGoalDegrees(ArmSetpoints.kTravel)),
-        
                                 Commands.waitUntil(() -> Units.radiansToDegrees(m_arm.armMotor.getEncoder()
                                                 .getPosition()) < m_arm.armClearAngleDeg),
                                 m_elevator.setGoalInchesCommand(ElevatorSetpoints.kHome),
                                 Commands.waitUntil(() -> m_elevator.atPosition()),
                                 Commands.runOnce(() -> m_arm.setGoalDegrees(ArmSetpoints.kCoralStation)));
         }
-
-        
 
         /**
          * Command to set the subsystem setpoint. This will set the arm and elevator to

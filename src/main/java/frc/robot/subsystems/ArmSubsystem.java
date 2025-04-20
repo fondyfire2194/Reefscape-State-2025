@@ -163,6 +163,8 @@ public class ArmSubsystem extends SubsystemBase implements Logged {
 
         armfeedforward = new ArmFeedforward(armKa, armKg, armKv);
 
+        setTolerance(Degrees.of(2));
+
         armMotor.getEncoder().setPosition(armStartupOffset.in(Radians));
 
         setGoalRadians(armStartupOffset.in(Radians));
@@ -220,47 +222,16 @@ public class ArmSubsystem extends SubsystemBase implements Logged {
 
     }
 
-    // public boolean atGoal() {
-    // return Math.abs( - getAngle().in(Radians)) < .01;
-    // }
-
     public void resetEncoder(double val) {
         armMotor.getEncoder().setPosition(val);
     }
 
-    public void position() {
-        if (inPositionCtr != 3)
-            inPositionCtr++;
-        // Send setpoint to spark max controller
-        nextSetpoint = m_profile.calculate(.02, currentSetpoint, m_goal);
-
-        // SmartDashboard.putNumber("Arm/setpos",
-        // Units.radiansToDegrees(nextSetpoint.position));
-        // SmartDashboard.putNumber("Arm/setvel",
-        // Units.radiansToDegrees(nextSetpoint.velocity));
-
-        armff = armfeedforward.calculate(getAngle().in(Radians), nextSetpoint.velocity);
-
-        double accel = (nextSetpoint.velocity - currentSetpoint.velocity) * 50;
-
-        double accelV = accel * armKa;
-
-        armff = armff + accelV;
-
-        currentSetpoint = nextSetpoint;
-
-        // SmartDashboard.putNumber("Arm/ff", armff);
-        // SmartDashboard.putNumber("Arm/poserror", m_goal.position -
-        // armMotor.getEncoder().getPosition());
-
-        armClosedLoopController.setReference(
-                nextSetpoint.position, ControlType.kPosition, ClosedLoopSlot.kSlot0, armff,
-                ArbFFUnits.kVoltage);
-
-    }
-
     public void setTolerance(Angle toleranceRads) {
         angleToleranceRads = toleranceRads;
+    }
+
+    public boolean inPosition(Angle toleranceAngle) {
+        return Math.abs(m_goal.position - getAngle().in(Radians)) < toleranceAngle.in(Radians);
     }
 
     public void setGoalRadians(double targetRads) {

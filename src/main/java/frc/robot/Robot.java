@@ -74,12 +74,9 @@ public class Robot extends TimedRobot implements Logged {
     // autonomous chooser on the dashboard.
     m_robotContainer = new RobotContainer();
 
-    if (RobotBase.isReal()) {
+    Monologue.setupMonologue(m_robotContainer, "/Monologue", false, true);
+    DriverStation.startDataLog(DataLogManager.getLog());
 
-      Monologue.setupMonologue(m_robotContainer, "/Monologue", false, true);
-
-      DriverStation.startDataLog(DataLogManager.getLog());
-    }
     // Create a timer to disable motor brake a few seconds after disable. This will
     // let the robot stop
     // immediately when disabled, but then also let it be pushed more
@@ -92,9 +89,9 @@ public class Robot extends TimedRobot implements Logged {
     }
     if (RobotBase.isReal()) {
       URCL.start();
-      UsbCamera camera = CameraServer.startAutomaticCapture();
+      //UsbCamera camera = CameraServer.startAutomaticCapture();
       // Set the resolution
-      camera.setResolution(640, 480);
+      //camera.setResolution(640, 480);
     }
   }
 
@@ -125,6 +122,7 @@ public class Robot extends TimedRobot implements Logged {
     // This method needs to be called periodically, or no logging annotations will
     // process properly.
     Monologue.updateAll();
+
   }
 
   /**
@@ -237,6 +235,7 @@ public class Robot extends TimedRobot implements Logged {
    */
   @Override
   public void teleopPeriodic() {
+    SmartDashboard.putNumber("MatchTime", Timer.getMatchTime());
   }
 
   @Override

@@ -100,13 +100,13 @@ public class ElevatorSubsystem extends SubsystemBase implements Logged {
   private Alert allErrors = new Alert("AllErrors", AlertType.kError);
   @Log(key = "alert sticky fault")
   private Alert allStickyFaults = new Alert("AllStickyFaults", AlertType.kError);
-/*
- * target is 1.5 meters in 1 second
- * average velocity = 1.5  meters per second
- * max velocity = 2 * ave = 3 meters per second
- * accel = max velocity/2*t = 3/2 = 1.5 say 2
- * 
-*/
+  /*
+   * target is 1.5 meters in 1 second
+   * average velocity = 1.5 meters per second
+   * max velocity = 2 * ave = 3 meters per second
+   * accel = max velocity/2*t = 3/2 = 1.5 say 2
+   * 
+   */
 
   double TRAJECTORY_VEL = 3;
   double TRAJECTORY_ACCEL = 4;
@@ -144,7 +144,7 @@ public class ElevatorSubsystem extends SubsystemBase implements Logged {
 
   @Log.NT(key = "left ff")
   private double leftff;
-  
+
   // @Log.NT(key = "arm clear")
   // public boolean armClear;
 
@@ -315,7 +315,7 @@ public class ElevatorSubsystem extends SubsystemBase implements Logged {
   }
 
   public void setGoalInches(double targetInches) {
-    this.targetInches=targetInches;
+    this.targetInches = targetInches;
     targetMeters = Units.inchesToMeters(targetInches);
     m_goal.position = targetMeters;
 
@@ -323,7 +323,6 @@ public class ElevatorSubsystem extends SubsystemBase implements Logged {
     // inPositionCtr = 0;
   }
 
- 
   public Command setGoalInchesCommand(double targetInches) {
     return Commands.runOnce(() -> setGoalInches(targetInches));
   }
@@ -383,31 +382,6 @@ public class ElevatorSubsystem extends SubsystemBase implements Logged {
     return leftMotor.configAccessor.softLimit.getForwardSoftLimit();
   }
 
-  public void position() {
-    SmartDashboard.putNumber("Elevator/posrng", posrng);
-    posrng++;
-
-    // Send setpoint to spark max controller
-    nextSetpoint = m_profile.calculate(.02, currentSetpoint, m_goal);
-
-    leftff = eff.calculateWithVelocities(currentSetpoint.velocity, nextSetpoint.velocity);
-    SmartDashboard.putNumber("Elevator/ff", leftff);
-    double accel = (nextSetpoint.velocity - currentSetpoint.velocity) * 50;
-
-    double accelV = accel * elevatorKa;
-    SmartDashboard.putNumber("Elevator/accv", accelV);
-
-    // leftff += accelV;
-    SmartDashboard.putNumber("Elevator/ffacc", leftff);
-    currentSetpoint = nextSetpoint;
-
-    SmartDashboard.putNumber("Elevator/setpos", currentSetpoint.position);
-    SmartDashboard.putNumber("Elevator/setvel", currentSetpoint.velocity);
-
-    leftClosedLoopController.setReference(
-        nextSetpoint.position, ControlType.kPosition, ClosedLoopSlot.kSlot0, leftff, ArbFFUnits.kVoltage);
-  }
-
   @Log.NT(key = "reset position")
   public void resetPosition(double val) {
     leftEncoder.setPosition(val);
@@ -442,7 +416,7 @@ public class ElevatorSubsystem extends SubsystemBase implements Logged {
     if (showTelemetry) {
 
       SmartDashboard.putNumber("Elevator/targetInches", Units.metersToInches(targetMeters));
-  
+
       SmartDashboard.putNumber("Elevator/Goal", m_goal.position);
       SmartDashboard.putNumber("Elevator/LeftVolts",
           leftMotor.getAppliedOutput() * RobotController.getBatteryVoltage());

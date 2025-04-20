@@ -21,7 +21,8 @@ public class IntakeCoralToSwitch extends Command {
   private Timer noCoralTimer;
   private double stuckTimelimit = 1;
   private double coralIntakeSpeed = .55;
-  private double coralUnstickSpeed = -.05;
+  private double coralUnstickSpeed = .05;
+  private double coralReverseSpeedLimit = .02;
 
   public IntakeCoralToSwitch(GamepieceSubsystem gamepiece, ArmSubsystem arm, boolean autoUnstick) {
     // Use addRequirements() here to declare subsystem dependencies.
@@ -49,18 +50,18 @@ public class IntakeCoralToSwitch extends Command {
   public void execute() {
 
     if (m_autoUnstick && coralStuckTimer.hasElapsed(stuckTimelimit)) {
-      m_gamepiece.coralIntakeMotor.set(coralUnstickSpeed);
+      m_gamepiece.coralIntakeMotor.set(-coralUnstickSpeed);
       coralStuckTimer.reset();
     }
 
-    if (m_gamepiece.getIntakeRPM() < 0)
+    if (m_autoUnstick && m_gamepiece.getIntakeRPM() < -coralReverseSpeedLimit)
       m_gamepiece.coralIntakeMotor.set(coralIntakeSpeed);
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    if (!noCoralTimer.hasElapsed(m_gamepiece.noCoralAtSwitchTime))
+    if (m_gamepiece.coralAtIntake())
       m_arm.setGoalDegrees(ArmSetpoints.kTravel);
     m_gamepiece.stopCoralIntakeMotor();
     m_gamepiece.stopGamepieceMotor();

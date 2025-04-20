@@ -26,7 +26,7 @@ public class PositionHoldArmPID extends Command {
     private double tolerance = Units.inchesToMeters(1);
     private double maxplusrate = 6;
     private double maxminusrate = 6;
-
+    private double ffGain = .2;
     private boolean toggle;
 
     public PositionHoldArmPID(ArmSubsystem arm) {
@@ -38,7 +38,8 @@ public class PositionHoldArmPID extends Command {
 
     @Override
     public void initialize() {
-        if(RobotBase.isSimulation())pidController.setP(10);
+        if (RobotBase.isSimulation())
+            pidController.setP(10);
         pidController.setIZone(izone);
         pidController.disableContinuousInput();
         pidController.setIntegratorRange(minIntegral, maxIntegral);
@@ -71,12 +72,15 @@ public class PositionHoldArmPID extends Command {
                 SmartDashboard.putBoolean("Arm/PID/poserror", pidController.atSetpoint());
             }
         }
-        radpersec = MathUtil.clamp(radpersec, -maxminusrate, maxplusrate);
+
+        radpersec += arm.nextSetpoint.velocity * ffGain;
+
+        double radpersecclamped = MathUtil.clamp(radpersec, -maxminusrate, maxplusrate);
 
         if (arm.showTelemetry)
-            SmartDashboard.putNumber("Arm/PID/dpsclamped", Units.radiansToDegrees(radpersec));
+            SmartDashboard.putNumber("Arm/PID/dpsclamped", Units.radiansToDegrees(radpersecclamped));
 
-        arm.runAtVelocity(radpersec);
+        arm.runAtVelocity(radpersecclamped);
 
         arm.currentSetpoint = arm.nextSetpoint;
 

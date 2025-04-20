@@ -8,6 +8,8 @@ import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Percent;
 import static edu.wpi.first.units.Units.Seconds;
 
+import java.sql.Time;
+
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
@@ -41,6 +43,7 @@ public class LedStrip {
     LEDPattern coral_out = LEDPattern.solid(Color.kRed).blink(Seconds.of(0.2));
 
     LEDPattern fire;
+    LEDPattern lastCallPark = LEDPattern.rainbow(255, 255);
 
     LEDPattern off = LEDPattern.solid(Color.kBlack);
     double intakeTimer = 0;
@@ -162,5 +165,12 @@ public class LedStrip {
         return Commands.parallel(Commands.runOnce(() -> intakeTimer = System.currentTimeMillis() / 1000),
                 Commands.run(() -> fire.applyTo(m_ledbuffer)),
                 Commands.run(() -> m_led.setData(m_ledbuffer))).withTimeout(1);
+    }
+
+    public Command getLastParkCallCommand() {
+        return Commands.parallel(Commands.runOnce(() -> intakeTimer = System.currentTimeMillis() / 1000),
+                Commands.run(() -> lastCallPark.applyTo(m_ledbuffer)),
+                Commands.run(() -> m_led.setData(m_ledbuffer))).withTimeout(1);
+
     }
 }
