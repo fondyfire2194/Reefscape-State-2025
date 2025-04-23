@@ -289,7 +289,7 @@ public class RobotContainer implements Logged {
                                         cf.pickupAlgaeL3()
                                                         .withName("IntakeAlgaeL3"));
 
-                        NamedCommands.registerCommand("Deliver Processor",
+                        NamedCommands.registerCommand("DeliverAlgaeToProcessor",
                                         algae.deliverAlgaeToProcessorCommand()
                                                         .withName("Deliver Processor"));
 
@@ -316,10 +316,8 @@ public class RobotContainer implements Logged {
                                                 new TeleopSwerve(drivebase,
                                                                 () -> driverXbox.getLeftY()
                                                                                 * getAllianceFactor(),
-
                                                                 () -> driverXbox.getLeftX()
                                                                                 * getAllianceFactor(),
-
                                                                 () -> driverXbox.getRightX(),
                                                                 () -> correctAngle)));
 
@@ -430,7 +428,7 @@ public class RobotContainer implements Logged {
                                                                                 drivebase.reefTargetPose),
                                                                 cf.setSetpointCommand(setpointPosition)),
 
-                                                Commands.waitUntil(() -> elevator.atPosition()
+                                                Commands.waitUntil(() -> elevator.atPosition(3)
                                                                 && arm.inPosition(Degrees.of(3))),
 
                                                 gamepieces.deliverCoralFasterCommand()),

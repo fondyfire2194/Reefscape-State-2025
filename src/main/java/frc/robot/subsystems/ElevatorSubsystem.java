@@ -455,8 +455,8 @@ public class ElevatorSubsystem extends SubsystemBase implements Logged {
     elevatorError.setText(String.valueOf(getLeftRightDiffInches()));
   }
 
-  public boolean atPosition() {
-    return Math.abs(getLeftPositionError()) < tolerance_inches;
+  public boolean atPosition(double toleranceInches) {
+    return Math.abs(getLeftPositionError()) < toleranceInches;
   }
 
 }

@@ -142,7 +142,7 @@ public final class Constants {
     public static final double kArmMass = 4.3; // Kg
     public static final double kMinAngleRads = Units.degreesToRadians(-40); // -50.1 deg from horiz
     public static final double kMaxAngleRads = Units.degreesToRadians(40.9); // 40.9 deg from horiz
-    public static double kPixelsPerMeter = 15;
+    public static double kPixelsPerMeter = 1;
 
   }
 

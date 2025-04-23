@@ -63,7 +63,7 @@
         {
           "type": "named",
           "data": {
-            "name": "Deliver Processor"
+            "name": "DeliverAlgaeToProcessor"
           }
         },
         {
@@ -107,7 +107,7 @@
         {
           "type": "named",
           "data": {
-            "name": "Deliver Processor"
+            "name": "DeliverAlgaeToProcessor"
           }
         }
       ]

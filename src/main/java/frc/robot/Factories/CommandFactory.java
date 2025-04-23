@@ -61,7 +61,8 @@ public class CommandFactory {
         }
 
         public Command pickupAlgaeL3() {
-                return Commands.none();
+                return Commands.parallel(setSetpointCommand(Setpoint.kAlgaePickUpL3),
+                                new DetectAlgaeWhileIntaking(m_algae));
         }
 
         public Command deliverAlgaeToBargeCommand(double delaySecs) {
@@ -199,8 +200,9 @@ public class CommandFactory {
         public Command safePositionArmBarge(double degrees, double inches) {
                 return Commands.sequence(
                                 m_elevator.setGoalInchesCommand(inches),
-                                // Commands.waitUntil(() -> m_elevator.atPosition()),
-                                Commands.runOnce(() -> m_arm.setGoalDegrees(degrees)));
+                                Commands.runOnce(() -> m_arm.setGoalDegrees(degrees)),
+                                Commands.waitUntil(() -> m_elevator.atPosition(3)),
+                                Commands.waitUntil(() -> m_arm.inPosition(Degrees.of(5))));
         }
 
         public Command safePositionArmElevatorL4(double degrees_first, double degrees_second, double inches) {
@@ -211,7 +213,7 @@ public class CommandFactory {
                                                 .getPosition()) < m_arm.armClearAngleDeg),
                                 m_elevator.setGoalInchesCommand(inches),
                                 new WaitCommand(0.2),
-                                Commands.waitUntil(() -> m_elevator.atPosition()),
+                                Commands.waitUntil(() -> m_elevator.atPosition(3)),
                                 Commands.runOnce(() -> m_arm.setGoalDegrees(degrees_second)),
                                 Commands.waitUntil(() -> m_arm.inPosition(Degrees.of(5))));
         }
@@ -222,8 +224,9 @@ public class CommandFactory {
                                 Commands.waitUntil(() -> Units.radiansToDegrees(m_arm.armMotor.getEncoder()
                                                 .getPosition()) < m_arm.armClearAngleDeg),
                                 m_elevator.setGoalInchesCommand(ElevatorSetpoints.kHome),
-                                Commands.waitUntil(() -> m_elevator.atPosition()),
-                                Commands.runOnce(() -> m_arm.setGoalDegrees(ArmSetpoints.kCoralStation)));
+                                Commands.waitUntil(() -> m_elevator.atPosition(3)),
+                                Commands.runOnce(() -> m_arm.setGoalDegrees(ArmSetpoints.kCoralStation)),
+                                Commands.waitUntil(() -> m_arm.inPosition(Degrees.of(5))));
         }
 
         /**

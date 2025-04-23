@@ -173,7 +173,7 @@ public class AlgaeSubsystem extends SubsystemBase implements Logged {
     motorLocked = true;
     setCurrentLimit((int) lockAlgaeAmps);
     algaeRightMotor.set(lockAlgaeSet);
-    //algaeLeftMotor.set(lockAlgaeSet);
+    // algaeLeftMotor.set(lockAlgaeSet);
   }
 
   public void stopalgaeMotor() {
@@ -191,11 +191,13 @@ public class AlgaeSubsystem extends SubsystemBase implements Logged {
   }
 
   public Command deliverAlgaeToProcessorCommand() {
-
     return Commands.sequence(
         Commands.parallel(
             Commands.runOnce(() -> motorLocked = false),
-            Commands.runOnce(() -> setCurrentLimit(inOutAlgaeAmps)),
+            Commands.either(
+                Commands.runOnce(() -> setCurrentLimit(inOutAlgaeAmps)),
+                Commands.none(),
+                () -> RobotBase.isReal()),
             Commands.runOnce(() -> runalgaeMotorAtVelocity(AlgaeRPMSetpoints.kProcessorDeliver))),
         new WaitCommand(2.5),
         Commands.runOnce(() -> stopalgaeMotor()));
@@ -205,7 +207,10 @@ public class AlgaeSubsystem extends SubsystemBase implements Logged {
   public Command deliverAlgaeToBargeCommand() {
     return Commands.sequence(Commands.parallel(
         Commands.runOnce(() -> motorLocked = false),
-        Commands.runOnce(() -> setCurrentLimit(inOutAlgaeAmps)),
+        Commands.either(
+            Commands.runOnce(() -> setCurrentLimit(inOutAlgaeAmps)),
+            Commands.none(),
+            () -> RobotBase.isReal()),
         Commands.runOnce(() -> runalgaeMotorAtVelocity(AlgaeRPMSetpoints.kBargeDeliver))),
         new WaitCommand(2),
         Commands.runOnce(() -> stopalgaeMotor()));
@@ -215,7 +220,7 @@ public class AlgaeSubsystem extends SubsystemBase implements Logged {
   public void run(double speed) {
     setCurrentLimit(30);
     algaeRightMotor.set(speed);
-    //algaeLeftMotor.set(speed);
+    // algaeLeftMotor.set(speed);
   }
 
   public void runalgaeMotorAtVelocity(double rpm) {
@@ -302,7 +307,8 @@ public class AlgaeSubsystem extends SubsystemBase implements Logged {
   public Command jogalgaeIntakeMotorsCommand(DoubleSupplier speed) {
     return Commands.parallel(
         Commands.run(() -> algaeRightMotor.setVoltage(speed.getAsDouble() * RobotController.getBatteryVoltage())));
-        //Commands.run(() -> algaeLeftMotor.setVoltage(speed.getAsDouble() * RobotController.getBatteryVoltage())));
+    // Commands.run(() -> algaeLeftMotor.setVoltage(speed.getAsDouble() *
+    // RobotController.getBatteryVoltage())));
   }
 
   @Override

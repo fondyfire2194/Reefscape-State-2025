@@ -5,15 +5,22 @@
     "data": {
       "commands": [
         {
-          "type": "path",
+          "type": "parallel",
           "data": {
-            "pathName": "CenterToH"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "DelayElevatorToL4"
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "CenterToH"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "DelayElevatorToL4"
+                }
+              }
+            ]
           }
         },
         {
@@ -70,6 +77,62 @@
           "type": "named",
           "data": {
             "name": "DeliverAlgaeToBarge"
+          }
+        },
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "BargeOneToIJCenter"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Intake Algae L3"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "ElevatorToHome"
+                }
+              },
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "IJCenterToBargeTwo"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "ElevatorToBarge"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "DeliverAlgaeToBarge"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "ElevatorToHome"
           }
         }
       ]

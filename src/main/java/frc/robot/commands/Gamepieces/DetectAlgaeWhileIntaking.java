@@ -5,6 +5,8 @@
 package frc.robot.commands.Gamepieces;
 
 import edu.wpi.first.math.filter.MedianFilter;
+import edu.wpi.first.wpilibj.RobotBase;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Factories.CommandFactory.AlgaeRPMSetpoints;
@@ -24,12 +26,13 @@ public class DetectAlgaeWhileIntaking extends Command {
   private final int numberDetectsWanted = 25;// 1 second
   private double filteredRPM;
   private boolean algaeDetected;
+  private Timer algaeSimtimer;
 
   private double sampledRPM;
 
   public DetectAlgaeWhileIntaking(AlgaeSubsystem algae) {
     // Use addRequirements() here to declare subsystem dependencies.
-    m_algae=algae;
+    m_algae = algae;
   }
 
   // Called when the command is initially scheduled.
@@ -42,16 +45,18 @@ public class DetectAlgaeWhileIntaking extends Command {
     sampledRPM = 0;
     filteredRPM = 0;
     algaeDetected = false;
+    m_algae.motorLocked=false;
     sampleFilter.reset();
     detectFilter.reset();
     m_algae.run(AlgaeRPMSetpoints.kReefPickUpL123);
+    algaeSimtimer = new Timer();
+    algaeSimtimer.reset();
+    algaeSimtimer.start();
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-
-    
 
     sampleCount++;
     if (sampleCount <= numberSamplesWanted)
@@ -79,6 +84,6 @@ public class DetectAlgaeWhileIntaking extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return algaeDetected;
+    return algaeDetected || RobotBase.isSimulation() && algaeSimtimer.hasElapsed(2);
   }
 }

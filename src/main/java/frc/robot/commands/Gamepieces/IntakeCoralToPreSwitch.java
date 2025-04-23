@@ -16,7 +16,9 @@ public class IntakeCoralToPreSwitch extends Command {
   private final GamepieceSubsystem m_gamepiece;
   private Timer noCoralTimer;
   private double coralIntakeSpeed = .55;
+  private double gamepieceMototorSpeed = .45;
   private Debouncer preInSwitchDelay;
+  private double debounceTime = .125;
 
   public IntakeCoralToPreSwitch(GamepieceSubsystem gamepiece) {
     // Use addRequirements() here to declare subsystem dependencies.
@@ -26,15 +28,15 @@ public class IntakeCoralToPreSwitch extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    
-    preInSwitchDelay = new Debouncer(.125);
+
+    preInSwitchDelay = new Debouncer(debounceTime);
 
     noCoralTimer = new Timer();
     noCoralTimer.reset();
     noCoralTimer.start();
 
     m_gamepiece.enableLimitSwitch();
-    m_gamepiece.gamepieceMotor.set(.45); // 0.25
+    m_gamepiece.gamepieceMotor.set(gamepieceMototorSpeed);
     m_gamepiece.coralIntakeMotor.set(coralIntakeSpeed);
   }
 
