@@ -23,7 +23,7 @@ public class SD {
   }
 
   public static void sd(String name, double number) {
-    SmartDashboard.putNumber(name, Math.round(number));
+    SmartDashboard.putNumber(name, number);
   }
 
 }

@@ -78,7 +78,7 @@ public class ElevatorSubsystem extends SubsystemBase implements Logged {
 
   // Got these values from sysID
   public final double elevatorKs = 0.27788;// .3; //0.36
-  public final double elevatorKg = 0.5;// .5; //0.56
+  public final double elevatorKg = .75; // 0.56
   public final double elevatorKv = 2.2404;// 12 / maxVelocityMPS;
   public final double elevatorKa = 0.41589;// 0.3;
 
@@ -109,7 +109,7 @@ public class ElevatorSubsystem extends SubsystemBase implements Logged {
    */
 
   double TRAJECTORY_VEL = 3;
-  double TRAJECTORY_ACCEL = 4;
+  double TRAJECTORY_ACCEL = 5;
 
   public final TrapezoidProfile m_profile = new TrapezoidProfile(new TrapezoidProfile.Constraints(
       TRAJECTORY_VEL, TRAJECTORY_ACCEL));

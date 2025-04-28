@@ -29,6 +29,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import frc.robot.Constants.CANIDConstants;
 import frc.robot.Factories.CommandFactory.ArmSetpoints;
+import frc.robot.utils.SD;
 import monologue.Annotations.Log;
 import monologue.Logged;
 
@@ -78,10 +79,10 @@ public class ArmSubsystem extends SubsystemBase implements Logged {
      * ( (value that goes up) + (value that goes down) )/2 = kg
      */
 
-    public final double armKg = 0.3;
+    public final double armKg = 0.2;
     public final double armKs = 0.18;
     public final double armKv = 12 / maxradpersec;
-    public final double armKa = 0.05;
+    public final double armKa = 0.025;
 
     public double armKp = 0.03;
 
@@ -122,10 +123,10 @@ public class ArmSubsystem extends SubsystemBase implements Logged {
 
         if (showTelemetry) {
 
-            SmartDashboard.putNumber("Arm/Values/maxdegpersec", maxdegrespersec);
-            SmartDashboard.putNumber("Arm/Values/poscf", posConvFactor);
-            SmartDashboard.putNumber("Arm/Values/maxradpersec", maxradpersec);
-            SmartDashboard.putNumber("Arm/Values/kv", armKv);
+            SD.sd2("Arm/Values/maxdegpersec", maxdegrespersec);
+            SD.sd2("Arm/Values/poscf", posConvFactor);
+            SD.sd2("Arm/Values/maxradpersec", maxradpersec);
+            SD.sd2("Arm/Values/kv", armKv);
         }
         armConfig = new SparkMaxConfig();
 
@@ -163,15 +164,10 @@ public class ArmSubsystem extends SubsystemBase implements Logged {
 
         armfeedforward = new ArmFeedforward(armKa, armKg, armKv);
 
-        setTolerance(Degrees.of(2));
-
         armMotor.getEncoder().setPosition(armStartupOffset.in(Radians));
 
         setGoalRadians(armStartupOffset.in(Radians));
 
-        SmartDashboard.putNumber("Arm/RealEncoder", Units.radiansToDegrees(armMotor.getEncoder().getPosition()));
-        if (RobotBase.isSimulation())
-            armKp = 5;
     }
 
     public boolean getActiveFault() {
@@ -208,13 +204,7 @@ public class ArmSubsystem extends SubsystemBase implements Logged {
 
         atUpperLimit = getAngle().gte(maxAngle);
         atLowerLimit = getAngle().lte(minAngle);
-        // SmartDashboard.putNumber("Arm/pos",
-        // Units.radiansToDegrees(armMotor.getEncoder().getPosition()));
-        // SmartDashboard.putNumber("Arm/vel",
-        // Units.radiansToDegrees(armMotor.getEncoder().getVelocity()));
-        // SmartDashboard.putNumber("Arm/volts", armMotor.getAppliedOutput() *
-        // RobotController.getBatteryVoltage());
-
+     
     }
 
     @Override
@@ -222,23 +212,58 @@ public class ArmSubsystem extends SubsystemBase implements Logged {
 
     }
 
+    // public boolean atGoal() {
+    // return Math.abs( - getAngle().in(Radians)) < .01;
+    // }
+
     public void resetEncoder(double val) {
         armMotor.getEncoder().setPosition(val);
-    }
-
-    public void setTolerance(Angle toleranceRads) {
-        angleToleranceRads = toleranceRads;
     }
 
     public boolean inPosition(Angle toleranceAngle) {
         return Math.abs(m_goal.position - getAngle().in(Radians)) < toleranceAngle.in(Radians);
     }
 
+    public void position() {
+        if (inPositionCtr != 3)
+            inPositionCtr++;
+        // Send setpoint to spark max controller
+        nextSetpoint = m_profile.calculate(.02, currentSetpoint, m_goal);
+
+        SD.sd2("Arm/setpos",
+                Units.radiansToDegrees(nextSetpoint.position));
+        SD.sd2("Arm/setvel",
+                Units.radiansToDegrees(nextSetpoint.velocity));
+
+        armff = armfeedforward.calculate(getAngle().in(Radians), nextSetpoint.velocity);
+
+        double accel = (nextSetpoint.velocity - currentSetpoint.velocity) * 50;
+
+        double accelV = accel * armKa;
+
+        armff = armff + accelV;
+
+        currentSetpoint = nextSetpoint;
+
+        SD.sd2("Arm/ff", armff);
+        SD.sd2("Arm/poserror", m_goal.position -
+                armMotor.getEncoder().getPosition());
+
+        armClosedLoopController.setReference(
+                nextSetpoint.position, ControlType.kPosition, ClosedLoopSlot.kSlot0, armff,
+                ArbFFUnits.kVoltage);
+
+    }
+
+    public void setTolerance(Angle toleranceRads) {
+        angleToleranceRads = toleranceRads;
+    }
+
     public void setGoalRadians(double targetRads) {
         m_goal.position = targetRads;
         currentSetpoint.position = getAngle().in(Radians);
         targetRadians = targetRads;
-        SmartDashboard.putNumber("Arm/targetdeg", Units.radiansToDegrees(targetRads));
+        SD.sd2("Arm/targetdeg", Units.radiansToDegrees(targetRads));
         // inPositionCtr = 0;
     }
 

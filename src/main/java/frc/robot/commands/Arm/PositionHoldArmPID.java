@@ -4,6 +4,8 @@
 
 package frc.robot.commands.Arm;
 
+import java.io.FileFilter;
+
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.util.Units;
@@ -17,7 +19,7 @@ public class PositionHoldArmPID extends Command {
     private final ArmSubsystem arm;
 
     private PIDController pidController;
-    private double kp = 20;
+    private double kp = 25;
     private double ki = 0;
     private double kd;
     private double izone = .5;
@@ -25,13 +27,13 @@ public class PositionHoldArmPID extends Command {
     private double maxIntegral = .1;
     private double tolerance = Units.inchesToMeters(1);
     private double maxplusrate = 6;
-    private double maxminusrate = 6;
-    private double ffGain = .2;
+    private double maxminusrate = 3;
     private boolean toggle;
+
+    public double ffgain = .2;
 
     public PositionHoldArmPID(ArmSubsystem arm) {
         this.arm = arm;
-
         pidController = new PIDController(kp, ki, kd);
         addRequirements(this.arm);
     }
@@ -46,20 +48,40 @@ public class PositionHoldArmPID extends Command {
         pidController.setTolerance(tolerance);
         double temp = arm.getAngleRadians();
         arm.setGoalRadians(temp);
-        if (arm.showTelemetry)
+        if (arm.showTelemetry) {
             SmartDashboard.putData(" Arm/PID/controller", pidController);
+        }
     }
 
     @Override
     public void execute() {
 
-        toggle = !toggle;
+        toggle = !toggle;// split display for time purposes
 
         arm.nextSetpoint = arm.m_profile.calculate(.02, arm.currentSetpoint, arm.m_goal);
 
         double radpersec = pidController.calculate(arm.getAngleRadians(), arm.nextSetpoint.position);
 
-        if (arm.showTelemetry) {
+        double nextVel = arm.nextSetpoint.velocity;
+
+        double ksvmps = (arm.armKs) * Math.signum(nextVel) / arm.armKv;
+
+        double kgmps = arm.armKg / arm.armKv;
+
+        double accel = (arm.currentSetpoint.velocity - arm.nextSetpoint.velocity) * 50;
+
+        double accelmps = (accel * arm.armKa) / arm.armKv;
+
+        double velff = arm.nextSetpoint.velocity * ffgain;
+
+        double radpersectotal = radpersec + velff + kgmps + ksvmps + accelmps;
+
+        double radpersecclamped = MathUtil.clamp(radpersectotal, -maxminusrate, maxplusrate);
+
+        arm.runAtVelocity(radpersecclamped);
+
+        arm.currentSetpoint = arm.nextSetpoint;
+
             if (toggle) {
                 SmartDashboard.putNumber("Arm/PID/goalpos", Units.radiansToDegrees(arm.m_goal.position));
                 SmartDashboard.putNumber("Arm/PID/currsetpos", Units.radiansToDegrees(arm.currentSetpoint.position));
@@ -71,20 +93,11 @@ public class PositionHoldArmPID extends Command {
                 SmartDashboard.putNumber("Arm/PID/poserror", Units.radiansToDegrees(pidController.getError()));
                 SmartDashboard.putBoolean("Arm/PID/poserror", pidController.atSetpoint());
             }
-        }
-
-        radpersec += arm.nextSetpoint.velocity * ffGain;
-
-        double radpersecclamped = MathUtil.clamp(radpersec, -maxminusrate, maxplusrate);
-
-        if (arm.showTelemetry)
+       
             SmartDashboard.putNumber("Arm/PID/dpsclamped", Units.radiansToDegrees(radpersecclamped));
 
-        arm.runAtVelocity(radpersecclamped);
+        }
 
-        arm.currentSetpoint = arm.nextSetpoint;
-
-    }
 
     @Override
     public void end(boolean interrupted) {

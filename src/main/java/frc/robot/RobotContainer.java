@@ -36,6 +36,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.FieldConstants.Side;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.Factories.CommandFactory;
+import frc.robot.Factories.CommandFactory.ArmSetpoints;
 import frc.robot.Factories.CommandFactory.ElevatorSetpoints;
 import frc.robot.Factories.CommandFactory.Setpoint;
 import frc.robot.commands.Arm.JogArm;
@@ -120,6 +121,10 @@ public class RobotContainer implements Logged {
         Trigger elevatorTipping = new Trigger(() -> Math.abs(drivebase.swerveDrive.getRoll().getDegrees()) > 5);
 
         Trigger lastCallForPark = new Trigger((() -> Timer.getMatchTime() < 5));
+
+        Trigger elevatorTipCoralL1 = new Trigger(() -> gamepieces.level1CoralDeliver &&
+                        !gamepieces.coralAtIntake() &&
+                        Math.abs(gamepieces.gamepieceMotor.get()) > .2);
 
         EventTrigger eventTriggerL4 = new EventTrigger("ElevatorL4Event");
         EventTrigger eventTriggerL2 = new EventTrigger("ElevatorL2Event");
@@ -222,6 +227,8 @@ public class RobotContainer implements Logged {
 
                 configureDriverBindings();
 
+                configureCoCoDriverBindings();
+
                 buildAutoChooser();
 
                 setTriggerActions();
@@ -274,6 +281,12 @@ public class RobotContainer implements Logged {
                         NamedCommands.registerCommand("IntakeCoralToSwitch",
                                         new IntakeCoralToSwitch(gamepieces, arm, true)
                                                         .withName("IntakeCoralToSwitch"));
+
+                        NamedCommands.registerCommand("DelayStartIntake",
+                                        Commands.sequence(
+                                                        Commands.waitSeconds(.5),
+                                                        new IntakeCoralToSwitch(gamepieces, arm, false))
+                                                        .withName("DelayedIntakeCoral"));
 
                         NamedCommands.registerCommand("DelayStartPreIntake",
                                         Commands.sequence(
@@ -441,39 +454,12 @@ public class RobotContainer implements Logged {
 
         public void configureCoDriverTeleopBindings() {
 
-                coCoDriverXbox.rightBumper().onTrue(cf.homeElevatorAndArm().withName("Home Elevator Arm"));
-
-                coCoDriverXbox.rightTrigger().whileTrue(
-                                Commands.defer(
-                                                () -> preIn.jogMotorCommand(
-                                                                () -> -coCoDriverXbox.getRightY()),
-                                                Set.of(preIn)))
-                                .onFalse(Commands.runOnce(() -> preIn.stop()));
-
-                coCoDriverXbox.leftTrigger().whileTrue(climber.jogClimberCommand(() -> coCoDriverXbox.getLeftY()))
-                                .onFalse(Commands.runOnce(() -> climber.stop()));
-
-                coCoDriverXbox.start().onTrue(Commands.runOnce(() -> climber.lockClimber()));
-
-                coCoDriverXbox.back().onTrue(Commands.runOnce(() -> climber.unlockClimber()));
-
-                coCoDriverXbox.povDown().onTrue(Commands.runOnce(() -> drivebase.frontUpdate.setUseMegatag2(false)));
-
-                coDriverXbox.povUp().onTrue(Commands.runOnce(() -> arm.setGoalDegrees(0)));
-
-                coCoDriverXbox.a().onTrue(cf.setSetpointCommand(Setpoint.kLevel1).withName("Set L1"));
-
-                coCoDriverXbox.b().onTrue(cf.setSetpointCommand(Setpoint.kLevel2).withName("Set L2"));
-
-                coCoDriverXbox.x().onTrue(cf.setSetpointCommand(Setpoint.kLevel3).withName("Set L3"));
-
-                coCoDriverXbox.y().onTrue(cf.setSetpointCommand(Setpoint.kLevel4).withName("Set L4"));
-
-                /// ---------------------------------------------------------------
-
                 coDriverXbox = new CommandXboxController(1);
 
-                coDriverXbox.a().onTrue(setSetpointPositionCommand(Setpoint.kLevel1).withName("Set L1"));
+                coDriverXbox.a().onTrue(
+                                Commands.parallel(
+                                                setSetpointPositionCommand(Setpoint.kLevel1),
+                                                Commands.runOnce(() -> gamepieces.level1CoralDeliver = true)));
 
                 coDriverXbox.b().onTrue(setSetpointPositionCommand(Setpoint.kLevel2).withName("Set L2"));
 
@@ -514,17 +500,26 @@ public class RobotContainer implements Logged {
                                                 Commands.runOnce(() -> arm.armMotor.getEncoder()
                                                                 .setPosition(Units.degreesToRadians(134)))));
 
-                // coDriverXbox.rightTrigger().whileTrue(climber.jogClimberCommand(() ->
-                // coDriverXbox.getLeftX()))
-                // .onFalse(Commands.runOnce(() -> climber.stop()));
+        }
 
-                // coDriverXbox.start().onTrue(Commands.runOnce(() -> elevator)); // lock
+        public void configureCoCoDriverBindings() {
+                coCoDriverXbox.rightBumper().onTrue(cf.homeElevatorAndArm().withName("Home Elevator Arm"));
 
-                coDriverXbox.povUp().onTrue(Commands.none()); // setup for climb
+                coCoDriverXbox.povUp().onTrue(arm.setGoalDegreesCommand(ArmSetpoints.kCoralStation));
 
-                // coDriverXbox.start().onTrue(Commands.parallel(elevator.clearStickyFaultsCommand(),
-                // arm.clearStickyFaultsCommand(), gamepieces.clearStickyFaultsCommand()));
-                // coDriverXbox.start().onTrue(preIn.setGoalDegreesCommand(10));
+                coCoDriverXbox.povDown().onTrue(arm.setGoalDegreesCommand(ArmSetpoints.kLevel2));
+
+                coCoDriverXbox.povLeft().onTrue(arm.setGoalDegreesCommand(ArmSetpoints.kLevel4_1));
+
+                coDriverXbox.povRight().onTrue(arm.setGoalDegreesCommand(ArmSetpoints.kLevel4_2));
+
+                coCoDriverXbox.a().onTrue(elevator.setGoalInchesCommand(ElevatorSetpoints.kHome));
+
+                coCoDriverXbox.b().onTrue(elevator.setGoalInchesCommand(ElevatorSetpoints.kLevel2));
+
+                coCoDriverXbox.x().onTrue(elevator.setGoalInchesCommand(ElevatorSetpoints.kLevel2));
+
+                coCoDriverXbox.y().onTrue(elevator.setGoalInchesCommand(ElevatorSetpoints.kLevel4));
 
         }
 
@@ -643,10 +638,12 @@ public class RobotContainer implements Logged {
                                 .onFalse(ls.getCoralDeliverLEDsCommand());
 
                 lastCallForPark.onTrue(CommandFactory.rumbleDriver(RumbleType.kLeftRumble, 1, 1.5, 0))
-                .onTrue(Commands.runOnce(() -> drivebase.reefZoneLast = drivebase.reefZone));
+                                .onTrue(Commands.runOnce(() -> drivebase.reefZoneLast = drivebase.reefZone));
+
+                elevatorTipCoralL1.onTrue(elevator.setGoalInchesCommand(ElevatorSetpoints.kLevel2));
 
                 driverXbox.povLeft().onTrue(CommandFactory.rumbleDriver(RumbleType.kBothRumble, 1, 2, 0))
-                .onTrue(Commands.runOnce(() -> drivebase.reefZoneLast = drivebase.reefZone));
+                                .onTrue(Commands.runOnce(() -> drivebase.reefZoneLast = drivebase.reefZone));
         }
 
         /**

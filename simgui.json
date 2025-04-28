@@ -64,8 +64,7 @@
         "Arm": {
           "Values": {
             "open": true
-          },
-          "open": true
+          }
         },
         "Elevator": {
           "open": true

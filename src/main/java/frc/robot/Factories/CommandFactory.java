@@ -154,7 +154,6 @@ public class CommandFactory {
                 public static final int kBarge = 65;
                 public static final int kLevelAlgaeL2 = 30;
                 public static final int kLevelAlgaeL3 = 47;
-
         }
 
         public static final class ArmSetpoints {
@@ -208,14 +207,13 @@ public class CommandFactory {
         public Command safePositionArmElevatorL4(double degrees_first, double degrees_second, double inches) {
                 return Commands.sequence(
                                 Commands.runOnce(() -> m_arm.setGoalDegrees(degrees_first)),
-                                // Commands.waitUntil(() -> m_elevator.armClear),
                                 Commands.waitUntil(() -> Units.radiansToDegrees(m_arm.armMotor.getEncoder()
                                                 .getPosition()) < m_arm.armClearAngleDeg),
                                 m_elevator.setGoalInchesCommand(inches),
                                 new WaitCommand(0.2),
                                 Commands.waitUntil(() -> m_elevator.atPosition(3)),
                                 Commands.runOnce(() -> m_arm.setGoalDegrees(degrees_second)),
-                                Commands.waitUntil(() -> m_arm.inPosition(Degrees.of(5))));
+                                Commands.waitUntil(() -> m_arm.inPosition(Degrees.of(3))));
         }
 
         public Command homeElevatorAndArm() {

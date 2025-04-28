@@ -21,6 +21,8 @@ public class IntakeCoralToSwitch extends Command {
   private Timer noCoralTimer;
   private double stuckTimelimit = 1;
   private double coralIntakeSpeed = .55;
+  private double gamepieceMptorIntakeSpeed = .45;
+
   private double coralUnstickSpeed = .05;
   private double coralReverseSpeedLimit = .02;
 
@@ -41,7 +43,7 @@ public class IntakeCoralToSwitch extends Command {
     coralStuckTimer.reset();
     coralStuckTimer.start();
     m_gamepiece.enableLimitSwitch();
-    m_gamepiece.gamepieceMotor.set(.45); // 0.25
+    m_gamepiece.gamepieceMotor.set(gamepieceMptorIntakeSpeed); // 0.25
     m_gamepiece.coralIntakeMotor.set(coralIntakeSpeed);
   }
 

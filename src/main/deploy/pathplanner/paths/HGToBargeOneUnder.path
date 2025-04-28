@@ -3,47 +3,33 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 10.5105,
-        "y": 5.516749999999999
+        "x": 5.886,
+        "y": 4.0
       },
       "prevControl": null,
       "nextControl": {
-        "x": 9.575459016393443,
-        "y": 6.3079385245901625
+        "x": 6.97125,
+        "y": 4.7855
       },
       "isLocked": false,
-      "linkedName": "BargePoseOne"
+      "linkedName": "ReefGHCenterPose"
     },
     {
       "anchor": {
-        "x": 5.262602459016393,
-        "y": 5.277715163934426
+        "x": 10.5105,
+        "y": 5.516749999999999
       },
       "prevControl": {
-        "x": 5.754098360655737,
-        "y": 5.961014344262295
+        "x": 9.652500000000002,
+        "y": 5.428999999999999
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "IJCenterPose"
+      "linkedName": "BargePoseOne"
     }
   ],
   "rotationTargets": [],
-  "constraintZones": [
-    {
-      "name": "Constraints Zone",
-      "minWaypointRelativePos": 0.6845323741007201,
-      "maxWaypointRelativePos": 1.0,
-      "constraints": {
-        "maxVelocity": 1.0,
-        "maxAcceleration": 3.0,
-        "maxAngularVelocity": 540.0,
-        "maxAngularAcceleration": 720.0,
-        "nominalVoltage": 12.0,
-        "unlimited": false
-      }
-    }
-  ],
+  "constraintZones": [],
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
@@ -56,7 +42,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -122.73522627210743
+    "rotation": 180.0
   },
   "reversed": false,
   "folder": "CenterAuto",
