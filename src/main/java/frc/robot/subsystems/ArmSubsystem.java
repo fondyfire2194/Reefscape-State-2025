@@ -1,5 +1,8 @@
 package frc.robot.subsystems;
 
+import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Radians;
+
 import com.revrobotics.spark.ClosedLoopSlot;
 import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkBase.PersistMode;
@@ -7,8 +10,6 @@ import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkClosedLoopController.ArbFFUnits;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
-import static edu.wpi.first.units.Units.*;
-
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
@@ -19,14 +20,11 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.Alert;
-import edu.wpi.first.wpilibj.RobotBase;
+import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Alert.AlertType;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-
 import frc.robot.Constants.CANIDConstants;
 import frc.robot.Factories.CommandFactory.ArmSetpoints;
 import frc.robot.utils.SD;
@@ -61,7 +59,7 @@ public class ArmSubsystem extends SubsystemBase implements Logged {
     public double gearReduction = 20.;
     public double beltPulleyRatio = 1.5;
     public double armLength = Units.inchesToMeters(20);
-    public double armMass = Units.lbsToKilograms(4.3);
+    public double armMass = Units.lbsToKilograms(8.3);
     double radperencderrev = (2 * Math.PI) / (beltPulleyRatio * gearReduction);
 
     double posConvFactor = radperencderrev;
@@ -168,6 +166,8 @@ public class ArmSubsystem extends SubsystemBase implements Logged {
 
         setGoalRadians(armStartupOffset.in(Radians));
 
+        currentSetpoint.position = getAngleRadians();
+
     }
 
     public boolean getActiveFault() {
@@ -204,7 +204,7 @@ public class ArmSubsystem extends SubsystemBase implements Logged {
 
         atUpperLimit = getAngle().gte(maxAngle);
         atLowerLimit = getAngle().lte(minAngle);
-     
+
     }
 
     @Override
@@ -230,12 +230,16 @@ public class ArmSubsystem extends SubsystemBase implements Logged {
         // Send setpoint to spark max controller
         nextSetpoint = m_profile.calculate(.02, currentSetpoint, m_goal);
 
-        SD.sd2("Arm/setpos",
+        SD.sd2("Arm/Trap/setpos",
                 Units.radiansToDegrees(nextSetpoint.position));
-        SD.sd2("Arm/setvel",
+        SD.sd2("Arm/Trap/setvel",
                 Units.radiansToDegrees(nextSetpoint.velocity));
+        SD.sd2("Arm/Trap/actpos",
+                Units.radiansToDegrees(getAngleRadians()));
+        SD.sd2("Arm/Trap/actvel",
+                getDegreesPerSec());
 
-        armff = armfeedforward.calculate(getAngle().in(Radians), nextSetpoint.velocity);
+        armff = armfeedforward.calculate(getAngleRadians(), nextSetpoint.velocity);
 
         double accel = (nextSetpoint.velocity - currentSetpoint.velocity) * 50;
 
@@ -245,13 +249,17 @@ public class ArmSubsystem extends SubsystemBase implements Logged {
 
         currentSetpoint = nextSetpoint;
 
-        SD.sd2("Arm/ff", armff);
-        SD.sd2("Arm/poserror", m_goal.position -
+        SD.sd2("Arm/Trap/ff", armff);
+
+        SD.sd2("Arm/Trap/poserror", m_goal.position -
                 armMotor.getEncoder().getPosition());
 
-        armClosedLoopController.setReference(
-                nextSetpoint.position, ControlType.kPosition, ClosedLoopSlot.kSlot0, armff,
-                ArbFFUnits.kVoltage);
+
+        armMotor.setVoltage(armff);
+
+        // armClosedLoopController.setReference(
+        // nextSetpoint.position, ControlType.kPosition, ClosedLoopSlot.kSlot0, armff,
+        // ArbFFUnits.kVoltage);
 
     }
 
@@ -263,7 +271,7 @@ public class ArmSubsystem extends SubsystemBase implements Logged {
         m_goal.position = targetRads;
         currentSetpoint.position = getAngle().in(Radians);
         targetRadians = targetRads;
-        SD.sd2("Arm/targetdeg", Units.radiansToDegrees(targetRads));
+        SD.sd2("Arm/Trap/targetdeg", Units.radiansToDegrees(targetRads));
         // inPositionCtr = 0;
     }
 

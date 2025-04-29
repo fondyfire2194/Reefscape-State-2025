@@ -49,7 +49,7 @@ public class PositionHoldArmPID extends Command {
         double temp = arm.getAngleRadians();
         arm.setGoalRadians(temp);
         if (arm.showTelemetry) {
-            SmartDashboard.putData(" Arm/PID/controller", pidController);
+            SmartDashboard.putData(" Arm/Trap/controller", pidController);
         }
     }
 
@@ -64,9 +64,9 @@ public class PositionHoldArmPID extends Command {
 
         double nextVel = arm.nextSetpoint.velocity;
 
-        double ksvmps = (arm.armKs) * Math.signum(nextVel) / arm.armKv;
+        double ksvrps = (arm.armKs) * Math.signum(nextVel) / arm.armKv;
 
-        double kgmps = arm.armKg / arm.armKv;
+        double kgrps = arm.armKg / arm.armKv;
 
         double accel = (arm.currentSetpoint.velocity - arm.nextSetpoint.velocity) * 50;
 
@@ -74,30 +74,29 @@ public class PositionHoldArmPID extends Command {
 
         double velff = arm.nextSetpoint.velocity * ffgain;
 
-        double radpersectotal = radpersec + velff + kgmps + ksvmps + accelmps;
+        double radpersectotal = radpersec + velff + kgrps + ksvrps + accelmps;
 
         double radpersecclamped = MathUtil.clamp(radpersectotal, -maxminusrate, maxplusrate);
 
         arm.runAtVelocity(radpersecclamped);
 
         arm.currentSetpoint = arm.nextSetpoint;
-
+        
+        if (arm.showTelemetry) {
             if (toggle) {
-                SmartDashboard.putNumber("Arm/PID/goalpos", Units.radiansToDegrees(arm.m_goal.position));
-                SmartDashboard.putNumber("Arm/PID/currsetpos", Units.radiansToDegrees(arm.currentSetpoint.position));
-                SmartDashboard.putNumber("Arm/PID/currsetvel", Units.radiansToDegrees(arm.currentSetpoint.velocity));
-                SmartDashboard.putNumber("Arm/PID/setpos", Units.radiansToDegrees(arm.nextSetpoint.position));
+                SmartDashboard.putNumber("Arm/Trap/goalpos", Units.radiansToDegrees(arm.m_goal.position));
+                SmartDashboard.putNumber("Arm/Trap/currsetpos", Units.radiansToDegrees(arm.currentSetpoint.position));
+                SmartDashboard.putNumber("Arm/Trap/currsetvel", Units.radiansToDegrees(arm.currentSetpoint.velocity));
+                SmartDashboard.putNumber("Arm/Trap/setpos", Units.radiansToDegrees(arm.nextSetpoint.position));
             } else {
-                SmartDashboard.putNumber("Arm/PID/setvel", Units.radiansToDegrees(arm.nextSetpoint.velocity));
-                SmartDashboard.putNumber("Arm/PID/degpersec", Units.radiansToDegrees(radpersec));
-                SmartDashboard.putNumber("Arm/PID/poserror", Units.radiansToDegrees(pidController.getError()));
-                SmartDashboard.putBoolean("Arm/PID/poserror", pidController.atSetpoint());
+                SmartDashboard.putNumber("Arm/Trap/setvel", Units.radiansToDegrees(arm.nextSetpoint.velocity));
+                SmartDashboard.putNumber("Arm/Trap/degpersec", Units.radiansToDegrees(radpersec));
+                SmartDashboard.putNumber("Arm/Trap/poserror", Units.radiansToDegrees(pidController.getError()));
+                SmartDashboard.putBoolean("Arm/Trap/atsetpoint", pidController.atSetpoint());
+                SmartDashboard.putNumber("Arm/Trap/dpsclamped", Units.radiansToDegrees(radpersecclamped));
             }
-       
-            SmartDashboard.putNumber("Arm/PID/dpsclamped", Units.radiansToDegrees(radpersecclamped));
-
         }
-
+    }
 
     @Override
     public void end(boolean interrupted) {

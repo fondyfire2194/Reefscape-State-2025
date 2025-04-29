@@ -76,7 +76,7 @@ public class ElevatorArmSim extends SubsystemBase implements AutoCloseable {
 
     m_armSim = new SingleJointedArmSim(
         m_armGearbox,
-        m_arm.gearReduction,
+        m_arm.gearReduction*m_arm.beltPulleyRatio,
         SingleJointedArmSim.estimateMOI(m_arm.armLength, m_arm.armMass),
         m_arm.armLength,
         m_arm.minAngle.in(Radians),
@@ -129,7 +129,8 @@ public class ElevatorArmSim extends SubsystemBase implements AutoCloseable {
       SmartDashboard.putNumber("ArmSim/EncoderAngle", m_arm.getMotorDegrees());
 
       SmartDashboard.putNumber("ArmSim/SimEncoder", m_armMotorSim.getPosition());
-      SmartDashboard.putNumber("ArmSim/APPO", m_armMotorSim.getAppliedOutput());
+      SmartDashboard.putNumber("ArmSim/APPO", m_armMotorSim.getAppliedOutput() * 12);
+      SmartDashboard.putNumber("ArmSim/SimVel", m_armMotorSim.getVelocity());
 
       SmartDashboard.putBoolean("ArmSim/SimUpperLim", m_armSim.hasHitUpperLimit());
       SmartDashboard.putBoolean("ArmSim/SimLowerLim", m_armSim.hasHitLowerLimit());
