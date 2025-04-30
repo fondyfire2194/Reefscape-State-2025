@@ -68,8 +68,8 @@ public class GamepieceSubsystem extends SubsystemBase implements Logged {
 
   public int inOutCoralAmps = 40;
   private double coralDeliverSpeed = .7;
-  private double coralL1DeliverSpeed = .25;
-  public boolean level1CoralDeliver = false;
+  private double coralFastDeliverSpeed = .8;
+  public double coralL1DeliverSpeed = .5;
 
   /** Creates a new gamepiece. */
   public GamepieceSubsystem() {
@@ -158,21 +158,23 @@ public class GamepieceSubsystem extends SubsystemBase implements Logged {
   public Command deliverCoralCommand() {
     return Commands.sequence(
         Commands.runOnce(() -> disableLimitSwitch()),
-        Commands.either(
-            Commands.runOnce(() -> gamepieceMotor.set(coralL1DeliverSpeed)),
-            Commands.runOnce(() -> gamepieceMotor.set(coralDeliverSpeed)),
-            () -> level1CoralDeliver),
-
+        Commands.runOnce(() -> gamepieceMotor.set(coralDeliverSpeed)),
         Commands.waitUntil(() -> !coralAtIntake()),
         new WaitCommand(0.1),
-        Commands.runOnce(() -> level1CoralDeliver = false),
         stopGamepieceMotorsCommand());
   }
 
   public Command deliverCoralFasterCommand() {
     return Commands.sequence(
         Commands.runOnce(() -> disableLimitSwitch()),
-        Commands.runOnce(() -> gamepieceMotor.set(0.8)),
+        Commands.runOnce(() -> gamepieceMotor.set(coralFastDeliverSpeed)),
+        Commands.waitUntil(() -> !coralAtIntake()));       
+  }
+
+  public Command deliverCoralL1Command() {
+    return Commands.sequence(
+        Commands.runOnce(() -> disableLimitSwitch()),
+        Commands.runOnce(() -> gamepieceMotor.set(coralL1DeliverSpeed)),
         Commands.waitUntil(() -> !coralAtIntake()),
         new WaitCommand(0.1),
         stopGamepieceMotorsCommand());

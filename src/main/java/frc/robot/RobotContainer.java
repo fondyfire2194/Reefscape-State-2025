@@ -122,10 +122,6 @@ public class RobotContainer implements Logged {
 
         Trigger lastCallForPark = new Trigger((() -> Timer.getMatchTime() < 5));
 
-        Trigger elevatorTipCoralL1 = new Trigger(() -> gamepieces.level1CoralDeliver &&
-                        !gamepieces.coralAtIntake() &&
-                        Math.abs(gamepieces.gamepieceMotor.get()) > .2);
-
         EventTrigger eventTriggerL4 = new EventTrigger("ElevatorL4Event");
         EventTrigger eventTriggerL2 = new EventTrigger("ElevatorL2Event");
         // Applies deadbands and inverts controls because joysticks
@@ -416,9 +412,10 @@ public class RobotContainer implements Logged {
 
         @Log
         public Setpoint setpointPosition = Setpoint.kLevel4;
-        private Transform2d l4approachTransform2d = new Transform2d(
+
+        private final Transform2d l4approachTransform2d = new Transform2d(
                         Units.inchesToMeters(34), 0, new Rotation2d());
-        private Transform2d lowerApproachTransform2d = new Transform2d(
+        private final Transform2d lowerApproachTransform2d = new Transform2d(
                         Units.inchesToMeters(20), 0, new Rotation2d());
 
         public Command getDriveToReefCommand(Side side) {
@@ -442,9 +439,12 @@ public class RobotContainer implements Logged {
                                                                 cf.setSetpointCommand(setpointPosition)),
 
                                                 Commands.waitUntil(() -> elevator.atPosition(3)
-                                                                && arm.inPosition(Degrees.of(3))),
+                                                                && arm.inPosition(Degrees.of(2))),
 
-                                                gamepieces.deliverCoralFasterCommand()),
+                                                new ConditionalCommand(
+                                                                gamepieces.deliverCoralFasterCommand(),
+                                                                cf.deliverCoralL1RaiseElevatorCommand(),
+                                                                () -> setpointPosition != Setpoint.kLevel1)),
                                 Set.of(drivebase));
         }
 
@@ -456,10 +456,7 @@ public class RobotContainer implements Logged {
 
                 coDriverXbox = new CommandXboxController(1);
 
-                coDriverXbox.a().onTrue(
-                                Commands.parallel(
-                                                setSetpointPositionCommand(Setpoint.kLevel1),
-                                                Commands.runOnce(() -> gamepieces.level1CoralDeliver = true)));
+                coDriverXbox.a().onTrue(setSetpointPositionCommand(Setpoint.kLevel1).withName("Set L1"));
 
                 coDriverXbox.b().onTrue(setSetpointPositionCommand(Setpoint.kLevel2).withName("Set L2"));
 
@@ -639,8 +636,6 @@ public class RobotContainer implements Logged {
 
                 lastCallForPark.onTrue(CommandFactory.rumbleDriver(RumbleType.kLeftRumble, 1, 1.5, 0))
                                 .onTrue(Commands.runOnce(() -> drivebase.reefZoneLast = drivebase.reefZone));
-
-                elevatorTipCoralL1.onTrue(elevator.setGoalInchesCommand(ElevatorSetpoints.kLevel2));
 
                 driverXbox.povLeft().onTrue(CommandFactory.rumbleDriver(RumbleType.kBothRumble, 1, 2, 0))
                                 .onTrue(Commands.runOnce(() -> drivebase.reefZoneLast = drivebase.reefZone));

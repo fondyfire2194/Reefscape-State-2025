@@ -296,7 +296,6 @@ public class CommandFactory {
                                 break;
                 }
                 return temp;
-
         }
 
         public Command deliverCoralL4() {
@@ -307,6 +306,11 @@ public class CommandFactory {
 
         }
 
-        // .andThen(Commands.runOnce(() ->
-        // m_ls.setViewThreeSolidColor(setpoint.ordinal())));
+        public Command deliverCoralL1RaiseElevatorCommand() {
+         return Commands.sequence(
+                m_gamepieces.deliverCoralL1Command(),
+                m_elevator.setGoalInchesCommand(ElevatorSetpoints.kLevel2),
+                m_gamepieces.stopGamepieceMotorsCommand());
+        }
+
 }

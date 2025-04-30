@@ -797,14 +797,15 @@ public class SwerveSubsystem extends SubsystemBase implements Logged {
    *
    * @return The heading as a {@link Rotation2d} angle
    */
+  @Log(key = "pitch")
   public Rotation2d getPitch() {
     return swerveDrive.getPitch();
   }
-
+  @Log(key = "yaw")
   public Rotation2d getYaw() {
     return swerveDrive.getYaw();
   }
-
+  @Log(key = "roll") 
   public Rotation2d getRoll() {
     return swerveDrive.getRoll();
   }
