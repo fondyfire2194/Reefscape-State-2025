@@ -24,6 +24,7 @@ import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
@@ -78,7 +79,7 @@ public class ElevatorSubsystem extends SubsystemBase implements Logged {
 
   // Got these values from sysID
   public final double elevatorKs = 0.27788;// .3; //0.36
-  public final double elevatorKg = .75; // 0.56
+  public final double elevatorKg = 0.5;// .5; //0.56
   public final double elevatorKv = 2.2404;// 12 / maxVelocityMPS;
   public final double elevatorKa = 0.41589;// 0.3;
 
@@ -109,7 +110,7 @@ public class ElevatorSubsystem extends SubsystemBase implements Logged {
    */
 
   double TRAJECTORY_VEL = 3;
-  double TRAJECTORY_ACCEL = 5;
+  double TRAJECTORY_ACCEL = 4;
 
   public final TrapezoidProfile m_profile = new TrapezoidProfile(new TrapezoidProfile.Constraints(
       TRAJECTORY_VEL, TRAJECTORY_ACCEL));
@@ -248,6 +249,26 @@ public class ElevatorSubsystem extends SubsystemBase implements Logged {
     SmartDashboard.putNumber("Elevator/Values/reverseSoftLimit", getReverseSoftLimit());
     SmartDashboard.putNumber("Elevator/Values/forwardSoftLimit", getForwardSoftLimit());
     SmartDashboard.putNumber("Elevator/Values/maxvelmps", maxVelocityMPS);
+  }
+
+  public void position() {
+    SmartDashboard.putNumber("Elevator/posrng", posrng);
+    posrng++;
+
+    // Send setpoint to spark max controller
+    nextSetpoint = m_profile.calculate(.02, currentSetpoint, m_goal);
+
+    leftff = eff.calculateWithVelocities(currentSetpoint.velocity, nextSetpoint.velocity);
+    double leftffclamped = MathUtil.clamp(leftff, -1, 12);
+    SmartDashboard.putNumber("Elevator/ff", leftff);
+
+    currentSetpoint = nextSetpoint;
+
+    SmartDashboard.putNumber("Elevator/setpos", currentSetpoint.position);
+    SmartDashboard.putNumber("Elevator/setvel", currentSetpoint.velocity);
+
+    leftClosedLoopController.setReference(
+        nextSetpoint.position, ControlType.kPosition, ClosedLoopSlot.kSlot0, leftff, ArbFFUnits.kVoltage);
   }
 
   public void runAtVelocity(double metersPerSecond) {

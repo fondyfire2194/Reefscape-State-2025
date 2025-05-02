@@ -16,7 +16,7 @@ import frc.robot.Constants.FieldConstants.Side;
 import frc.robot.Constants.RobotConstants;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 
-public class PIDDriveToReefZone extends Command {
+public class PIDDriveToReefZoneL1 extends Command {
   private final SwerveSubsystem swerve;
   private Pose2d target;
 
@@ -25,11 +25,11 @@ public class PIDDriveToReefZone extends Command {
   private final PIDController thetaController = new PIDController(3, 0, 0);
 
   /** Creates a new PIDDriveToPose. */
-  public PIDDriveToReefZone(SwerveSubsystem swerve, Pose2d target) {
+  public PIDDriveToReefZoneL1(SwerveSubsystem swerve, Pose2d target) {
     this.swerve = swerve;
     this.target = target;
 
-    xController.setTolerance(0.02); ///0.0125
+    xController.setTolerance(0.02); /// 0.0125
     yController.setTolerance(0.02);
     xController.setIZone(0.05);
     xController.setIntegratorRange(-0.07, 0.07);
@@ -41,14 +41,13 @@ public class PIDDriveToReefZone extends Command {
     xController.setP(3);
     yController.setP(3);
 
-
-
     thetaController.setTolerance(Rotation2d.fromDegrees(0.5).getRadians());
     thetaController.enableContinuousInput(-Math.PI, Math.PI);
     addRequirements(swerve);
   }
 
-  public PIDDriveToReefZone(SwerveSubsystem swerve, Pose2d target, double toleranceTranslation, double toleranceAngle) {
+  public PIDDriveToReefZoneL1(SwerveSubsystem swerve, Pose2d target, double toleranceTranslation,
+      double toleranceAngle) {
     this.swerve = swerve;
     this.target = target;
 
@@ -56,7 +55,7 @@ public class PIDDriveToReefZone extends Command {
     yController.setTolerance(toleranceTranslation);
     xController.setI(0);
     yController.setI(0);
-    xController.setP(3.8); //0.3.4
+    xController.setP(3.8); // 0.3.4
     yController.setP(3.8);
 
     // xController.setIZone(0.2);
@@ -68,7 +67,6 @@ public class PIDDriveToReefZone extends Command {
     thetaController.enableContinuousInput(-Math.PI, Math.PI);
     addRequirements(swerve);
   }
-   
 
   // Called when the command is initially scheduled.
   @Override
@@ -77,17 +75,17 @@ public class PIDDriveToReefZone extends Command {
     Translation2d tl2d = new Translation2d();
     Side m_side = swerve.side;
 
-    double baseOffsetX = RobotConstants.placementOffsetX + RobotConstants.ROBOT_LENGTH / 2;
-    double baseOffsetY = RobotConstants.placementOffsetY;
+    double baseOffsetX = RobotConstants.placementOffsetXL1 + RobotConstants.ROBOT_LENGTH / 2;
+    double baseOffsetY = RobotConstants.placementOffsetYL1;
     if (m_side == Side.CENTER)
       baseOffsetX += Units.inchesToMeters(7);
-      tl2d = new Translation2d(baseOffsetX, baseOffsetY);
+    tl2d = new Translation2d(baseOffsetX, baseOffsetY);
     if (m_side == Side.RIGHT)
       tl2d = new Translation2d(baseOffsetX, FieldConstants.reefOffset + baseOffsetY);
     if (m_side == Side.LEFT)
       tl2d = new Translation2d(baseOffsetX, -FieldConstants.reefOffset + baseOffsetY);
 
-    Transform2d tr2d = new Transform2d(tl2d, new Rotation2d(Units.degreesToRadians(180)));
+    Transform2d tr2d = new Transform2d(tl2d, new Rotation2d(Units.degreesToRadians(0)));
 
     target = target.transformBy(tr2d);
     swerve.reefFinalTargetPose = target;

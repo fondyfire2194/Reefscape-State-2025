@@ -76,7 +76,7 @@ public class ElevatorArmSim extends SubsystemBase implements AutoCloseable {
 
     m_armSim = new SingleJointedArmSim(
         m_armGearbox,
-        m_arm.gearReduction*m_arm.beltPulleyRatio,
+        m_arm.gearReduction * m_arm.beltPulleyRatio,
         SingleJointedArmSim.estimateMOI(m_arm.armLength, m_arm.armMass),
         m_arm.armLength,
         m_arm.minAngle.in(Radians),

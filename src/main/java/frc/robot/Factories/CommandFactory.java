@@ -305,12 +305,4 @@ public class CommandFactory {
                                 homeElevatorAndArm());
 
         }
-
-        public Command deliverCoralL1RaiseElevatorCommand() {
-         return Commands.sequence(
-                m_gamepieces.deliverCoralL1Command(),
-                m_elevator.setGoalInchesCommand(ElevatorSetpoints.kLevel2),
-                m_gamepieces.stopGamepieceMotorsCommand());
-        }
-
 }

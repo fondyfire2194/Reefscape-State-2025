@@ -12,7 +12,9 @@
       "/SmartDashboard/ Arm/PID/controller": "PIDController",
       "/SmartDashboard/ Arm/Trap/controller": "PIDController",
       "/SmartDashboard/ Elevator/PID/controller": "PIDController",
+      "/SmartDashboard/ GIS Arm Sim": "Mechanism2d",
       "/SmartDashboard/Alerts": "Alerts",
+      "/SmartDashboard/Arm Sim": "Mechanism2d",
       "/SmartDashboard/Elevator Sim": "Mechanism2d",
       "/SmartDashboard/Encoders": "Alerts",
       "/SmartDashboard/Field": "Field2d",
@@ -24,6 +26,11 @@
       "/SmartDashboard/Swerve Drive": "Alerts"
     },
     "windows": {
+      "/SmartDashboard/ GIS Arm Sim": {
+        "window": {
+          "visible": true
+        }
+      },
       "/SmartDashboard/Elevator Sim": {
         "window": {
           "visible": true
@@ -67,7 +74,7 @@
             "open": true
           }
         },
-        "Elevator": {
+        "GISArmSim": {
           "open": true
         },
         "open": true

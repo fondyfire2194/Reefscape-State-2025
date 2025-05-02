@@ -77,10 +77,10 @@ public class ArmSubsystem extends SubsystemBase implements Logged {
      * ( (value that goes up) + (value that goes down) )/2 = kg
      */
 
-    public final double armKg = 0.2;
+    public final double armKg = .32;// 0.2;
     public final double armKs = 0.18;
     public final double armKv = 12 / maxradpersec;
-    public final double armKa = 0.025;
+    public final double armKa =0;// 0.025;
 
     public double armKp = 0.03;
 
@@ -370,6 +370,10 @@ public class ArmSubsystem extends SubsystemBase implements Logged {
 
     public boolean checkArmClear() {
         return armMotor.getEncoder().getPosition() > ArmSetpoints.kokElevatorMove;
+    }
+@Log
+    public double getVolts(){
+        return armMotor.getAppliedOutput()*RobotController.getBatteryVoltage();
     }
 
 }

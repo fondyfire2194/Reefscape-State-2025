@@ -60,10 +60,12 @@ public final class Constants {
     public static final int armMotorID = 22;
     public static final int gamepieceID = 23;
     public static final int coralIntakeID = 24;
-    public static final int climberID = 25;
     public static final int preIntakeMotorID = 26;
     public static final int algaeRightID = 27;
     public static final int algaeLeftID = 28;
+
+    public static final int groundIntakeArmMotorID = 29;
+    public static final int groundIntakeRollerMotorID = 30;
 
   }
 
@@ -126,6 +128,8 @@ public final class Constants {
 
     public static final double pickupOffset = Units.inchesToMeters(8);
     public static double algaeOffset = Units.inchesToMeters(6);
+    public static final double placementOffsetXL1 = Units.inchesToMeters(0);
+    public static final double placementOffsetYL1 = Units.inchesToMeters(0.5);
 
   }
 

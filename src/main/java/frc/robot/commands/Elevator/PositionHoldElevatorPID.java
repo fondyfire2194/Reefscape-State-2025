@@ -10,7 +10,6 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.ElevatorSubsystem;
-import frc.robot.utils.SD;
 
 public class PositionHoldElevatorPID extends Command {
     private final ElevatorSubsystem elevator;
@@ -23,12 +22,12 @@ public class PositionHoldElevatorPID extends Command {
     private double minIntegral = -.1;
     private double maxIntegral = .1;
     private double tolerance = Units.inchesToMeters(1);
-    private double maxplusrate = 3;
-    private double maxminusrate = 1;
+    private double maxuprate = 5;
+    private double maxdownrate = 2;
 
     private boolean toggle;
 
-    private double ffgain = .3;
+    private double ffGain = .2;
 
     public PositionHoldElevatorPID(ElevatorSubsystem elevator) {
         this.elevator = elevator;
@@ -52,46 +51,44 @@ public class PositionHoldElevatorPID extends Command {
     @Override
     public void execute() {
 
-        toggle = !toggle;// split display for time purposes
+        toggle = !toggle;
 
         elevator.nextSetpoint = elevator.m_profile.calculate(.02, elevator.currentSetpoint, elevator.m_goal);
 
-        double radpersec = pidController.calculate(elevator.getLeftPositionMeters(), elevator.nextSetpoint.position);
+        double mps = pidController.calculate(elevator.getLeftPositionMeters(), elevator.nextSetpoint.position);
 
-        double nextVel = elevator.nextSetpoint.velocity;
-
-        double ksvmps = (elevator.elevatorKs) * Math.signum(nextVel) / elevator.elevatorKv;
+        mps += elevator.nextSetpoint.velocity * ffGain;
 
         double kgmps = elevator.elevatorKg / elevator.elevatorKv;
 
-        double accel = (elevator.currentSetpoint.velocity - elevator.nextSetpoint.velocity) * 50;
+        mps += kgmps;
 
-        double accelmps = (accel * elevator.elevatorKa) / elevator.elevatorKv;
-
-        double velff = elevator.nextSetpoint.velocity * ffgain;
-
-        double mpstotal = radpersec + velff + kgmps + ksvmps + accelmps;
-
-        double mpsclamped = MathUtil.clamp(mpstotal, -maxminusrate, maxplusrate);
-
-        elevator.runAtVelocity(mpsclamped);
-
-        elevator.currentSetpoint = elevator.nextSetpoint;
-        
         if (elevator.showTelemetry) {
+
             if (toggle) {
-                SmartDashboard.putNumber("Elevator/Trap/goalpos", Units.metersToInches(elevator.m_goal.position));
-                SmartDashboard.putNumber("Elevator/Trap/currsetpos", Units.metersToInches(elevator.currentSetpoint.position));
-                SmartDashboard.putNumber("Elevator/Trap/currsetvel", Units.metersToInches(elevator.currentSetpoint.velocity));
-                SmartDashboard.putNumber("Elevator/Trap/setpos", Units.metersToInches(elevator.nextSetpoint.position));
+                SmartDashboard.putNumber("Elevator/PID/goalpos", elevator.m_goal.position);
+                SmartDashboard.putNumber("Elevator/PID/currsetpos", elevator.currentSetpoint.position);
+                SmartDashboard.putNumber("Elevator/PID/currsetvel", elevator.currentSetpoint.velocity);
+                SmartDashboard.putNumber("Elevator/PID/setpos", elevator.nextSetpoint.position);
+
             } else {
-                SmartDashboard.putNumber("Elevator/Trap/setvel", Units.metersToInches(elevator.nextSetpoint.velocity));
-                SmartDashboard.putNumber("Elevator/Trap/degpersec", Units.metersToInches(radpersec));
-                SmartDashboard.putNumber("Elevator/Trap/poserror", Units.metersToInches(pidController.getError()));
-                SmartDashboard.putBoolean("Elevator/Trap/atsetpoint", pidController.atSetpoint());
-                SmartDashboard.putNumber("Elevator/Trap/mpsclamped", Units.metersToInches(mpsclamped));
+                SmartDashboard.putNumber("Elevator/PID/position", elevator.getLeftPositionMeters());
+                SmartDashboard.putNumber("Elevator/PID/setvel", elevator.nextSetpoint.velocity);
+                SmartDashboard.putNumber("Elevator/PID/mps", mps);
+                SmartDashboard.putNumber("Elevator/PID/mpsRead", elevator.getLeftVelocityMetersPerSecond());
+                SmartDashboard.putNumber("Elevator/PID/poserror", pidController.getError());
+                SmartDashboard.putBoolean("Elevator/PID/atSetpoint", pidController.atSetpoint());
             }
         }
+        mps = MathUtil.clamp(mps, -maxdownrate, maxuprate);
+
+        if (elevator.showTelemetry)
+            SmartDashboard.putNumber("Elevator/PID/mpsclamped", mps);
+
+        elevator.runAtVelocity(mps);
+
+        elevator.currentSetpoint = elevator.nextSetpoint;
+
     }
 
     @Override

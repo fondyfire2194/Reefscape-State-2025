@@ -183,7 +183,7 @@ public class PreIntakeSubsystem extends SubsystemBase implements Logged {
 
     public Command jogMotorCommand(DoubleSupplier speed) {
         return Commands
-                .run(() -> preIntakeMotor.setVoltage(speed.getAsDouble() * RobotController.getBatteryVoltage()));
+                .run(() -> preIntakeMotor.setVoltage(speed.getAsDouble() * RobotController.getBatteryVoltage()), this);
     }
 
     public Command stopMotorCommand() {

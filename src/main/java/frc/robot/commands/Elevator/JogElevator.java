@@ -33,7 +33,7 @@ public class JogElevator extends Command {
     public void execute() {
         double stickValue = 0;
         if (RobotBase.isReal())
-            stickValue = -gamepad.getRightY() / 12;
+            stickValue = -gamepad.getRightY() / 6;
         else
             stickValue = -gamepad.getRawAxis(5);
         if (Math.abs(stickValue) < deadband)
