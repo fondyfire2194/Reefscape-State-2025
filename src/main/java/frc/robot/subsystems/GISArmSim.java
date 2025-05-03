@@ -37,8 +37,8 @@ public class GISArmSim extends SubsystemBase implements AutoCloseable {
 
   // Create a Mechanism2d display of an Arm with a fixed ArmTower and moving Arm.
   private final Mechanism2d m_mech2d = new Mechanism2d(60, 60);
-  private final MechanismRoot2d m_armPivot = m_mech2d.getRoot("ArmPivot", 30, 10);
-  double al = 5;
+  private final MechanismRoot2d m_armPivot = m_mech2d.getRoot("ArmPivot", 30, 30);
+  double al = 10;
 
   private final MechanismLigament2d m_armTower = m_armPivot.append(new MechanismLigament2d("ArmTower", al, -90));
 
@@ -66,7 +66,7 @@ public class GISArmSim extends SubsystemBase implements AutoCloseable {
         new MechanismLigament2d(
             "GISArm",
             30,
-            Units.radiansToDegrees(m_armSim.getAngleRads()),
+            0,
             1,
             new Color8Bit(Color.kRed)));
 
@@ -103,7 +103,7 @@ public class GISArmSim extends SubsystemBase implements AutoCloseable {
     // Next, we update it. The standard loop time is 20ms.
     m_armSim.update(0.020);
 
-    m_gisarm.setAngle(gisarmMotorSim.getPosition());
+    m_gisarm.setAngle(Units.radiansToDegrees(gisarmMotorSim.getPosition()));
 
    double vmps = gisarmMotorSim.getAppliedOutput();
     gisarmMotorSim.iterate(

@@ -148,7 +148,7 @@ public class CommandFactory {
                 public static final int kProcessorDeliver = 8;
                 public static final int kCoralStation = 0;
                 public static final int kLevel1 = 6;
-                public static final int kLevel2 = 15;
+                public static final int kLevel2 = 13;
                 public static final int kLevel3 = 30;
                 public static final double kLevel4 = 57.5;
                 public static final int kBarge = 65;

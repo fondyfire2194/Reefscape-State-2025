@@ -59,7 +59,7 @@ public class PositionHoldElevatorPID extends Command {
 
         mps += elevator.nextSetpoint.velocity * ffGain;
 
-        double kgmps = elevator.elevatorKg / elevator.elevatorKv;
+        double kgmps = 1.2 * elevator.elevatorKg / elevator.elevatorKv;
 
         mps += kgmps;
 

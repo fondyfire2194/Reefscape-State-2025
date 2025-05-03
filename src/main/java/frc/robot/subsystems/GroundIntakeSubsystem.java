@@ -58,15 +58,15 @@ public class GroundIntakeSubsystem extends SubsystemBase implements Logged {
     public boolean groundsetOnce;
 
     public double gearReduction = 125;// 100.;
-    double degperencderrev = (360) / gearReduction;
+    double radperencderrev = (Math.PI*2) / gearReduction;
 
-    double posConvFactor = degperencderrev;
+    double posConvFactor = radperencderrev;
 
     double velConvFactor = posConvFactor / 60;
 
     double maxmotorrps = 11000 / 60;// 5700 / 60;
 
-    double maxdegpersec = degperencderrev * maxmotorrps;//
+    double maxdegpersec = radperencderrev * maxmotorrps;//
 
     public double groundIntakeArmKp = 0.5;// 0.075;
 
@@ -93,13 +93,12 @@ public class GroundIntakeSubsystem extends SubsystemBase implements Logged {
      * 
      */
 
-    public final double minAngle = 90;
-    public final double maxAngle = 240;
-    public final double homeAngle = 100;
+    public final double minAngle = Units.degreesToRadians(90);
+    public final double maxAngle = Units.degreesToRadians(240);
+    public final double homeAngle = Units.degreesToRadians(100);
 
-    public final double pickupAngle = 230;
-    public final double deliverAngle = 170;
-
+    public final double pickupAngle = Units.degreesToRadians(230);
+    public final double deliverAngle = Units.degreesToRadians(170);
     public final double pickupSpeed = .8;
 
     public final double groundintakerollerKp = .00002; // P gains caused oscilliation
@@ -172,7 +171,7 @@ public class GroundIntakeSubsystem extends SubsystemBase implements Logged {
         m_goal.position = minAngle;
 
         SmartDashboard.putNumber("GIS/Values/maxdegpersec", maxdegpersec);
-        SmartDashboard.putNumber("GIS/Values/inperencrev",degperencderrev);
+        SmartDashboard.putNumber("GIS/Values/inperencrev",radperencderrev);
 
     }
 
@@ -218,7 +217,7 @@ public class GroundIntakeSubsystem extends SubsystemBase implements Logged {
 
     @Log.NT(key = "motor degrees")
     public double getMotorDegrees() {
-        return groundIntakeArmMotor.getEncoder().getPosition();
+        return Units.radiansToDegrees(groundIntakeArmMotor.getEncoder().getPosition());
     }
 
     public Command goHome() {
@@ -264,11 +263,11 @@ public class GroundIntakeSubsystem extends SubsystemBase implements Logged {
         allErrors.set(getActiveFault());
         allStickyFaults.set(getStickyFault());
 
-        atUpperLimit = getArmAngle() > maxAngle;
-        atLowerLimit = getArmAngle() < minAngle;
-        SmartDashboard.putNumber("PIM/pos", groundIntakeArmMotor.getEncoder().getPosition());
+        atUpperLimit = getArmAnglerads() > maxAngle;
+        atLowerLimit = getArmAnglerads() < minAngle;
+        SmartDashboard.putNumber("PIM/posdeg", Units.radiansToDegrees(groundIntakeArmMotor.getEncoder().getPosition()));
         // SmartDashboard.putBoolean("PIM/atpos", groundintakeAtStartPosition());
-        SmartDashboard.putNumber("PIM/vel", groundIntakeArmMotor.getEncoder().getVelocity());
+        SmartDashboard.putNumber("PIM/degpersec", Units.radiansToDegrees(groundIntakeArmMotor.getEncoder().getVelocity()));
         SmartDashboard.putNumber("PIM/volts",
                 groundIntakeArmMotor.getAppliedOutput() * RobotController.getBatteryVoltage());
         SmartDashboard.putNumber("PIM/amps", getArmAmps());
@@ -292,19 +291,12 @@ public class GroundIntakeSubsystem extends SubsystemBase implements Logged {
         return Commands.runOnce(() -> m_goal.position = targetDegrees);
     }
 
-    @Log.NT(key = "motor degrees")
-    public double getArmMotorDegrees() {
-        return groundIntakeArmMotor.getEncoder().getPosition();
-    }
+
 
    
 
-    public double getArmMotorEncoderDegsPerSec() {
-        return groundIntakeArmMotor.getEncoder().getVelocity();
-    }
-
-    @Log(key = "angle")
-    public double getArmAngle() {
+    @Log(key = "anglerads")
+    public double getArmAnglerads() {
         return groundIntakeArmMotor.getEncoder().getPosition();
 
     }
@@ -315,7 +307,7 @@ public class GroundIntakeSubsystem extends SubsystemBase implements Logged {
 
     @Log.NT(key = "groundintake degrees per sec")
     public double getArmDegreesPerSec() {
-        return groundIntakeArmMotor.getEncoder().getVelocity();
+        return Units.radiansToDegrees(groundIntakeArmMotor.getEncoder().getVelocity());
     }
 
     public boolean onArmPlusSoftwareLimit() {

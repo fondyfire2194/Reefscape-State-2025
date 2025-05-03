@@ -392,7 +392,7 @@ public class RobotContainer implements Logged {
                                                                 Commands.sequence(
                                                                                 getDriveToL1ReefCommand(Side.LEFT),
                                                                                 gis.deliverCoralCommand()),
-                                                                () -> gamepieces.coralAtIntake()));
+                                                                () -> !gamepieces.coralAtIntake()));
 
                 driverXbox.rightBumper().debounce(.1).and(driverXbox.leftBumper().negate())
                                 .whileTrue(
@@ -459,13 +459,17 @@ public class RobotContainer implements Logged {
         private final Transform2d lowerApproachTransform2d = new Transform2d(
                         Units.inchesToMeters(20), 0, new Rotation2d());
         private final Transform2d l1ApproachTransform2d = new Transform2d(
-                        Units.inchesToMeters(20), 0, new Rotation2d(Math.PI));
+                        Units.inchesToMeters(40), 0, new Rotation2d(0));
 
         public Command getDriveToL1ReefCommand(Side side) {
                 return Commands.defer(
                                 () -> Commands.sequence(
                                                 drivebase.setSide(side),
-                                                new PIDDriveToReefZone(drivebase,
+                                                Commands.runOnce(
+                                                                () -> drivebase.coralStationFinalTargetPose = drivebase.reefTargetPose
+                                                                                .transformBy(
+                                                                                                l1ApproachTransform2d)),
+                                                new PIDDriveToReefZoneL1(drivebase,
                                                                 drivebase.reefTargetPose.transformBy(
                                                                                 l1ApproachTransform2d),
                                                                 0.1, 3),
