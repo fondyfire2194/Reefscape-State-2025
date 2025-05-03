@@ -341,7 +341,7 @@ public class RobotContainer implements Logged {
 
                 // preIn.setDefaultCommand(preIn.positionCommand());
 
-                 gis.setDefaultCommand(gis.positionGroundIntakeArmCommand());
+                gis.setDefaultCommand(gis.positionGroundIntakeArmCommand());
 
         }
 
@@ -618,16 +618,24 @@ public class RobotContainer implements Logged {
                 coDriverXbox.x().onTrue(
                                 elevator.setGoalInchesCommand(ElevatorSetpoints.kLevel3));
 
+                coCoDriverXbox.start().onTrue(
+                                Commands.runOnce(() -> gis.groundIntakeRollerMotor.set(.5)))
+                                .onFalse(Commands.runOnce(() -> gis.groundIntakeRollerMotor.set(0)));
+
+                coCoDriverXbox.back().onTrue(
+                                Commands.runOnce(() -> gis.groundIntakeRollerMotor.set(-.5)))
+                                .onFalse(Commands.runOnce(() -> gis.groundIntakeRollerMotor.set(0)));
+
                 // SYS ID ElEVATOR TESTS
                 // coDriverXbox.y().whileTrue(elevator.sysIdDynamic(SysIdRoutine.Direction.kForward));
-                coDriverXbox.a().whileTrue(drivebase.sysIdDriveMotorCommand());
+                // coDriverXbox.a().whileTrue(drivebase.sysIdDriveMotorCommand());
 
                 // coDriverXbox.b().whileTrue(elevator.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
 
                 // coDriverXbox.x().whileTrue(elevator.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));co
 
-                coDriverXbox.a().onTrue(Commands.none());
-                coDriverXbox.b().onTrue(Commands.none());
+                // coDriverXbox.a().onTrue(Commands.none());
+                // coDriverXbox.b().onTrue(Commands.none());
 
                 // coDriverXbox.povLeft()
                 // .onTrue(preIn.setGoalDegreesCommand(20));
@@ -641,7 +649,7 @@ public class RobotContainer implements Logged {
                 // coDriverXbox.povRight()
                 // .onTrue(preIn.setGoalDegreesCommand(90));
 
-                coDriverXbox.leftStick().onTrue(gamepieces.deliverCoralCommand());
+                // coDriverXbox.leftStick().onTrue(gamepieces.deliverCoralCommand());
         }
 
         private void buildAutoChooser() {
