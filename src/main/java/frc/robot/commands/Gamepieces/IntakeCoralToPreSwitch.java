@@ -5,6 +5,7 @@
 package frc.robot.commands.Gamepieces;
 
 import edu.wpi.first.math.filter.Debouncer;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.GamepieceSubsystem;
@@ -28,7 +29,7 @@ public class IntakeCoralToPreSwitch extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-
+    m_gamepiece.simcoralatpreintake = false;
     preInSwitchDelay = new Debouncer(debounceTime);
 
     noCoralTimer = new Timer();
@@ -48,6 +49,7 @@ public class IntakeCoralToPreSwitch extends Command {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
+    m_gamepiece.simcoralatpreintake = RobotBase.isSimulation();
     if (m_gamepiece.coralAtIntake()) {
       m_gamepiece.stopCoralIntakeMotor();
       m_gamepiece.stopGamepieceMotor();

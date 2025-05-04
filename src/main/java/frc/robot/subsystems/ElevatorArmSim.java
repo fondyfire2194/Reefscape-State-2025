@@ -114,7 +114,7 @@ public class ElevatorArmSim extends SubsystemBase implements AutoCloseable {
     m_armLig2d.setAngle(
         ( // mirror the angles so they display in the correct direction
 
-        180 + Units.radiansToDegrees(m_arm.armMotor.getEncoder().getPosition()))
+        180 + Units.radiansToDegrees(m_armMotorSim.getPosition()))
     // subtract 90 degrees to account for the elevator
     );
 
@@ -175,8 +175,8 @@ public class ElevatorArmSim extends SubsystemBase implements AutoCloseable {
 
     vmps = m_armMotorSim.getAppliedOutput();
 
-    // if (m_armMotorSim.getAppliedOutput() == 0)
-    // vmps = 0;
+    if (m_armMotorSim.getAppliedOutput() == 0)
+    vmps = 0;
 
     m_armMotorSim.iterate(
         vmps * 60,

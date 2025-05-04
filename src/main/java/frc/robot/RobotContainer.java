@@ -9,6 +9,8 @@ import static edu.wpi.first.units.Units.Degrees;
 import java.io.File;
 import java.util.Set;
 
+import javax.sound.midi.Sequence;
+
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.events.EventTrigger;
@@ -49,7 +51,6 @@ import frc.robot.commands.Gamepieces.IntakeCoralToSwitch;
 import frc.robot.commands.GroundIntake.GroundIntakeCoralRPMDetect;
 import frc.robot.commands.swervedrive.drivebase.AbsoluteDriveAdv;
 import frc.robot.commands.swervedrive.drivebase.TeleopSwerve;
-import frc.robot.commands.swervedrive.drivebase.TeleopSwerveStation;
 import frc.robot.commands.teleopAutos.GetNearestCoralStationPose;
 import frc.robot.commands.teleopAutos.GetNearestReefZonePose;
 import frc.robot.commands.teleopAutos.PIDDriveToReefZoneL1;
@@ -67,6 +68,7 @@ import frc.robot.subsystems.LimelightVision;
 import frc.robot.subsystems.PreIntakeSubsystem;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 import frc.robot.utils.LedStrip;
+import frc.robot.utils.SD;
 import monologue.Annotations.Log;
 import monologue.Logged;
 import swervelib.SwerveInputStream;
@@ -342,14 +344,13 @@ public class RobotContainer implements Logged {
                 // preIn.setDefaultCommand(preIn.positionCommand());
 
                 gis.setDefaultCommand(gis.positionGroundIntakeArmCommand());
-
         }
 
         private void configureDriverBindings() {
 
                 driverXbox.a().onTrue(preIn.preIntakeToStartCommand());
 
-                driverXbox.b().onTrue(Commands.sequence(
+                driverXbox.b().onTrue(Commands.parallel(
                                 Commands.runOnce(() -> algae.run(-0.5)),
                                 new WaitCommand(0.05),
                                 algae.deliverAlgaeToBargeCommand())
@@ -363,12 +364,33 @@ public class RobotContainer implements Logged {
 
                 driverXbox.start().onTrue(Commands.runOnce(drivebase::zeroGyroWithAlliance).withName("Zero Gyro"));
 
-                driverXbox.leftTrigger().onTrue(new IntakeCoralToSwitch(gamepieces, arm, false)
-                                .withName("IntakeCoral"))
-                                .whileTrue(new TeleopSwerveStation(drivebase,
-                                                () -> driverXbox.getLeftY() * getAllianceFactor(),
-                                                () -> driverXbox.getLeftX() * getAllianceFactor(),
-                                                () -> driverXbox.getRightX()));
+                driverXbox.leftTrigger().onTrue(
+                                Commands.either(
+                                                Commands.parallel(
+                                                                new IntakeCoralToPreSwitch(gamepieces),
+                                                                new IntakeCoralToSwitch(gamepieces, arm,
+                                                                                false)
+                                                                                .withName("IntakeCoral"),
+                                                                Commands.sequence(
+                                                                                Commands.waitSeconds(
+                                                                                                .5),
+                                                                                cf.homeElevatorAndArm())),
+                                                Commands.sequence(
+                                                                gis.goPickup(),
+                                                                Commands.runOnce(() -> SD.sd2(
+                                                                                "GrndIn/cro1", 911)),
+                                                                new GroundIntakeCoralRPMDetect(gis)
+                                                                                .andThen(gis.goHome())),
+
+                                                () -> !gis.groundCoralMode))
+
+                                .whileTrue(
+                                                Commands.either(
+                                                                new PIDDriveToPoseCoralStation(
+                                                                                drivebase),
+                                                                Commands.runOnce(() -> SD.sd2(
+                                                                                "GrndIn/cro", 911)),
+                                                                () -> !gis.groundCoralMode));
 
                 driverXbox.rightTrigger().onTrue(gamepieces.deliverCoralFasterCommand().withName("Deliver Coral"));
 
@@ -392,7 +414,7 @@ public class RobotContainer implements Logged {
                                                                 Commands.sequence(
                                                                                 getDriveToL1ReefCommand(Side.LEFT),
                                                                                 gis.deliverCoralCommand()),
-                                                                () -> !gamepieces.coralAtIntake()));
+                                                                () -> !gis.groundCoralMode));
 
                 driverXbox.rightBumper().debounce(.1).and(driverXbox.leftBumper().negate())
                                 .whileTrue(
@@ -414,7 +436,7 @@ public class RobotContainer implements Logged {
                                                                 Commands.sequence(
                                                                                 getDriveToL1ReefCommand(Side.LEFT),
                                                                                 gis.deliverCoralCommand()),
-                                                                () -> gamepieces.coralAtIntake()));
+                                                                () -> gis.groundCoralMode));
 
                 driverXbox.rightBumper().and(driverXbox.leftBumper())
                                 .whileTrue(
@@ -436,17 +458,14 @@ public class RobotContainer implements Logged {
                                                                 Set.of(drivebase)).withName("Center Reef PID"))
                                 .onTrue(new DetectAlgaeWhileIntaking(algae));
 
-                driverXbox.povUp().whileTrue(new PIDDriveToPoseCoralStation(drivebase));
+                driverXbox.povUp().whileTrue(Commands.none());
 
                 driverXbox.povDown().onTrue(
                                 Commands.sequence(
                                                 Commands.runOnce(() -> arm.setGoalDegrees(0)),
                                                 new DetectAlgaeWhileIntaking(algae)));
 
-                driverXbox.povLeft().onTrue(
-                                Commands.parallel(
-                                                new GroundIntakeCoralRPMDetect(gis),
-                                                gis.goPickup()));
+                driverXbox.povLeft().onTrue(Commands.runOnce(() -> gis.groundCoralMode = !gis.groundCoralMode));
 
                 driverXbox.povRight().onTrue(gis.goHome());
         }

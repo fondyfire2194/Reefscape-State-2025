@@ -7,6 +7,7 @@ package frc.robot.commands.Arm;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 
@@ -31,12 +32,15 @@ public class PositionHoldArmPID extends Command {
     public PositionHoldArmPID(ArmSubsystem arm) {
         this.arm = arm;
 
-        pidController = new PIDController(kp, ki, kd);
         addRequirements(this.arm);
     }
 
     @Override
     public void initialize() {
+        if (RobotBase.isSimulation())
+            kp = 10;
+
+        pidController = new PIDController(kp, ki, kd);
         pidController.setIZone(izone);
         pidController.disableContinuousInput();
         pidController.setIntegratorRange(minIntegral, maxIntegral);

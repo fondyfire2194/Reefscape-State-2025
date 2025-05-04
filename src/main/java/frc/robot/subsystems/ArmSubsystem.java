@@ -20,6 +20,7 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.Alert;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -80,7 +81,7 @@ public class ArmSubsystem extends SubsystemBase implements Logged {
     public final double armKg = .32;// 0.2;
     public final double armKs = 0.18;
     public final double armKv = 12 / maxradpersec;
-    public final double armKa =0;// 0.025;
+    public final double armKa = 0;// 0.025;
 
     public double armKp = 0.03;
 
@@ -118,6 +119,9 @@ public class ArmSubsystem extends SubsystemBase implements Logged {
     public boolean showTelemetry = true;
 
     public ArmSubsystem() {
+
+        if (RobotBase.isSimulation())
+            armKp = .001;
 
         if (showTelemetry) {
 
@@ -254,7 +258,6 @@ public class ArmSubsystem extends SubsystemBase implements Logged {
         SD.sd2("Arm/Trap/poserror", m_goal.position -
                 armMotor.getEncoder().getPosition());
 
-
         armMotor.setVoltage(armff);
 
         // armClosedLoopController.setReference(
@@ -371,9 +374,10 @@ public class ArmSubsystem extends SubsystemBase implements Logged {
     public boolean checkArmClear() {
         return armMotor.getEncoder().getPosition() > ArmSetpoints.kokElevatorMove;
     }
-@Log
-    public double getVolts(){
-        return armMotor.getAppliedOutput()*RobotController.getBatteryVoltage();
+
+    @Log
+    public double getVolts() {
+        return armMotor.getAppliedOutput() * RobotController.getBatteryVoltage();
     }
 
 }

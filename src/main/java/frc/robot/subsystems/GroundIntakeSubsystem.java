@@ -58,7 +58,7 @@ public class GroundIntakeSubsystem extends SubsystemBase implements Logged {
     public boolean groundsetOnce;
 
     public double gearReduction = 125;// 100.;
-    double radperencderrev = (Math.PI*2) / gearReduction;
+    double radperencderrev = (Math.PI * 2) / gearReduction;
 
     double posConvFactor = radperencderrev;
 
@@ -109,15 +109,19 @@ public class GroundIntakeSubsystem extends SubsystemBase implements Logged {
     public final double maxRollerMotorRPM = 5700;
 
     public IdleMode currentMode = IdleMode.kBrake;
-    private int inOutCoralAmps;
+    private int giInOutCoralAmps;
     public boolean coralAtGroundIntake;
+    public boolean simCoralAtGroundIntake;
     public double noCoralAtIntakeTime = 15;
     private double deliverSpeed = .5;
+    @Log
+    public boolean groundCoralMode;
+
 
     public GroundIntakeSubsystem() {
 
-        // if (RobotBase.isSimulation())
-        //     groundIntakeArmKp = .05;
+        if (RobotBase.isSimulation())
+            noCoralAtIntakeTime = 2;
         groundintakeArmConfig = new SparkMaxConfig();
 
         groundintakeArmConfig
@@ -149,7 +153,7 @@ public class GroundIntakeSubsystem extends SubsystemBase implements Logged {
 
         groundintakerollerConfig
                 .inverted(true)
-                .smartCurrentLimit(inOutCoralAmps)
+                .smartCurrentLimit(giInOutCoralAmps)
                 .idleMode(IdleMode.kBrake);
 
         groundintakerollerConfig.encoder
@@ -171,7 +175,7 @@ public class GroundIntakeSubsystem extends SubsystemBase implements Logged {
         m_goal.position = minAngle;
 
         SmartDashboard.putNumber("GIS/Values/maxdegpersec", maxdegpersec);
-        SmartDashboard.putNumber("GIS/Values/inperencrev",radperencderrev);
+        SmartDashboard.putNumber("GIS/Values/inperencrev", radperencderrev);
 
     }
 
@@ -267,7 +271,8 @@ public class GroundIntakeSubsystem extends SubsystemBase implements Logged {
         atLowerLimit = getArmAnglerads() < minAngle;
         SmartDashboard.putNumber("PIM/posdeg", Units.radiansToDegrees(groundIntakeArmMotor.getEncoder().getPosition()));
         // SmartDashboard.putBoolean("PIM/atpos", groundintakeAtStartPosition());
-        SmartDashboard.putNumber("PIM/degpersec", Units.radiansToDegrees(groundIntakeArmMotor.getEncoder().getVelocity()));
+        SmartDashboard.putNumber("PIM/degpersec",
+                Units.radiansToDegrees(groundIntakeArmMotor.getEncoder().getVelocity()));
         SmartDashboard.putNumber("PIM/volts",
                 groundIntakeArmMotor.getAppliedOutput() * RobotController.getBatteryVoltage());
         SmartDashboard.putNumber("PIM/amps", getArmAmps());
@@ -290,10 +295,6 @@ public class GroundIntakeSubsystem extends SubsystemBase implements Logged {
     public Command setArmGoalDegreesCommand(double targetDegrees) {
         return Commands.runOnce(() -> m_goal.position = targetDegrees);
     }
-
-
-
-   
 
     @Log(key = "anglerads")
     public double getArmAnglerads() {
@@ -369,6 +370,7 @@ public class GroundIntakeSubsystem extends SubsystemBase implements Logged {
         return Commands.sequence(
                 Commands.runOnce(() -> groundIntakeRollerMotor.set(deliverSpeed)),
                 new WaitCommand(0.25),
+                Commands.runOnce(() -> simCoralAtGroundIntake = false),
                 Commands.runOnce(() -> groundIntakeRollerMotor.stopMotor()));
     }
 }

@@ -1,6 +1,16 @@
 {
   "HALProvider": {
     "Other Devices": {
+      "SPARK MAX [23]": {
+        "header": {
+          "open": true
+        }
+      },
+      "SPARK MAX [24]": {
+        "header": {
+          "open": true
+        }
+      },
       "window": {
         "visible": false
       }
@@ -65,6 +75,12 @@
       "CameraPublisher": {
         "open": true
       },
+      "Monologue": {
+        "gis": {
+          "open": true
+        },
+        "open": true
+      },
       "Shuffleboard": {
         "open": true
       },
@@ -74,7 +90,7 @@
             "open": true
           }
         },
-        "GISArmSim": {
+        "GrndIn": {
           "open": true
         },
         "open": true

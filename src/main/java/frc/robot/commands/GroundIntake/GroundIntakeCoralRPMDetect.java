@@ -5,10 +5,10 @@
 package frc.robot.commands.GroundIntake;
 
 import edu.wpi.first.math.filter.MedianFilter;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.subsystems.GamepieceSubsystem;
 import frc.robot.subsystems.GroundIntakeSubsystem;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
@@ -30,8 +30,6 @@ public class GroundIntakeCoralRPMDetect extends Command {
   private double groundIntakeMotorSpeed = .75;
 
   private double sampledRPM;
-
-  private boolean coralDetected;
 
   private double coralDetectLevel = 0.25;
 
@@ -56,7 +54,9 @@ public class GroundIntakeCoralRPMDetect extends Command {
     filteredRPM = 0;
     sampleFilter.reset();
     detectFilter.reset();
+    m_groundintake.simCoralAtGroundIntake = false;
 
+    SmartDashboard.putNumber("GrndIn/TEST", 911);
     m_groundintake.groundIntakeRollerMotor.set(groundIntakeMotorSpeed);
   }
 
@@ -64,6 +64,8 @@ public class GroundIntakeCoralRPMDetect extends Command {
   @Override
   public void execute() {
     sampleCount++;
+
+    SmartDashboard.putNumber("GrndIn/sc", sampleCount);
     if (sampleCount <= numberSamplesWanted) {
       sampledRPM = sampleFilter.calculate(m_groundintake.getRollerRPM());
     } else {
@@ -71,20 +73,23 @@ public class GroundIntakeCoralRPMDetect extends Command {
       detectCount++;
     }
 
-    coralDetected = detectCount > numberDetectsWanted && filteredRPM > sampledRPM * coralDetectLevel;
+    m_groundintake.coralAtGroundIntake = RobotBase.isReal() && detectCount > numberDetectsWanted
+        && filteredRPM > sampledRPM * coralDetectLevel;
 
     SmartDashboard.putNumber("GrndIn/FilteredRPM", filteredRPM);
     SmartDashboard.putNumber("GrndIn/SampledRPM", sampledRPM);
-    SmartDashboard.putBoolean("GrndIn/Detected", coralDetected);
+    SmartDashboard.putBoolean("GrndIn/Detected", m_groundintake.coralAtGroundIntake);
+
+    SmartDashboard.putNumber("GrndIn/Timer", noCoralTimer.get());
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
+    m_groundintake.simCoralAtGroundIntake = RobotBase.isSimulation();
+    SmartDashboard.putBoolean("GrndIn/detectedsim", m_groundintake.simCoralAtGroundIntake);
 
     m_groundintake.groundIntakeRollerMotor.set(0);
-    m_groundintake.setArmGoalDegreesCommand(m_groundintake.homeAngle);
-
   }
 
   // Returns true when the command should end.
