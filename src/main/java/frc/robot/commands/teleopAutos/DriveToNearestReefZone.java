@@ -77,7 +77,6 @@ public class DriveToNearestReefZone extends Command {
 
       m_swerve.driveToPose(m_swerve.reefFinalTargetPose).schedule();
 
-      // new DriveToPointCommand(m_swerve).schedule();
 
       exit = true;
     } else

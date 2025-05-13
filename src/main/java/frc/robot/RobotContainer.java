@@ -37,6 +37,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.FieldConstants.Side;
 import frc.robot.Constants.OperatorConstants;
+import frc.robot.VisionConstants.CameraConstants;
 import frc.robot.Factories.CommandFactory;
 import frc.robot.Factories.CommandFactory.ArmSetpoints;
 import frc.robot.Factories.CommandFactory.ElevatorSetpoints;
@@ -53,6 +54,7 @@ import frc.robot.commands.swervedrive.drivebase.AbsoluteDriveAdv;
 import frc.robot.commands.swervedrive.drivebase.TeleopSwerve;
 import frc.robot.commands.teleopAutos.GetNearestCoralStationPose;
 import frc.robot.commands.teleopAutos.GetNearestReefZonePose;
+import frc.robot.commands.teleopAutos.PIDDriveToGroundCoral;
 import frc.robot.commands.teleopAutos.PIDDriveToReefZoneL1;
 import frc.robot.commands.teleopAutos.PIDDriveToPose;
 import frc.robot.commands.teleopAutos.PIDDriveToPoseCoralStation;
@@ -68,6 +70,7 @@ import frc.robot.subsystems.LimelightVision;
 import frc.robot.subsystems.PreIntakeSubsystem;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 import frc.robot.utils.LedStrip;
+import frc.robot.utils.LimelightHelpers;
 import frc.robot.utils.SD;
 import monologue.Annotations.Log;
 import monologue.Logged;
@@ -343,7 +346,7 @@ public class RobotContainer implements Logged {
 
                 // preIn.setDefaultCommand(preIn.positionCommand());
 
-                gis.setDefaultCommand(gis.positionGroundIntakeArmCommand());
+                 gis.setDefaultCommand(gis.positionGroundIntakeArmCommand());
         }
 
         private void configureDriverBindings() {
@@ -372,48 +375,57 @@ public class RobotContainer implements Logged {
                                                                                 false)
                                                                                 .withName("IntakeCoral"),
                                                                 Commands.sequence(
-                                                                                Commands.waitSeconds(
-                                                                                                .5),
+                                                                                Commands.waitSeconds(.5),
+
                                                                                 cf.homeElevatorAndArm())),
-                                                Commands.sequence(
-                                                                gis.goPickup(),
-                                                                Commands.runOnce(() -> SD.sd2(
-                                                                                "GrndIn/cro1", 911)),
-                                                                new GroundIntakeCoralRPMDetect(gis)
-                                                                                .andThen(gis.goHome())),
+
+                                                Commands.parallel(gis.goPickup(),
+                                                new GroundIntakeCoralRPMDetect(gis)),
 
                                                 () -> !gis.groundCoralMode))
-
                                 .whileTrue(
                                                 Commands.either(
                                                                 new PIDDriveToPoseCoralStation(
                                                                                 drivebase),
-                                                                Commands.runOnce(() -> SD.sd2(
-                                                                                "GrndIn/cro", 911)),
+                                                                Commands.deadline(
+                                                                                new GroundIntakeCoralRPMDetect(gis),
+                                                                                Commands.either(
+                                                                                                new PIDDriveToGroundCoral(
+                                                                                                                drivebase,
+                                                                                                                CameraConstants.rearCamera.camname,
+                                                                                                                () -> driverXbox.getLeftY()),
+                                                                                                new TeleopSwerve(
+                                                                                                                drivebase,
+                                                                                                                () -> driverXbox.getLeftY()
+                                                                                                                                * getAllianceFactor(),
+                                                                                                                () -> driverXbox.getLeftX()
+                                                                                                                                * getAllianceFactor(),
+                                                                                                                () -> driverXbox.getRightX(),
+                                                                                                                () -> correctAngle),
+                                                                                                () -> LimelightHelpers
+                                                                                                                .getTV(CameraConstants.rearCamera.camname))),
                                                                 () -> !gis.groundCoralMode));
 
-                driverXbox.rightTrigger().onTrue(gamepieces.deliverCoralFasterCommand().withName("Deliver Coral"));
+                driverXbox.rightTrigger().onTrue(
+                                Commands.either(
+                                                gamepieces.deliverCoralFasterCommand().withName("Deliver Coral"),
+                                                gis.deliverCoralCommand(),
+                                                () -> !gis.groundCoralMode));
 
                 driverXbox.leftBumper().debounce(.1).and(driverXbox.rightBumper().negate())
                                 .whileTrue(
                                                 new ConditionalCommand(
                                                                 Commands.sequence(
                                                                                 getDriveToReefCommand(Side.LEFT),
-
                                                                                 Commands.parallel(
                                                                                                 new PIDDriveToReefZone(
                                                                                                                 drivebase,
                                                                                                                 drivebase.reefTargetPose),
                                                                                                 cf.setSetpointCommand(
-                                                                                                                setpointPosition)),
-                                                                                Commands.waitUntil(() -> elevator
-                                                                                                .atPosition(3)
-                                                                                                && arm.inPosition(
-                                                                                                                Degrees.of(2))),
-                                                                                gamepieces.deliverCoralFasterCommand()),
-                                                                Commands.sequence(
-                                                                                getDriveToL1ReefCommand(Side.LEFT),
-                                                                                gis.deliverCoralCommand()),
+                                                                                                                setpointPosition))),
+
+                                                                getDriveToL1ReefCommand(Side.LEFT),
+
                                                                 () -> !gis.groundCoralMode));
 
                 driverXbox.rightBumper().debounce(.1).and(driverXbox.leftBumper().negate())
@@ -421,22 +433,16 @@ public class RobotContainer implements Logged {
                                                 new ConditionalCommand(
                                                                 Commands.sequence(
                                                                                 getDriveToReefCommand(Side.RIGHT),
-
                                                                                 Commands.parallel(
                                                                                                 new PIDDriveToReefZone(
                                                                                                                 drivebase,
                                                                                                                 drivebase.reefTargetPose),
                                                                                                 cf.setSetpointCommand(
-                                                                                                                setpointPosition)),
-                                                                                Commands.waitUntil(() -> elevator
-                                                                                                .atPosition(3)
-                                                                                                && arm.inPosition(
-                                                                                                                Degrees.of(2))),
-                                                                                gamepieces.deliverCoralFasterCommand()),
-                                                                Commands.sequence(
-                                                                                getDriveToL1ReefCommand(Side.LEFT),
-                                                                                gis.deliverCoralCommand()),
-                                                                () -> gis.groundCoralMode));
+                                                                                                                setpointPosition))),
+
+                                                                getDriveToL1ReefCommand(Side.RIGHT),
+
+                                                                () -> !gis.groundCoralMode));
 
                 driverXbox.rightBumper().and(driverXbox.leftBumper())
                                 .whileTrue(
@@ -465,7 +471,16 @@ public class RobotContainer implements Logged {
                                                 Commands.runOnce(() -> arm.setGoalDegrees(0)),
                                                 new DetectAlgaeWhileIntaking(algae)));
 
-                driverXbox.povLeft().onTrue(Commands.runOnce(() -> gis.groundCoralMode = !gis.groundCoralMode));
+                driverXbox.povLeft().onTrue(
+                                Commands.sequence(
+                                                Commands.runOnce(() -> gis.groundCoralMode = !gis.groundCoralMode),
+                                                Commands.none()));
+                // Commands.either(
+                // CommandFactory.rumbleDriver(RumbleType.kLeftRumble, .5,
+                // .5, 1),
+                // CommandFactory.rumbleDriver(RumbleType.kRightRumble, .5,
+                // .5, 1),
+                // () -> gis.groundCoralMode);
 
                 driverXbox.povRight().onTrue(gis.goHome());
         }
@@ -542,7 +557,8 @@ public class RobotContainer implements Logged {
 
                 coDriverXbox.b().onTrue(setSetpointPositionCommand(Setpoint.kLevel2).withName("Set L2"));
 
-                coDriverXbox.x().onTrue(setSetpointPositionCommand(Setpoint.kLevel3).withName("Set L3"));
+                // coDriverXbox.x().onTrue(setSetpointPositionCommand(Setpoint.kLevel3).withName("Set
+                // L3"));
 
                 coDriverXbox.y().onTrue(setSetpointPositionCommand(Setpoint.kLevel4).withName("Set L4"));
 
@@ -627,7 +643,7 @@ public class RobotContainer implements Logged {
                                                 () -> gis.jogGroundIntakeArmCommand(
                                                                 () -> coDriverXbox.getLeftX() / 5),
                                                 Set.of(gis)))
-                                .onFalse(Commands.runOnce(() -> gis.stop()));
+                                .onFalse(Commands.runOnce(() -> gis.stopArm()));
 
                 coDriverXbox.y().onTrue(
                                 // elevator.setGoalInchesCommand(ElevatorSetpoints.kHome));
@@ -638,16 +654,14 @@ public class RobotContainer implements Logged {
                 coDriverXbox.b().onTrue(
                                 // elevator.setGoalInchesCommand(ElevatorSetpoints.kLevel4));
                                 arm.setGoalDegreesCommand(134));
-                coDriverXbox.x().onTrue(
-                                elevator.setGoalInchesCommand(ElevatorSetpoints.kLevel3));
+                 coDriverXbox.x().onTrue(gis.setArmGoalDegreesCommand(150));
+                // elevator.setGoalInchesCommand(ElevatorSetpoints.kLevel3));
 
-                coCoDriverXbox.start().onTrue(
-                                Commands.runOnce(() -> gis.groundIntakeRollerMotor.set(.5)))
-                                .onFalse(Commands.runOnce(() -> gis.groundIntakeRollerMotor.set(0)));
+                // coDriverXbox.x().whileTrue(
 
-                coCoDriverXbox.back().onTrue(
-                                Commands.runOnce(() -> gis.groundIntakeRollerMotor.set(-.5)))
-                                .onFalse(Commands.runOnce(() -> gis.groundIntakeRollerMotor.set(0)));
+                //                 Commands.defer(() -> gis.jogGroundIntakeRollerCommand(()-> coDriverXbox.getLeftY()),
+                //                 Set.of(preIn)))
+                //                 .onFalse(Commands.runOnce(() -> gis.stopRoller()));
 
                 // SYS ID ElEVATOR TESTS
                 // coDriverXbox.y().whileTrue(elevator.sysIdDynamic(SysIdRoutine.Direction.kForward));

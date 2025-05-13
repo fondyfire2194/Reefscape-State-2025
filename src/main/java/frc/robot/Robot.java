@@ -22,6 +22,7 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.VisionConstants.CameraConstants;
 import frc.robot.commands.Arm.PositionHoldArmPID;
 import frc.robot.commands.Elevator.PositionHoldElevatorPID;
+import frc.robot.commands.teleopAutos.PIDDriveToGroundCoral;
 import frc.robot.utils.LimelightHelpers;
 import monologue.Annotations.Log;
 import monologue.Logged;
@@ -243,7 +244,7 @@ public class Robot extends TimedRobot implements Logged {
 
     new PositionHoldArmPID(m_robotContainer.arm).schedule();
     new PositionHoldElevatorPID(m_robotContainer.elevator).schedule();
-
+new PIDDriveToGroundCoral(m_robotContainer.drivebase, CameraConstants.rearCamera.camname, ()-> 0.1).schedule();
     m_robotContainer.configureCoDriverTestBindings();
   }
 

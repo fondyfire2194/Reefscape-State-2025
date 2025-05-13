@@ -26,6 +26,7 @@ import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.Constants.CANIDConstants;
+import frc.robot.utils.SD;
 import monologue.Annotations.Log;
 import monologue.Logged;
 
@@ -109,14 +110,13 @@ public class GroundIntakeSubsystem extends SubsystemBase implements Logged {
     public final double maxRollerMotorRPM = 5700;
 
     public IdleMode currentMode = IdleMode.kBrake;
-    private int giInOutCoralAmps;
+    private int giInOutCoralAmps = 30;
     public boolean coralAtGroundIntake;
     public boolean simCoralAtGroundIntake;
     public double noCoralAtIntakeTime = 15;
     private double deliverSpeed = .5;
     @Log
     public boolean groundCoralMode;
-
 
     public GroundIntakeSubsystem() {
 
@@ -154,7 +154,7 @@ public class GroundIntakeSubsystem extends SubsystemBase implements Logged {
         groundintakerollerConfig
                 .inverted(true)
                 .smartCurrentLimit(giInOutCoralAmps)
-                .idleMode(IdleMode.kBrake);
+                .idleMode(IdleMode.kCoast);
 
         groundintakerollerConfig.encoder
                 .positionConversionFactor(1)
@@ -174,9 +174,8 @@ public class GroundIntakeSubsystem extends SubsystemBase implements Logged {
 
         m_goal.position = minAngle;
 
-        SmartDashboard.putNumber("GIS/Values/maxdegpersec", maxdegpersec);
-        SmartDashboard.putNumber("GIS/Values/inperencrev", radperencderrev);
-
+        SD.sd2("GIS/Values/maxdegpersec", maxdegpersec);
+        SD.sd2("GIS/Values/radperencrev", radperencderrev);
     }
 
     public boolean getActiveFault() {
@@ -255,9 +254,14 @@ public class GroundIntakeSubsystem extends SubsystemBase implements Logged {
                 this);// requirements
     }
 
-    public Command stop() {
+    public Command stopRoller() {
+        return Commands.runOnce(() -> groundIntakeRollerMotor.setVoltage(0));
+    }
+
+    public Command stopArm() {
         return Commands.runOnce(() -> groundIntakeArmMotor.stopMotor());
     }
+
 
     @Override
     public void periodic() {
@@ -269,13 +273,17 @@ public class GroundIntakeSubsystem extends SubsystemBase implements Logged {
 
         atUpperLimit = getArmAnglerads() > maxAngle;
         atLowerLimit = getArmAnglerads() < minAngle;
-        SmartDashboard.putNumber("PIM/posdeg", Units.radiansToDegrees(groundIntakeArmMotor.getEncoder().getPosition()));
-        // SmartDashboard.putBoolean("PIM/atpos", groundintakeAtStartPosition());
-        SmartDashboard.putNumber("PIM/degpersec",
+
+        SD.sd2("GIS/goaldeg", Units.radiansToDegrees(m_goal.position));
+        SD.sd2("GIS/posdeg", Units.radiansToDegrees(groundIntakeArmMotor.getEncoder().getPosition()));
+        // SmartDashboard.putBoolean("GIS/atpos", groundintakeAtStartPosition());
+        SD.sd2("GIS/degpersec",
                 Units.radiansToDegrees(groundIntakeArmMotor.getEncoder().getVelocity()));
-        SmartDashboard.putNumber("PIM/volts",
+        SD.sd2("GIS/volts",
                 groundIntakeArmMotor.getAppliedOutput() * RobotController.getBatteryVoltage());
-        SmartDashboard.putNumber("PIM/amps", getArmAmps());
+        SD.sd2("GIS/amps", getArmAmps());
+        SD.sd2("GIS/voltsRol",
+                groundIntakeRollerMotor.getAppliedOutput() * RobotController.getBatteryVoltage());
 
     }
 
@@ -293,7 +301,7 @@ public class GroundIntakeSubsystem extends SubsystemBase implements Logged {
     }
 
     public Command setArmGoalDegreesCommand(double targetDegrees) {
-        return Commands.runOnce(() -> m_goal.position = targetDegrees);
+        return Commands.runOnce(() -> m_goal.position = Units.degreesToRadians(targetDegrees));
     }
 
     @Log(key = "anglerads")
@@ -352,10 +360,11 @@ public class GroundIntakeSubsystem extends SubsystemBase implements Logged {
     }
 
     public Command jogGroundIntakeRollerCommand(DoubleSupplier speed) {
-        return Commands
-                .run(() -> groundIntakeRollerMotor
-                        .setVoltage(speed.getAsDouble() * RobotController.getBatteryVoltage()),
-                        this);
+        return Commands.sequence(
+                Commands.runOnce(() -> SD.sd2("GGGGIIISSSSpd", speed.getAsDouble())),
+                Commands
+                        .run(() -> groundIntakeRollerMotor
+                                .setVoltage(speed.getAsDouble() * RobotController.getBatteryVoltage())));
     }
 
     @Log(key = "girolerrpm")
