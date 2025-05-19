@@ -6,9 +6,9 @@ package frc.robot.commands.teleopAutos;
 
 import java.util.function.DoubleSupplier;
 
+import edu.wpi.first.math.filter.MedianFilter;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 import frc.robot.utils.LimelightHelpers;
@@ -20,6 +20,18 @@ public class PIDDriveToGroundCoral extends Command {
   SwerveSubsystem m_swerve;
   String m_camname;
   DoubleSupplier m_fwd;
+  public boolean showTelemetry = false;
+  private double imageWidth = 640;
+  MedianFilter topLeftXFilter = new MedianFilter(5);
+  MedianFilter topRightXFilter = new MedianFilter(5);
+  double corners[] = new double[8];
+
+  int topLeftX = 0;
+  int topRightX = 4;
+
+  private double topLeftCornerXFiltered;
+
+  private double topRightCornerXFiltered;
 
   int tst;
   Constraints driveConstraints = new Constraints(3.5, 5);
@@ -48,27 +60,30 @@ public class PIDDriveToGroundCoral extends Command {
   @Override
   public void execute() {
     if (LimelightHelpers.getTV(m_camname)) {
-      double x = LimelightHelpers.getTX(m_camname);
+      double rot = LimelightHelpers.getTX(m_camname);
       double y = LimelightHelpers.getTY(m_camname);
+      corners = LimelightHelpers.getLimelightNTDoubleArray("limelight", "tcornxy");
 
-      double[] t2d = LimelightHelpers.getT2DArray(m_camname);
-      double shortSide = t2d[13];
-      double longSide = t2d[12];
-      double aspectrat = longSide / shortSide;
-      double skew = t2d[16];
-      double aspectfraction = aspectrat / coralAR;
+      double topRightCornerX = corners[topRightX];
+      double topLeftCornerX = corners[topLeftX];
+      topLeftCornerXFiltered = topLeftXFilter.calculate(topLeftCornerX);
+      topRightCornerXFiltered = topRightXFilter.calculate(topRightCornerX);
+      double topXLen = topRightCornerXFiltered - topLeftCornerXFiltered;
+      double xcenter = topLeftCornerXFiltered + topXLen / 2;
+      double xerror = xcenter - imageWidth / 2;
 
-      double angleDegrees = Units.radiansToDegrees(Math.acos(aspectfraction));
+      Translation2d trans = new Translation2d(m_fwd.getAsDouble(), xerror * strafeKP);
 
-      Translation2d trans = new Translation2d(m_fwd.getAsDouble(), x * strafeKP);
+      m_swerve.drive(trans, rot * turnKP, false, true);
 
-      SD.sd2("GRN/DINangdeg", angleDegrees);
-      SD.sd2("GRN/DINShort", shortSide);
-      SD.sd2("GRN/DINLong", longSide);
-      SD.sd2("GRN/DINasp", aspectfraction);
-      SD.sd2("GRN/DINSkew", skew);
-
-      // m_swerve.drive(trans, angleDegrees * turnKP, false, false);
+      if (showTelemetry) {
+        SD.sd2("TopRightXF", topRightCornerXFiltered);
+        SD.sd2("TopLeftXF", topLeftCornerXFiltered);
+        SD.sd2("XLength", topXLen);
+        SD.sd2("XCenter", xcenter);
+        SD.sd2("XError", xerror);
+        SD.sd2("TX", rot);
+      }
 
     }
   }
