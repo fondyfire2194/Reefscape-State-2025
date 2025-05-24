@@ -33,13 +33,12 @@ public class PIDDriveToGroundCoral extends Command {
 
   private double topRightCornerXFiltered;
 
-  int tst;
   Constraints driveConstraints = new Constraints(3.5, 5);
-
-  double coralAR = 11.875 / 4.5;
 
   double turnKP = .01;
   double strafeKP = .01;
+  private double xerror;
+  private double rot;
 
   public PIDDriveToGroundCoral(SwerveSubsystem swerve, String camname, DoubleSupplier forwardSpeed) {
     m_swerve = swerve;
@@ -52,15 +51,16 @@ public class PIDDriveToGroundCoral extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    tst = 0;
     LimelightHelpers.setPipelineIndex(m_camname, 2);
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
+    xerror = 0;
+    rot = 0;
     if (LimelightHelpers.getTV(m_camname)) {
-      double rot = LimelightHelpers.getTX(m_camname);
+      rot = LimelightHelpers.getTX(m_camname);
       double y = LimelightHelpers.getTY(m_camname);
       corners = LimelightHelpers.getLimelightNTDoubleArray("limelight", "tcornxy");
 
@@ -68,30 +68,38 @@ public class PIDDriveToGroundCoral extends Command {
       double topLeftCornerX = corners[topLeftX];
       topLeftCornerXFiltered = topLeftXFilter.calculate(topLeftCornerX);
       topRightCornerXFiltered = topRightXFilter.calculate(topRightCornerX);
-      double topXLen = topRightCornerXFiltered - topLeftCornerXFiltered;
-      double xcenter = topLeftCornerXFiltered + topXLen / 2;
-      double xerror = xcenter - imageWidth / 2;
 
-      Translation2d trans = new Translation2d(m_fwd.getAsDouble(), xerror * strafeKP);
-
-      m_swerve.drive(trans, rot * turnKP, false, true);
-
+      double centerX = getCenterX(topLeftCornerXFiltered, topRightCornerXFiltered);
+      double target = imageWidth / 2;
+      xerror = getOffsetFromTarget(centerX, target);
       if (showTelemetry) {
         SD.sd2("TopRightXF", topRightCornerXFiltered);
         SD.sd2("TopLeftXF", topLeftCornerXFiltered);
-        SD.sd2("XLength", topXLen);
-        SD.sd2("XCenter", xcenter);
+
+        SD.sd2("XCenter", centerX);
         SD.sd2("XError", xerror);
         SD.sd2("TX", rot);
       }
 
     }
+
+    Translation2d trans = new Translation2d(m_fwd.getAsDouble(), xerror * strafeKP);
+
+    m_swerve.drive(trans, rot * turnKP, false, false);
+  }
+
+  public static double getCenterX(double x1, double x2) {
+    return (x1 + x2) / 2.0;
+  }
+
+  public static double getOffsetFromTarget(double centerX, double target) {
+
+    return target - centerX; // Positive = left, Negative = right
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-
   }
 
   // Returns true when the command should end.
