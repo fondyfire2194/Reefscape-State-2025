@@ -58,7 +58,7 @@ public class GroundIntakeSubsystem extends SubsystemBase implements Logged {
 
     public boolean groundsetOnce;
 
-    public double gearReduction = 125;// 100.;
+    public double gearReduction = 40;
     double radperencderrev = (Math.PI * 2) / gearReduction;
 
     double posConvFactor = radperencderrev;
@@ -118,6 +118,8 @@ public class GroundIntakeSubsystem extends SubsystemBase implements Logged {
     @Log
     public boolean groundCoralMode;
 
+    private boolean toggleTelem;
+
     public GroundIntakeSubsystem() {
 
         if (RobotBase.isSimulation())
@@ -125,7 +127,7 @@ public class GroundIntakeSubsystem extends SubsystemBase implements Logged {
         groundintakeArmConfig = new SparkMaxConfig();
 
         groundintakeArmConfig
-                .inverted(false)
+                .inverted(true)
                 .idleMode(IdleMode.kBrake)
                 .smartCurrentLimit(40);
 
@@ -262,9 +264,9 @@ public class GroundIntakeSubsystem extends SubsystemBase implements Logged {
         return Commands.runOnce(() -> groundIntakeArmMotor.stopMotor());
     }
 
-
     @Override
     public void periodic() {
+        toggleTelem = !toggleTelem;
 
         // This method will be called once per scheduler run
         allWarnings.set(getWarnings());
@@ -273,18 +275,21 @@ public class GroundIntakeSubsystem extends SubsystemBase implements Logged {
 
         atUpperLimit = getArmAnglerads() > maxAngle;
         atLowerLimit = getArmAnglerads() < minAngle;
-
-        SD.sd2("GIS/goaldeg", Units.radiansToDegrees(m_goal.position));
-        SD.sd2("GIS/posdeg", Units.radiansToDegrees(groundIntakeArmMotor.getEncoder().getPosition()));
-        // SmartDashboard.putBoolean("GIS/atpos", groundintakeAtStartPosition());
-        SD.sd2("GIS/degpersec",
-                Units.radiansToDegrees(groundIntakeArmMotor.getEncoder().getVelocity()));
-        SD.sd2("GIS/volts",
-                groundIntakeArmMotor.getAppliedOutput() * RobotController.getBatteryVoltage());
-        SD.sd2("GIS/amps", getArmAmps());
-        SD.sd2("GIS/voltsRol",
-                groundIntakeRollerMotor.getAppliedOutput() * RobotController.getBatteryVoltage());
-
+        if (toggleTelem) {
+            SD.sd2("GIS/goaldeg", Units.radiansToDegrees(m_goal.position));
+            SD.sd2("GIS/posdeg", Units.radiansToDegrees(groundIntakeArmMotor.getEncoder().getPosition()));
+            // SmartDashboard.putBoolean("GIS/atpos", groundintakeAtStartPosition());
+            SD.sd2("GIS/degpersec",
+                    Units.radiansToDegrees(groundIntakeArmMotor.getEncoder().getVelocity()));
+            SD.sd2("GIS/volts",
+                    groundIntakeArmMotor.getAppliedOutput() * RobotController.getBatteryVoltage());
+            SD.sd2("GIS/amps", getArmAmps());
+        } else {
+            SD.sd2("GIS/RolVolts",
+                    groundIntakeRollerMotor.getAppliedOutput() * RobotController.getBatteryVoltage());
+            SD.sd2("GIS/RolRPM", groundIntakeRollerMotor.getEncoder().getVelocity());
+            SD.sd2("GIS/RolAmps", groundIntakeRollerMotor.getOutputCurrent());
+        }
     }
 
     @Override

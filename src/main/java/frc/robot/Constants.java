@@ -64,8 +64,8 @@ public final class Constants {
     public static final int algaeRightID = 27;
     public static final int algaeLeftID = 28;
 
-    public static final int groundIntakeArmMotorID = 29;
-    public static final int groundIntakeRollerMotorID = 25;
+    public static final int groundIntakeArmMotorID = 25;
+    public static final int groundIntakeRollerMotorID = 29;
 
   }
 
