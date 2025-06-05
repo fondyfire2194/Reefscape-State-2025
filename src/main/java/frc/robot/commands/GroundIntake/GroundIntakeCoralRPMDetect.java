@@ -74,7 +74,7 @@ public class GroundIntakeCoralRPMDetect extends Command {
     }
 
     m_groundintake.coralAtGroundIntake = RobotBase.isReal() && detectCount > numberDetectsWanted
-        && filteredRPM > sampledRPM * coralDetectLevel;
+        && filteredRPM < sampledRPM * coralDetectLevel;
 
     SmartDashboard.putNumber("GrndIn/FilteredRPM", filteredRPM);
     SmartDashboard.putNumber("GrndIn/SampledRPM", sampledRPM);
@@ -88,14 +88,14 @@ public class GroundIntakeCoralRPMDetect extends Command {
   public void end(boolean interrupted) {
     m_groundintake.simCoralAtGroundIntake = RobotBase.isSimulation();
     SmartDashboard.putBoolean("GrndIn/detectedsim", m_groundintake.simCoralAtGroundIntake);
-
+   
     m_groundintake.groundIntakeRollerMotor.set(0);
   }
 
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return m_groundintake.coralAtGroundIntake
-        || noCoralTimer.hasElapsed(m_groundintake.noCoralAtIntakeTime);
+    return m_groundintake.coralAtGroundIntake ||
+        noCoralTimer.hasElapsed(m_groundintake.noCoralAtIntakeTime);
   }
 }

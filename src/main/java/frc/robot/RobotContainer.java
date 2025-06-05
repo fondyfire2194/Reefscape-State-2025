@@ -9,8 +9,6 @@ import static edu.wpi.first.units.Units.Degrees;
 import java.io.File;
 import java.util.Set;
 
-import javax.sound.midi.Sequence;
-
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.events.EventTrigger;
@@ -346,7 +344,7 @@ public class RobotContainer implements Logged {
 
                 // preIn.setDefaultCommand(preIn.positionCommand());
 
-                 gis.setDefaultCommand(gis.positionGroundIntakeArmCommand());
+                gis.setDefaultCommand(gis.positionGroundIntakeArmCommand());
         }
 
         private void configureDriverBindings() {
@@ -366,7 +364,7 @@ public class RobotContainer implements Logged {
                 driverXbox.back().onTrue(Commands.runOnce(() -> elevator.resetPosition(0)));
 
                 driverXbox.start().onTrue(Commands.runOnce(drivebase::zeroGyroWithAlliance).withName("Zero Gyro"));
-
+                driverXbox.leftTrigger().onFalse(gis.goHome());
                 driverXbox.leftTrigger().onTrue(
                                 Commands.either(
                                                 Commands.parallel(
@@ -380,7 +378,7 @@ public class RobotContainer implements Logged {
                                                                                 cf.homeElevatorAndArm())),
 
                                                 Commands.parallel(gis.goPickup(),
-                                                new GroundIntakeCoralRPMDetect(gis)),
+                                                                new GroundIntakeCoralRPMDetect(gis)),
 
                                                 () -> !gis.groundCoralMode))
                                 .whileTrue(
@@ -393,7 +391,7 @@ public class RobotContainer implements Logged {
                                                                                                 new PIDDriveToGroundCoral(
                                                                                                                 drivebase,
                                                                                                                 CameraConstants.rearCamera.camname,
-                                                                                                                () -> driverXbox.getLeftY()),
+                                                                                                                driverXbox),
                                                                                                 new TeleopSwerve(
                                                                                                                 drivebase,
                                                                                                                 () -> driverXbox.getLeftY()
@@ -654,14 +652,15 @@ public class RobotContainer implements Logged {
                 coDriverXbox.b().onTrue(
                                 // elevator.setGoalInchesCommand(ElevatorSetpoints.kLevel4));
                                 arm.setGoalDegreesCommand(134));
-                 coDriverXbox.x().onTrue(gis.setArmGoalDegreesCommand(150));
+                coDriverXbox.x().onTrue(gis.setArmGoalDegreesCommand(150));
                 // elevator.setGoalInchesCommand(ElevatorSetpoints.kLevel3));
 
                 // coDriverXbox.x().whileTrue(
 
-                //                 Commands.defer(() -> gis.jogGroundIntakeRollerCommand(()-> coDriverXbox.getLeftY()),
-                //                 Set.of(preIn)))
-                //                 .onFalse(Commands.runOnce(() -> gis.stopRoller()));
+                // Commands.defer(() -> gis.jogGroundIntakeRollerCommand(()->
+                // coDriverXbox.getLeftY()),
+                // Set.of(preIn)))
+                // .onFalse(Commands.runOnce(() -> gis.stopRoller()));
 
                 // SYS ID ElEVATOR TESTS
                 // coDriverXbox.y().whileTrue(elevator.sysIdDynamic(SysIdRoutine.Direction.kForward));

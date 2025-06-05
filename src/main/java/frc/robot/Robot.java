@@ -244,7 +244,6 @@ public class Robot extends TimedRobot implements Logged {
 
     new PositionHoldArmPID(m_robotContainer.arm).schedule();
     new PositionHoldElevatorPID(m_robotContainer.elevator).schedule();
-new PIDDriveToGroundCoral(m_robotContainer.drivebase, CameraConstants.rearCamera.camname, ()-> 0.1).schedule();
     m_robotContainer.configureCoDriverTestBindings();
   }
 

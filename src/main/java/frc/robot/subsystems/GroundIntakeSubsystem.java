@@ -46,7 +46,8 @@ public class GroundIntakeSubsystem extends SubsystemBase implements Logged {
     private Alert allErrors = new Alert("AllErrors", AlertType.kError);
     @Log(key = "alert sticky fault")
     private Alert allStickyFaults = new Alert("AllStickyFaults", AlertType.kError);
-
+//mass 5lb
+//cog 7.7"
     SparkMaxConfig groundintakeArmConfig;
     SparkMaxConfig groundintakerollerConfig;
 
@@ -95,11 +96,11 @@ public class GroundIntakeSubsystem extends SubsystemBase implements Logged {
      */
 
     public final double minAngle = Units.degreesToRadians(90);
-    public final double maxAngle = Units.degreesToRadians(240);
+    public final double maxAngle = Units.degreesToRadians(210);
     public final double homeAngle = Units.degreesToRadians(100);
 
-    public final double pickupAngle = Units.degreesToRadians(230);
-    public final double deliverAngle = Units.degreesToRadians(170);
+    public final double pickupAngle = Units.degreesToRadians(207);
+    public final double deliverAngle = Units.degreesToRadians(108);
     public final double pickupSpeed = .8;
 
     public final double groundintakerollerKp = .00002; // P gains caused oscilliation
@@ -114,7 +115,7 @@ public class GroundIntakeSubsystem extends SubsystemBase implements Logged {
     public boolean coralAtGroundIntake;
     public boolean simCoralAtGroundIntake;
     public double noCoralAtIntakeTime = 15;
-    private double deliverSpeed = .5;
+    private double deliverSpeed = -.5;
     @Log
     public boolean groundCoralMode;
 
@@ -382,6 +383,8 @@ public class GroundIntakeSubsystem extends SubsystemBase implements Logged {
 
     public Command deliverCoralCommand() {
         return Commands.sequence(
+                Commands.runOnce(() -> m_goal.position = deliverAngle),
+                new WaitCommand(0.5),
                 Commands.runOnce(() -> groundIntakeRollerMotor.set(deliverSpeed)),
                 new WaitCommand(0.25),
                 Commands.runOnce(() -> simCoralAtGroundIntake = false),
