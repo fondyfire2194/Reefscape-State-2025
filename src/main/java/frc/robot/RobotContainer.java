@@ -50,9 +50,11 @@ import frc.robot.commands.Gamepieces.IntakeCoralToSwitch;
 import frc.robot.commands.GroundIntake.GroundIntakeCoralRPMDetect;
 import frc.robot.commands.swervedrive.drivebase.AbsoluteDriveAdv;
 import frc.robot.commands.swervedrive.drivebase.TeleopSwerve;
+import frc.robot.commands.swervedrive.drivebase.TeleopSwerveStation;
 import frc.robot.commands.teleopAutos.GetNearestCoralStationPose;
 import frc.robot.commands.teleopAutos.GetNearestReefZonePose;
 import frc.robot.commands.teleopAutos.PIDDriveToGroundCoral;
+import frc.robot.commands.teleopAutos.PIDDriveToGroundCoralNoRotation;
 import frc.robot.commands.teleopAutos.PIDDriveToReefZoneL1;
 import frc.robot.commands.teleopAutos.PIDDriveToPose;
 import frc.robot.commands.teleopAutos.PIDDriveToPoseCoralStation;
@@ -373,9 +375,9 @@ public class RobotContainer implements Logged {
                                                                                 false)
                                                                                 .withName("IntakeCoral"),
                                                                 Commands.sequence(
-                                                                                Commands.waitSeconds(.5),
+                                                                                Commands.waitSeconds(.5))),
 
-                                                                                cf.homeElevatorAndArm())),
+                                                                                //cf.homeElevatorAndArm())), caused issues 
 
                                                 Commands.parallel(gis.goPickup(),
                                                                 new GroundIntakeCoralRPMDetect(gis)),
@@ -383,15 +385,23 @@ public class RobotContainer implements Logged {
                                                 () -> !gis.groundCoralMode))
                                 .whileTrue(
                                                 Commands.either(
-                                                                new PIDDriveToPoseCoralStation(
-                                                                                drivebase),
+                                                                // new PIDDriveToPoseCoralStation(drivebase)
+                                                                new TeleopSwerveStation(drivebase,
+                                                                                () -> driverXbox.getLeftY()
+                                                                                                * getAllianceFactor(),
+                                                                                () -> driverXbox.getLeftX()
+                                                                                                * getAllianceFactor(),
+                                                                                () -> driverXbox.getRightX()),
                                                                 Commands.deadline(
                                                                                 new GroundIntakeCoralRPMDetect(gis),
                                                                                 Commands.either(
-                                                                                                new PIDDriveToGroundCoral(
-                                                                                                                drivebase,
-                                                                                                                CameraConstants.rearCamera.camname,
-                                                                                                                driverXbox),
+                                                                                                Commands.sequence(
+                                                                                                                new WaitCommand(0.5), //wait for arm to move down to position
+                                                                                                                new PIDDriveToGroundCoralNoRotation( //No rotation correction is 
+                                                                                                                //faster with teleop user lining up
+                                                                                                                                drivebase,
+                                                                                                                                CameraConstants.rearCamera.camname,
+                                                                                                                                driverXbox)),
                                                                                                 new TeleopSwerve(
                                                                                                                 drivebase,
                                                                                                                 () -> driverXbox.getLeftY()
@@ -413,14 +423,14 @@ public class RobotContainer implements Logged {
                 driverXbox.leftBumper().debounce(.1).and(driverXbox.rightBumper().negate())
                                 .whileTrue(
                                                 new ConditionalCommand(
-                                                                Commands.sequence(
-                                                                                getDriveToReefCommand(Side.LEFT),
-                                                                                Commands.parallel(
-                                                                                                new PIDDriveToReefZone(
-                                                                                                                drivebase,
-                                                                                                                drivebase.reefTargetPose),
-                                                                                                cf.setSetpointCommand(
-                                                                                                                setpointPosition))),
+                                                                // Commands.sequence(
+                                                                getDriveToReefCommand(Side.LEFT),
+                                                                // Commands.parallel(
+                                                                // new PIDDriveToReefZone(
+                                                                // drivebase,
+                                                                // drivebase.reefTargetPose),
+                                                                // cf.setSetpointCommand(
+                                                                // setpointPosition))),
 
                                                                 getDriveToL1ReefCommand(Side.LEFT),
 
@@ -429,14 +439,14 @@ public class RobotContainer implements Logged {
                 driverXbox.rightBumper().debounce(.1).and(driverXbox.leftBumper().negate())
                                 .whileTrue(
                                                 new ConditionalCommand(
-                                                                Commands.sequence(
-                                                                                getDriveToReefCommand(Side.RIGHT),
-                                                                                Commands.parallel(
-                                                                                                new PIDDriveToReefZone(
-                                                                                                                drivebase,
-                                                                                                                drivebase.reefTargetPose),
-                                                                                                cf.setSetpointCommand(
-                                                                                                                setpointPosition))),
+                                                                // Commands.sequence(
+                                                                getDriveToReefCommand(Side.RIGHT),
+                                                                // Commands.parallel(
+                                                                // new PIDDriveToReefZone(
+                                                                // drivebase,
+                                                                // drivebase.reefTargetPose),
+                                                                // cf.setSetpointCommand(
+                                                                // setpointPosition))),
 
                                                                 getDriveToL1ReefCommand(Side.RIGHT),
 
@@ -457,7 +467,7 @@ public class RobotContainer implements Logged {
                                                                 Commands.sequence(
                                                                                 drivebase.setSide(Side.CENTER),
                                                                                 new WaitCommand(0.5),
-                                                                                new PIDDriveToPose(drivebase,
+                                                                                new PIDDriveToReefZone(drivebase,
                                                                                                 drivebase.reefTargetPose))),
                                                                 Set.of(drivebase)).withName("Center Reef PID"))
                                 .onTrue(new DetectAlgaeWhileIntaking(algae));
@@ -497,21 +507,8 @@ public class RobotContainer implements Logged {
                 return Commands.defer(
                                 () -> Commands.sequence(
                                                 drivebase.setSide(side),
-                                                Commands.runOnce(
-                                                                () -> drivebase.coralStationFinalTargetPose = drivebase.reefTargetPose
-                                                                                .transformBy(
-                                                                                                l1ApproachTransform2d)),
                                                 new PIDDriveToReefZoneL1(drivebase,
-                                                                drivebase.reefTargetPose.transformBy(
-                                                                                l1ApproachTransform2d),
-                                                                0.1, 3),
-                                                Commands.parallel(
-                                                                new PIDDriveToReefZoneL1(drivebase,
                                                                                 drivebase.reefTargetPose),
-                                                                cf.setSetpointCommand(Setpoint.kLevel1)),
-
-                                                Commands.waitUntil(() -> elevator.atPosition(3)
-                                                                && arm.inPosition(Degrees.of(2))),
                                                 gis.deliverCoralCommand()),
                                 Set.of(drivebase));
         }
@@ -551,12 +548,11 @@ public class RobotContainer implements Logged {
 
                 coDriverXbox = new CommandXboxController(1);
 
-                coDriverXbox.a().onTrue(setSetpointPositionCommand(Setpoint.kLevel1).withName("Set L1"));
+                //coDriverXbox.a().onTrue(setSetpointPositionCommand(Setpoint.kLevel1).withName("Set L1"));
 
                 coDriverXbox.b().onTrue(setSetpointPositionCommand(Setpoint.kLevel2).withName("Set L2"));
 
-                // coDriverXbox.x().onTrue(setSetpointPositionCommand(Setpoint.kLevel3).withName("Set
-                // L3"));
+                coDriverXbox.x().onTrue(setSetpointPositionCommand(Setpoint.kLevel3).withName("Set L3"));
 
                 coDriverXbox.y().onTrue(setSetpointPositionCommand(Setpoint.kLevel4).withName("Set L4"));
 

@@ -18,7 +18,7 @@ import frc.robot.utils.LimelightHelpers;
 import frc.robot.utils.SD;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
-public class PIDDriveToGroundCoral extends Command {
+public class PIDDriveToGroundCoralNoRotation extends Command {
   /** Creates a new FindRobotReefZone. */
   SwerveSubsystem m_swerve;
   CommandXboxController m_controller;
@@ -42,17 +42,12 @@ public class PIDDriveToGroundCoral extends Command {
   Constraints driveConstraints = new Constraints(3.5, 5);
 
   double turnKP = .01;
-  double strafeKP = .0075;
-  double strafemax = .4;
+  double strafeKP = .003;
+  double strafemax = .7;
   private double xerror;
   private double rot;
-  private double AR;
-  private boolean insideAR;
-  private int ARctr;
-  private boolean initalSign;
-  private double sign;
   
-    public PIDDriveToGroundCoral(SwerveSubsystem swerve, String camname, CommandXboxController controller) {
+    public PIDDriveToGroundCoralNoRotation(SwerveSubsystem swerve, String camname, CommandXboxController controller) {
       m_swerve = swerve;
       m_camname = camname;
       m_controller = controller;
@@ -64,10 +59,7 @@ public class PIDDriveToGroundCoral extends Command {
     @Override
     public void initialize() {
       LimelightHelpers.setPipelineIndex(m_camname, 2);
-      insideAR = false;
-      ARctr = 0;
-      initalSign = false;
-      sign = 1;
+      
     }
   
     // Called every time the scheduler runs while the command is scheduled.
@@ -88,10 +80,7 @@ public class PIDDriveToGroundCoral extends Command {
           double centerX = getCenterX(topLeftCornerXFiltered, topRightCornerXFiltered);
           double target = imageWidth / 2;
           xerror = getOffsetFromTarget(centerX, target);
-          double width = topRightCornerXFiltered - topLeftCornerXFiltered;
-  
-          double height = corners[5] - corners[1];
-          AR = ARFilter.calculate(width / height);
+          
           if (showTelemetry) {
             SD.sd2("TopRightXF", topRightCornerXFiltered);
             SD.sd2("TopLeftXF", topLeftCornerXFiltered);
@@ -100,41 +89,16 @@ public class PIDDriveToGroundCoral extends Command {
             SD.sd2("XError", xerror);
             SD.sd2("TX", rot);
   
-            SD.sd2("Width", width);
-            SD.sd2("Height", height);
-            SD.sd2("AR", width / height);
-  
-            // for (int j = 0; j < 8; j++) {
-  
-            // SD.sd("Corners " + String.valueOf(j), corners[j]);
-            // }
           }
         }
-        double turn = 0;
-        double strafe = 0;
+      double strafe = -xerror * strafeKP;
         
-        if (ARctr < 20 && AR < 2.25) {
-          if (!initalSign) {
-            sign = Math.signum(rot);
-          initalSign = true;
-        }
-        turn = (2.45 - AR) * sign;
-        
-      } else {
-        ARctr++;
-      }
-      
-      if (ARctr > 20) {
-        strafe = -xerror * strafeKP;
-        turn = 0;
-      }
-      SmartDashboard.putBoolean("INAR", insideAR);
       strafe = MathUtil.clamp(strafe, -strafemax, strafemax);
       Translation2d trans = new Translation2d(-m_controller.getLeftY(), strafe);
       if (Math.abs(strafe) < 0.08) {
-         trans = new Translation2d(-0.5, 0);
+         trans = new Translation2d(-0.7, 0);
       } 
-      m_swerve.drive(trans, -turn, false, false);
+      m_swerve.drive(trans, 0, false, false);
 
     } else {
       Translation2d trans = new Translation2d(-m_controller.getLeftY(), m_controller.getLeftX());
