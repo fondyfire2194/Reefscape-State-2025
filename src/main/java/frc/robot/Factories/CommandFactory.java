@@ -153,7 +153,7 @@ public class CommandFactory {
                 public static final double kLevel4 = 57.5;
                 public static final int kBarge = 65;
                 public static final int kLevelAlgaeL2 = 30;
-                public static final int kLevelAlgaeL3 = 47;
+                public static final int kLevelAlgaeL3 = 44;
         }
 
         public static final class ArmSetpoints {

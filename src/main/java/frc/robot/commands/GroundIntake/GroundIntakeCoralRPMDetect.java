@@ -27,7 +27,7 @@ public class GroundIntakeCoralRPMDetect extends Command {
   private final int numberDetectsWanted = 25;// 1 second
   private double filteredRPM;
   private Timer noCoralTimer;
-  private double groundIntakeMotorSpeed = .75;
+  private double groundIntakeMotorSpeed = .85;
 
   private double sampledRPM;
 

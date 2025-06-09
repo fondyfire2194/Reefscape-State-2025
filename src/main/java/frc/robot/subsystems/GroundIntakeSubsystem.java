@@ -115,7 +115,7 @@ public class GroundIntakeSubsystem extends SubsystemBase implements Logged {
     public boolean coralAtGroundIntake;
     public boolean simCoralAtGroundIntake;
     public double noCoralAtIntakeTime = 15;
-    private double deliverSpeed = -.5;
+    private double deliverSpeed = -.4;
     @Log
     public boolean groundCoralMode;
 
@@ -386,7 +386,7 @@ public class GroundIntakeSubsystem extends SubsystemBase implements Logged {
                 Commands.runOnce(() -> m_goal.position = deliverAngle),
                 new WaitCommand(0.5),
                 Commands.runOnce(() -> groundIntakeRollerMotor.set(deliverSpeed)),
-                new WaitCommand(0.25),
+                new WaitCommand(0.5),
                 Commands.runOnce(() -> simCoralAtGroundIntake = false),
                 Commands.runOnce(() -> groundIntakeRollerMotor.stopMotor()));
     }

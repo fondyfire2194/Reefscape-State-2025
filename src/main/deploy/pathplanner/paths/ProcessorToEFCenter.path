@@ -3,29 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 5.258989726027397,
-        "y": 2.6576626712328766
-      },
-      "prevControl": null,
-      "nextControl": {
-        "x": 5.522313356164383,
-        "y": 2.074503424657535
-      },
-      "isLocked": false,
-      "linkedName": "ReefEFCenterPose"
-    },
-    {
-      "anchor": {
         "x": 6.054749999999999,
         "y": 0.6125
       },
+      "prevControl": null,
+      "nextControl": {
+        "x": 5.544477739726027,
+        "y": 1.7861729452054795
+      },
+      "isLocked": false,
+      "linkedName": "ProcessorDeliverPose"
+    },
+    {
+      "anchor": {
+        "x": 5.258989726027397,
+        "y": 2.6576626712328766
+      },
       "prevControl": {
-        "x": 5.814940068493151,
-        "y": 1.275299657534247
+        "x": 5.522313356164383,
+        "y": 1.9693236301369863
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "ProcessorDeliverPose"
+      "linkedName": "ReefEFCenterPose"
     }
   ],
   "rotationTargets": [],
@@ -42,13 +42,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -90.0
+    "rotation": 119.4516997286711
   },
   "reversed": false,
   "folder": "CenterAuto",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 119.4516997286711
+    "rotation": -90.0
   },
   "useDefaultConstraints": true
 }

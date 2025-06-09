@@ -133,6 +133,8 @@ public class RobotContainer implements Logged {
 
         EventTrigger eventTriggerL4 = new EventTrigger("ElevatorL4Event");
         EventTrigger eventTriggerL2 = new EventTrigger("ElevatorL2Event");
+        EventTrigger eventTriggerAlgaeL3 = new EventTrigger("IntakeAlgaeL3Event");
+
         // Applies deadbands and inverts controls because joysticks
         // are back-right positive while robot
         // controls are front-left positive
@@ -322,6 +324,7 @@ public class RobotContainer implements Logged {
 
                         eventTriggerL4.onTrue(cf.setSetpointCommand(Setpoint.kLevel4));
                         eventTriggerL2.onTrue(cf.setSetpointCommand(Setpoint.kLevel2));
+                        eventTriggerAlgaeL3.onTrue(cf.pickupAlgaeL3());
 
                 }
         }

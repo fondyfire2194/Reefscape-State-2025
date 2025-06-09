@@ -7,6 +7,7 @@ package frc.robot.commands.teleopAutos;
 import java.util.function.DoubleSupplier;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.filter.MedianFilter;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
@@ -46,6 +47,7 @@ public class PIDDriveToGroundCoralNoRotation extends Command {
   double strafemax = .7;
   private double xerror;
   private double rot;
+  private PIDController strafeController = new PIDController(0.05, 0, 0);
   
     public PIDDriveToGroundCoralNoRotation(SwerveSubsystem swerve, String camname, CommandXboxController controller) {
       m_swerve = swerve;
@@ -59,7 +61,7 @@ public class PIDDriveToGroundCoralNoRotation extends Command {
     @Override
     public void initialize() {
       LimelightHelpers.setPipelineIndex(m_camname, 2);
-      
+      strafeController.setTolerance(2);
     }
   
     // Called every time the scheduler runs while the command is scheduled.
@@ -71,31 +73,34 @@ public class PIDDriveToGroundCoralNoRotation extends Command {
         rot = LimelightHelpers.getTX(m_camname);
         double y = LimelightHelpers.getTY(m_camname);
         corners = LimelightHelpers.getLimelightNTDoubleArray("limelight-rear", "tcornxy");
-        if (corners.length == 8) {
-          double topRightCornerX = corners[topRightX];
-          double topLeftCornerX = corners[topLeftX];
-          topLeftCornerXFiltered = topLeftXFilter.calculate(topLeftCornerX);
-          topRightCornerXFiltered = topRightXFilter.calculate(topRightCornerX);
+        // if (corners.length == 8) {
+        //   double topRightCornerX = corners[topRightX];
+        //   double topLeftCornerX = corners[topLeftX];
+        //   topLeftCornerXFiltered = topLeftXFilter.calculate(topLeftCornerX);
+        //   topRightCornerXFiltered = topRightXFilter.calculate(topRightCornerX);
   
-          double centerX = getCenterX(topLeftCornerXFiltered, topRightCornerXFiltered);
-          double target = imageWidth / 2;
-          xerror = getOffsetFromTarget(centerX, target);
+        //   double centerX = getCenterX(topLeftCornerXFiltered, topRightCornerXFiltered);
+        //   double target = imageWidth / 2;
+        //   xerror = getOffsetFromTarget(centerX, target);
           
-          if (showTelemetry) {
-            SD.sd2("TopRightXF", topRightCornerXFiltered);
-            SD.sd2("TopLeftXF", topLeftCornerXFiltered);
+        //   if (showTelemetry) {
+        //     SD.sd2("TopRightXF", topRightCornerXFiltered);
+        //     SD.sd2("TopLeftXF", topLeftCornerXFiltered);
   
-            SD.sd2("XCenter", centerX);
-            SD.sd2("XError", xerror);
-            SD.sd2("TX", rot);
+        //     SD.sd2("XCenter", centerX);
+        //     SD.sd2("XError", xerror);
+        //     SD.sd2("TX", rot);
   
-          }
-        }
-      double strafe = -xerror * strafeKP;
+        //   }
+        // }
+      double strafe = -strafeController.calculate(rot, 0);
         
       strafe = MathUtil.clamp(strafe, -strafemax, strafemax);
       Translation2d trans = new Translation2d(-m_controller.getLeftY(), strafe);
-      if (Math.abs(strafe) < 0.08) {
+      if (Math.abs(rot) < 5) {
+        trans = new Translation2d(-0.3, strafe);
+      }
+      if (strafeController.atSetpoint()) {
          trans = new Translation2d(-0.7, 0);
       } 
       m_swerve.drive(trans, 0, false, false);
