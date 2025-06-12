@@ -100,7 +100,7 @@ public class GroundIntakeSubsystem extends SubsystemBase implements Logged {
     public final double homeAngle = Units.degreesToRadians(100);
 
     public final double pickupAngle = Units.degreesToRadians(207);
-    public final double deliverAngle = Units.degreesToRadians(108);
+    public final double deliverAngle = Units.degreesToRadians(115); //108
     public final double pickupSpeed = .8;
 
     public final double groundintakerollerKp = .00002; // P gains caused oscilliation
@@ -388,6 +388,7 @@ public class GroundIntakeSubsystem extends SubsystemBase implements Logged {
                 Commands.runOnce(() -> groundIntakeRollerMotor.set(deliverSpeed)),
                 new WaitCommand(0.5),
                 Commands.runOnce(() -> simCoralAtGroundIntake = false),
-                Commands.runOnce(() -> groundIntakeRollerMotor.stopMotor()));
+                Commands.runOnce(() -> groundIntakeRollerMotor.stopMotor()), 
+                Commands.runOnce(() -> m_goal.position = homeAngle));
     }
 }

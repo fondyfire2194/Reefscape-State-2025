@@ -97,11 +97,13 @@ public class PIDDriveToGroundCoralNoRotation extends Command {
         
       strafe = MathUtil.clamp(strafe, -strafemax, strafemax);
       Translation2d trans = new Translation2d(-m_controller.getLeftY(), strafe);
+      double multiplier = -Math.abs(m_controller.getLeftY()) * 0.75;
+      SmartDashboard.putNumber("Multiplier", multiplier);
       if (Math.abs(rot) < 5) {
-        trans = new Translation2d(-0.3, strafe);
+        trans = new Translation2d(-0.3 + multiplier, strafe);
       }
       if (strafeController.atSetpoint()) {
-         trans = new Translation2d(-0.7, 0);
+         trans = new Translation2d(-0.7 + multiplier, 0);
       } 
       m_swerve.drive(trans, 0, false, false);
 

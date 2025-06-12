@@ -150,9 +150,9 @@ public class CommandFactory {
                 public static final int kLevel1 = 6;
                 public static final int kLevel2 = 13;
                 public static final int kLevel3 = 30;
-                public static final double kLevel4 = 57.5;
+                public static final double kLevel4 = 56.5;//57.5;
                 public static final int kBarge = 65;
-                public static final int kLevelAlgaeL2 = 30;
+                public static final int kLevelAlgaeL2 = 27;
                 public static final int kLevelAlgaeL3 = 44;
         }
 
@@ -211,7 +211,7 @@ public class CommandFactory {
                                                 .getPosition()) < m_arm.armClearAngleDeg),
                                 m_elevator.setGoalInchesCommand(inches),
                                 new WaitCommand(0.2),
-                                Commands.waitUntil(() -> m_elevator.atPosition(3)),
+                                Commands.waitUntil(() -> m_elevator.atPosition(10)),
                                 Commands.runOnce(() -> m_arm.setGoalDegrees(degrees_second)),
                                 Commands.waitUntil(() -> m_arm.inPosition(Degrees.of(3))));
         }
