@@ -150,7 +150,7 @@ public class CommandFactory {
                 public static final int kLevel1 = 6;
                 public static final int kLevel2 = 13;
                 public static final int kLevel3 = 30;
-                public static final double kLevel4 = 56.5;//57.5;
+                public static final double kLevel4 = 57.25;//57.5;
                 public static final int kBarge = 65;
                 public static final int kLevelAlgaeL2 = 27;
                 public static final int kLevelAlgaeL3 = 44;

@@ -596,25 +596,25 @@ public class RobotContainer implements Logged {
                 coCoDriverXbox = new CommandXboxController(2);
                 coCoDriverXbox.rightBumper().onTrue(cf.homeElevatorAndArm().withName("Home Elevator Arm"));
 
-                coCoDriverXbox.povUp().onTrue(arm.setGoalDegreesCommand(ArmSetpoints.kCoralStation));
+                // coCoDriverXbox.povUp().onTrue(arm.setGoalDegreesCommand(ArmSetpoints.kCoralStation));
 
-                coCoDriverXbox.povDown().onTrue(arm.setGoalDegreesCommand(ArmSetpoints.kLevel2));
+                // coCoDriverXbox.povDown().onTrue(arm.setGoalDegreesCommand(ArmSetpoints.kLevel2));
 
-                coCoDriverXbox.povLeft().onTrue(arm.setGoalDegreesCommand(ArmSetpoints.kLevel4_1));
+                // coCoDriverXbox.povLeft().onTrue(arm.setGoalDegreesCommand(ArmSetpoints.kLevel4_1));
 
-                coDriverXbox.povRight().onTrue(arm.setGoalDegreesCommand(ArmSetpoints.kLevel4_2));
+                // coDriverXbox.povRight().onTrue(arm.setGoalDegreesCommand(ArmSetpoints.kLevel4_2));
 
                 coCoDriverXbox.rightTrigger().onTrue(elevator.setGoalInchesCommand(ArmSetpoints.kLevel1));
 
-                coCoDriverXbox.a().onTrue(elevator.setGoalInchesCommand(ElevatorSetpoints.kHome));
+                //coCoDriverXbox.a().onTrue(elevator.setGoalInchesCommand(ElevatorSetpoints.kHome));
 
-                coCoDriverXbox.b().onTrue(elevator.setGoalInchesCommand(ElevatorSetpoints.kLevel1));
+                coCoDriverXbox.b().onTrue(cf.setSetpointCommand(Setpoint.kLevel2));
 
-                coCoDriverXbox.x().onTrue(elevator.setGoalInchesCommand(ElevatorSetpoints.kLevel2));
+                coCoDriverXbox.x().onTrue(cf.setSetpointCommand(Setpoint.kLevel3));
 
-                coCoDriverXbox.y().onTrue(elevator.setGoalInchesCommand(ElevatorSetpoints.kLevel3));
+                coCoDriverXbox.y().onTrue(cf.setSetpointCommand(Setpoint.kLevel4));
 
-                coCoDriverXbox.leftTrigger().onTrue(elevator.setGoalInchesCommand(ElevatorSetpoints.kLevel4));
+                //coCoDriverXbox.leftTrigger().onTrue(elevator.setGoalInchesCommand(ElevatorSetpoints.kLevel4));
 
         }
 
