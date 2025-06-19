@@ -6,7 +6,6 @@ package frc.robot.utils;
 
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -39,37 +38,32 @@ public class LimelightTagsUpdate {
         SmartDashboard.putNumber("TagUpdate/LLGyroRead", m_swerve.getPose().getRotation().getDegrees());
         LimelightHelpers.SetRobotOrientation(m_cam.camname,
                 m_swerve.getPose().getRotation().getDegrees(),
-                // m_swerve.getHeadingDegrees(),
                 m_swerve.getGyroRate(), 0, 0, 0, 0); // m_swerve.getPoseEstimator().getEstimatedPosition().getRotation().getDegrees()
     }
 
     public void execute() {
-
+        rejectUpdate = true;
         if (m_cam.isActive && LimelightHelpers.getTV(m_cam.camname)) {
             setLLRobotorientation();
             if (m_useMegaTag2) {
                 setLLRobotorientation();
                 LimelightHelpers.PoseEstimate mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(m_cam.camname);
-                m_swerve.distanceLimelightToEstimator = mt2.pose.getTranslation()
-                        .getDistance(m_swerve.getPoseEstimator().getEstimatedPosition().getTranslation());
+                m_swerve.distanceLimelightToEstimator = mt2.rawFiducials[0].distToCamera;
 
-                rejectUpdate = mt2.tagCount == 0 || Math.abs(m_swerve.getGyroRate()) > 720
-                        || (mt2.tagCount == 1 && mt2.rawFiducials.length == 1 &&
-                                mt2.rawFiducials[0].ambiguity > .7
-                                && mt2.rawFiducials[0].distToCamera > 4);
+                rejectUpdate = mt2.tagCount == 0
+                        || Math.abs(m_swerve.getGyroRate()) > 720
+                        || (mt2.tagCount == 1 && mt2.rawFiducials[0].ambiguity > .7)
+                        || mt2.rawFiducials[0].distToCamera > 4;
 
-                SmartDashboard.putNumber("TagUpdate/DistanceToTagMT2", m_swerve.distanceLimelightToEstimator);
                 SmartDashboard.putBoolean("TagUpdate/RejectUpdateMT2" + m_cam.camname, rejectUpdate);
 
                 mt2PosePublisher.set(mt2.pose);
 
-                // SmartDashboard.putNumber("LLMT2 X", mt2.pose.getTranslation().getX());
-                // SmartDashboard.putNumber("LLMT2 Y", mt2.pose.getTranslation().getY());
-
                 if (!rejectUpdate) {
                     double standard_devs = mt2.rawFiducials[0].distToCamera / 2;// 0.5
-                    m_swerve.getPoseEstimator().setVisionMeasurementStdDevs(VecBuilder.fill(standard_devs,
-                            standard_devs, 9999999));
+                    m_swerve.getPoseEstimator().setVisionMeasurementStdDevs(
+                            VecBuilder.fill(standard_devs,
+                                    standard_devs, 9999999));
                     m_swerve.getPoseEstimator().addVisionMeasurement(
                             mt2.pose,
                             mt2.timestampSeconds);

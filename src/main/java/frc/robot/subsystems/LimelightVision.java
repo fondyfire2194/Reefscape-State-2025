@@ -81,22 +81,6 @@ public class LimelightVision extends SubsystemBase implements Logged {
     LimelightHelpers.SetFiducialIDFiltersOverride(camname, autoTagFilter);
   }
 
-  @Log(key = "distancetotag")
-  public double getDistanceToTag(String camname) {
-    if (LimelightHelpers.getTV(camname)) {
-      Pose3d tag3dpose = LimelightHelpers.getTargetPose3d_CameraSpace(camname);
-      return tag3dpose.getTranslation().getNorm();
-    } else
-      return 0;
-  }
-
-  public BooleanSupplier getTXOKDeliverCoral() {
-    double tx = LimelightHelpers.getTX(frontname);
-    double distance = Units.metersToInches(getDistanceToTag(frontname));
-    double yerror = Math.tan(Units.degreesToRadians(tx)) * distance;
-    return () -> yerror < 2;
-  }
-
   @Override
   public void periodic() {
 

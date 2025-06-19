@@ -19,6 +19,7 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.Constants.FieldConstants;
 import frc.robot.VisionConstants.CameraConstants;
 import frc.robot.commands.Arm.PositionHoldArmPID;
 import frc.robot.commands.Elevator.PositionHoldElevatorPID;
@@ -88,9 +89,9 @@ public class Robot extends TimedRobot implements Logged {
     }
     if (RobotBase.isReal()) {
       URCL.start();
-      //UsbCamera camera = CameraServer.startAutomaticCapture();
+      // UsbCamera camera = CameraServer.startAutomaticCapture();
       // Set the resolution
-      //camera.setResolution(640, 480);
+      // camera.setResolution(640, 480);
     }
   }
 
@@ -135,6 +136,12 @@ public class Robot extends TimedRobot implements Logged {
 
     m_robotContainer.drivebase.frontUpdate.setLLRobotorientation();
     m_robotContainer.drivebase.rearUpdate.setLLRobotorientation();
+
+    m_robotContainer.drivebase.frontUpdate.setUseMegatag2(true);
+    m_robotContainer.drivebase.rearUpdate.setUseMegatag2(true);
+
+    m_robotContainer.llv.inhibitFrontVision = false;
+    m_robotContainer.llv.inhibitRearVision = true;
   }
 
   @Override
@@ -173,6 +180,11 @@ public class Robot extends TimedRobot implements Logged {
    */
   @Override
   public void autonomousInit() {
+    if (m_robotContainer.drivebase.isBlueAlliance())
+      LimelightHelpers.SetFiducialIDFiltersOverride(CameraConstants.frontCamera.camname, FieldConstants.blueReefTags);
+    else
+      LimelightHelpers.SetFiducialIDFiltersOverride(CameraConstants.frontCamera.camname, FieldConstants.redReefTags);
+
     m_robotContainer.setMotorBrake(true);
 
     m_robotContainer.preIn.preIntakeToStartCommand().schedule();
