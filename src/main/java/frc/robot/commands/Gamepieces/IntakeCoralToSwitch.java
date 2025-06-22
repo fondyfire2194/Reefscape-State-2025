@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Factories.CommandFactory.ArmSetpoints;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.GamepieceSubsystem;
+import frc.robot.subsystems.PreIntakeSubsystem;
 import frc.robot.utils.SD;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
@@ -18,6 +19,7 @@ import frc.robot.utils.SD;
 public class IntakeCoralToSwitch extends Command {
   /** Creates a new IntakeCoralToswitch. */
   private final GamepieceSubsystem m_gamepiece;
+  private final PreIntakeSubsystem m_preIn;
   private final ArmSubsystem m_arm;
   private final boolean m_autoUnstick;
   private Timer coralStuckTimer;
@@ -31,9 +33,11 @@ public class IntakeCoralToSwitch extends Command {
   private double coralReverseSpeedLimit = .02;
   private boolean reversing;
 
-  public IntakeCoralToSwitch(GamepieceSubsystem gamepiece, ArmSubsystem arm, boolean autoUnstick) {
+  public IntakeCoralToSwitch(GamepieceSubsystem gamepiece, PreIntakeSubsystem prein, ArmSubsystem arm,
+      boolean autoUnstick) {
     // Use addRequirements() here to declare subsystem dependencies.
     m_gamepiece = gamepiece;
+    m_preIn = prein;
     m_arm = arm;
     m_autoUnstick = autoUnstick;
   }
@@ -79,8 +83,8 @@ public class IntakeCoralToSwitch extends Command {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-     m_gamepiece.simcoralatswitch = RobotBase.isSimulation();
-     m_gamepiece.simcoralatpreintake=false;
+    m_gamepiece.simcoralatswitch = RobotBase.isSimulation();
+    m_preIn.simcoralatpreintake = false;
     if (m_gamepiece.coralAtIntake())
       m_arm.setGoalDegrees(ArmSetpoints.kTravel);
     m_gamepiece.stopCoralIntakeMotor();

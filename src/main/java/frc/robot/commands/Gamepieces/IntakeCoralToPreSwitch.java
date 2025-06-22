@@ -9,27 +9,32 @@ import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.GamepieceSubsystem;
+import frc.robot.subsystems.PreIntakeSubsystem;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 
 public class IntakeCoralToPreSwitch extends Command {
   /** Creates a new IntakeCoralToswitch. */
   private final GamepieceSubsystem m_gamepiece;
+  private final PreIntakeSubsystem m_preIn;
+
   private Timer noCoralTimer;
   private double coralIntakeSpeed = .55;
   private double gamepieceMototorSpeed = .45;
   private Debouncer preInSwitchDelay;
   private double debounceTime = .125;
 
-  public IntakeCoralToPreSwitch(GamepieceSubsystem gamepiece) {
+  public IntakeCoralToPreSwitch(GamepieceSubsystem gamepiece, PreIntakeSubsystem preIn) {
     // Use addRequirements() here to declare subsystem dependencies.
     m_gamepiece = gamepiece;
+    m_preIn = preIn;
+  
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    m_gamepiece.simcoralatpreintake = false;
+    m_preIn.simcoralatpreintake = false;
     preInSwitchDelay = new Debouncer(debounceTime);
 
     noCoralTimer = new Timer();
@@ -49,7 +54,7 @@ public class IntakeCoralToPreSwitch extends Command {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    m_gamepiece.simcoralatpreintake = RobotBase.isSimulation();
+    m_preIn.simcoralatpreintake = RobotBase.isSimulation();
     if (m_gamepiece.coralAtIntake()) {
       m_gamepiece.stopCoralIntakeMotor();
       m_gamepiece.stopGamepieceMotor();
@@ -59,7 +64,7 @@ public class IntakeCoralToPreSwitch extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return preInSwitchDelay.calculate(m_gamepiece.coralAtPreIntake())
+    return preInSwitchDelay.calculate(m_preIn.coralAtPreIntake())
         || m_gamepiece.coralAtIntake()
         || noCoralTimer.hasElapsed(m_gamepiece.noCoralAtSwitchTime);
 

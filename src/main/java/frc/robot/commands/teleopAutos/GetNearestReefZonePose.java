@@ -136,10 +136,8 @@ public class GetNearestReefZonePose extends Command {
     m_swerve.minusBorderPose = new Pose2d(robotX, minusYBorder, new Rotation2d());
 
     m_swerve.lockPoseChange = true;
-    m_swerve.reefTargetPose = m_swerve.getTagPose(m_swerve.reefZoneTag).toPose2d();
+    m_swerve.setReefTargetPose(m_swerve.getTagPose(m_swerve.reefZoneTag).toPose2d());
     m_swerve.lockPoseChange = false;
-
-    m_swerve.reefFinalTargetPose = getFinalReefPose();
 
     m_ledStrip.setViewOneSolidColor(m_swerve.reefZone);
   }
@@ -243,29 +241,6 @@ public class GetNearestReefZonePose extends Command {
 
   boolean checkRedKLZone() {
     return robotX > FieldConstants.redReefMidFromCenterFieldX && robotY < FieldConstants.FIELD_WIDTH / 2;
-  }
-
-  Pose2d getFinalReefPose() {
-
-    Pose2d targetPose = new Pose2d();
-    Translation2d tl2d = new Translation2d();
-    Side m_side = m_swerve.side;
-
-    targetPose = m_swerve.reefTargetPose;
-
-    double baseOffsetX = RobotConstants.placementOffsetX + RobotConstants.ROBOT_LENGTH / 2;
-    double baseOffsetY = RobotConstants.placementOffsetY;
-    if (m_side == Side.CENTER)
-      tl2d = new Translation2d(baseOffsetX, baseOffsetY);
-    if (m_side == Side.RIGHT)
-      tl2d = new Translation2d(baseOffsetX, FieldConstants.reefOffset);
-    if (m_side == Side.LEFT)
-      tl2d = new Translation2d(baseOffsetX, -FieldConstants.reefOffset);
-
-    Transform2d tr2d = new Transform2d(tl2d, new Rotation2d(Units.degreesToRadians(180)));
-
-    return targetPose.transformBy(tr2d);
-
   }
 
   // Called once the command ends or is interrupted.

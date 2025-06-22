@@ -38,7 +38,6 @@ import frc.robot.Constants.OperatorConstants;
 import frc.robot.VisionConstants.CameraConstants;
 import frc.robot.Factories.CommandFactory;
 import frc.robot.Factories.CommandFactory.ArmSetpoints;
-import frc.robot.Factories.CommandFactory.ElevatorSetpoints;
 import frc.robot.Factories.CommandFactory.Setpoint;
 import frc.robot.commands.Arm.JogArm;
 import frc.robot.commands.Arm.PositionHoldArmPID;
@@ -53,12 +52,9 @@ import frc.robot.commands.swervedrive.drivebase.TeleopSwerve;
 import frc.robot.commands.swervedrive.drivebase.TeleopSwerveStation;
 import frc.robot.commands.teleopAutos.GetNearestCoralStationPose;
 import frc.robot.commands.teleopAutos.GetNearestReefZonePose;
-import frc.robot.commands.teleopAutos.PIDDriveToGroundCoral;
 import frc.robot.commands.teleopAutos.PIDDriveToGroundCoralNoRotation;
-import frc.robot.commands.teleopAutos.PIDDriveToReefZoneL1;
-import frc.robot.commands.teleopAutos.PIDDriveToPose;
-import frc.robot.commands.teleopAutos.PIDDriveToPoseCoralStation;
 import frc.robot.commands.teleopAutos.PIDDriveToReefZone;
+import frc.robot.commands.teleopAutos.PIDDriveToReefZoneL1;
 import frc.robot.subsystems.AlgaeSubsystem;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.ElevatorArmSim;
@@ -70,8 +66,6 @@ import frc.robot.subsystems.LimelightVision;
 import frc.robot.subsystems.PreIntakeSubsystem;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 import frc.robot.utils.LedStrip;
-import frc.robot.utils.LimelightHelpers;
-import frc.robot.utils.SD;
 import monologue.Annotations.Log;
 import monologue.Logged;
 import swervelib.SwerveInputStream;
@@ -284,22 +278,22 @@ public class RobotContainer implements Logged {
 
                         NamedCommands.registerCommand("Deliver Coral L4", cf.deliverCoralL4());
 
-                        NamedCommands.registerCommand("Deliver Coral", gamepieces.deliverCoralCommand());
+                        NamedCommands.registerCommand("Deliver Coral", cf.deliverCoralCommand());
 
                         NamedCommands.registerCommand("IntakeCoralToSwitch",
-                                        new IntakeCoralToSwitch(gamepieces, arm, true)
+                                        new IntakeCoralToSwitch(gamepieces, preIn, arm, true)
                                                         .withName("IntakeCoralToSwitch"));
 
                         NamedCommands.registerCommand("DelayStartIntake",
                                         Commands.sequence(
                                                         Commands.waitSeconds(.5),
-                                                        new IntakeCoralToSwitch(gamepieces, arm, false))
+                                                        new IntakeCoralToSwitch(gamepieces, preIn, arm, false))
                                                         .withName("DelayedIntakeCoral"));
 
                         NamedCommands.registerCommand("DelayStartPreIntake",
                                         Commands.sequence(
                                                         Commands.waitSeconds(.5),
-                                                        new IntakeCoralToPreSwitch(gamepieces))
+                                                        new IntakeCoralToPreSwitch(gamepieces, preIn))
                                                         .withName("DelayedPreIntakeCoral"));
 
                         NamedCommands.registerCommand("Intake Algae L2",
@@ -373,14 +367,14 @@ public class RobotContainer implements Logged {
                 driverXbox.leftTrigger().onTrue(
                                 Commands.either(
                                                 Commands.parallel(
-                                                                new IntakeCoralToPreSwitch(gamepieces),
-                                                                new IntakeCoralToSwitch(gamepieces, arm,
+                                                                new IntakeCoralToPreSwitch(gamepieces, preIn),
+                                                                new IntakeCoralToSwitch(gamepieces, preIn, arm,
                                                                                 false)
                                                                                 .withName("IntakeCoral"),
                                                                 Commands.sequence(
                                                                                 Commands.waitSeconds(.5))),
 
-                                                                                //cf.homeElevatorAndArm())), caused issues 
+                                                // cf.homeElevatorAndArm())), caused issues
 
                                                 Commands.parallel(gis.goPickup(),
                                                                 new GroundIntakeCoralRPMDetect(gis)),
@@ -399,9 +393,24 @@ public class RobotContainer implements Logged {
                                                                                 new GroundIntakeCoralRPMDetect(gis),
                                                                                 Commands.either(
                                                                                                 Commands.sequence(
-                                                                                                                new WaitCommand(0.5), //wait for arm to move down to position
-                                                                                                                new PIDDriveToGroundCoralNoRotation( //No rotation correction is 
-                                                                                                                //faster with teleop user lining up
+                                                                                                                new WaitCommand(0.5), // wait
+                                                                                                                                      // for
+                                                                                                                                      // arm
+                                                                                                                                      // to
+                                                                                                                                      // move
+                                                                                                                                      // down
+                                                                                                                                      // to
+                                                                                                                                      // position
+                                                                                                                new PIDDriveToGroundCoralNoRotation( // No
+                                                                                                                                                     // rotation
+                                                                                                                                                     // correction
+                                                                                                                                                     // is
+                                                                                                                                // faster
+                                                                                                                                // with
+                                                                                                                                // teleop
+                                                                                                                                // user
+                                                                                                                                // lining
+                                                                                                                                // up
                                                                                                                                 drivebase,
                                                                                                                                 CameraConstants.rearCamera.camname,
                                                                                                                                 driverXbox)),
@@ -413,46 +422,29 @@ public class RobotContainer implements Logged {
                                                                                                                                 * getAllianceFactor(),
                                                                                                                 () -> driverXbox.getRightX(),
                                                                                                                 () -> correctAngle),
-                                                                                                () -> false)),// () -> LimelightHelpers
-                                                                                                //                 .getTV(CameraConstants.rearCamera.camname))),
+                                                                                                () -> false)), // () ->
+                                                                                                               // LimelightHelpers
+                                                                // .getTV(CameraConstants.rearCamera.camname))),
                                                                 () -> !gis.groundCoralMode));
 
                 driverXbox.rightTrigger().onTrue(
                                 Commands.either(
-                                                gamepieces.deliverCoralFasterCommand().withName("Deliver Coral"),
+                                                cf.deliverCoralFasterCommand().withName("Deliver Coral"),
                                                 gis.deliverCoralCommand(),
                                                 () -> !gis.groundCoralMode));
 
                 driverXbox.leftBumper().debounce(.1).and(driverXbox.rightBumper().negate())
                                 .whileTrue(
                                                 new ConditionalCommand(
-                                                                // Commands.sequence(
                                                                 getDriveToReefCommand(Side.LEFT),
-                                                                // Commands.parallel(
-                                                                // new PIDDriveToReefZone(
-                                                                // drivebase,
-                                                                // drivebase.reefTargetPose),
-                                                                // cf.setSetpointCommand(
-                                                                // setpointPosition))),
-
                                                                 getDriveToL1ReefCommand(Side.LEFT),
-
                                                                 () -> !gis.groundCoralMode));
 
                 driverXbox.rightBumper().debounce(.1).and(driverXbox.leftBumper().negate())
                                 .whileTrue(
                                                 new ConditionalCommand(
-                                                                // Commands.sequence(
                                                                 getDriveToReefCommand(Side.RIGHT),
-                                                                // Commands.parallel(
-                                                                // new PIDDriveToReefZone(
-                                                                // drivebase,
-                                                                // drivebase.reefTargetPose),
-                                                                // cf.setSetpointCommand(
-                                                                // setpointPosition))),
-
                                                                 getDriveToL1ReefCommand(Side.RIGHT),
-
                                                                 () -> !gis.groundCoralMode));
 
                 driverXbox.rightBumper().and(driverXbox.leftBumper())
@@ -471,7 +463,7 @@ public class RobotContainer implements Logged {
                                                                                 drivebase.setSide(Side.CENTER),
                                                                                 new WaitCommand(0.5),
                                                                                 new PIDDriveToReefZone(drivebase,
-                                                                                                drivebase.reefTargetPose))),
+                                                                                                drivebase.getReefTargetPose()))),
                                                                 Set.of(drivebase)).withName("Center Reef PID"))
                                 .onTrue(new DetectAlgaeWhileIntaking(algae));
 
@@ -486,13 +478,6 @@ public class RobotContainer implements Logged {
                                 Commands.sequence(
                                                 Commands.runOnce(() -> gis.groundCoralMode = !gis.groundCoralMode),
                                                 Commands.none()));
-                // Commands.either(
-                // CommandFactory.rumbleDriver(RumbleType.kLeftRumble, .5,
-                // .5, 1),
-                // CommandFactory.rumbleDriver(RumbleType.kRightRumble, .5,
-                // .5, 1),
-                // () -> gis.groundCoralMode);
-
                 driverXbox.povRight().onTrue(gis.goHome());
         }
 
@@ -511,7 +496,7 @@ public class RobotContainer implements Logged {
                                 () -> Commands.sequence(
                                                 drivebase.setSide(side),
                                                 new PIDDriveToReefZoneL1(drivebase,
-                                                                                drivebase.reefTargetPose),
+                                                                drivebase.getReefTargetPose()),
                                                 gis.deliverCoralCommand()),
                                 Set.of(drivebase));
         }
@@ -522,23 +507,23 @@ public class RobotContainer implements Logged {
                                                 drivebase.setSide(side),
                                                 new ConditionalCommand(
                                                                 new PIDDriveToReefZone(drivebase,
-                                                                                drivebase.reefTargetPose.transformBy(
+                                                                                drivebase.getReefTargetPose().transformBy(
                                                                                                 l4approachTransform2d),
                                                                                 0.1, 3),
                                                                 new PIDDriveToReefZone(drivebase,
-                                                                                drivebase.reefTargetPose.transformBy(
+                                                                                drivebase.getReefTargetPose().transformBy(
                                                                                                 lowerApproachTransform2d),
                                                                                 0.15, 3), // 0.1 and 3
                                                                 () -> setpointPosition == Setpoint.kLevel4),
 
                                                 Commands.parallel(
                                                                 new PIDDriveToReefZone(drivebase,
-                                                                                drivebase.reefTargetPose),
+                                                                                drivebase.getReefTargetPose()),
                                                                 cf.setSetpointCommand(setpointPosition)),
 
                                                 Commands.waitUntil(() -> elevator.atPosition(3)
                                                                 && arm.inPosition(Degrees.of(2))),
-                                                gamepieces.deliverCoralFasterCommand()),
+                                                cf.deliverCoralFasterCommand()),
                                 Set.of(drivebase));
 
         }
@@ -551,7 +536,8 @@ public class RobotContainer implements Logged {
 
                 coDriverXbox = new CommandXboxController(1);
 
-                //coDriverXbox.a().onTrue(setSetpointPositionCommand(Setpoint.kLevel1).withName("Set L1"));
+                // coDriverXbox.a().onTrue(setSetpointPositionCommand(Setpoint.kLevel1).withName("Set
+                // L1"));
 
                 coDriverXbox.b().onTrue(setSetpointPositionCommand(Setpoint.kLevel2).withName("Set L2"));
 
@@ -606,7 +592,7 @@ public class RobotContainer implements Logged {
 
                 coCoDriverXbox.rightTrigger().onTrue(elevator.setGoalInchesCommand(ArmSetpoints.kLevel1));
 
-                //coCoDriverXbox.a().onTrue(elevator.setGoalInchesCommand(ElevatorSetpoints.kHome));
+                // coCoDriverXbox.a().onTrue(elevator.setGoalInchesCommand(ElevatorSetpoints.kHome));
 
                 coCoDriverXbox.b().onTrue(cf.setSetpointCommand(Setpoint.kLevel2));
 
@@ -614,7 +600,7 @@ public class RobotContainer implements Logged {
 
                 coCoDriverXbox.y().onTrue(cf.setSetpointCommand(Setpoint.kLevel4));
 
-                //coCoDriverXbox.leftTrigger().onTrue(elevator.setGoalInchesCommand(ElevatorSetpoints.kLevel4));
+                // coCoDriverXbox.leftTrigger().onTrue(elevator.setGoalInchesCommand(ElevatorSetpoints.kLevel4));
 
         }
 

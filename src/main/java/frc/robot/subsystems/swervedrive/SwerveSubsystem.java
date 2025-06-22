@@ -89,15 +89,16 @@ public class SwerveSubsystem extends SubsystemBase implements Logged {
   public LimelightTagsUpdate frontUpdate = new LimelightTagsUpdate(CameraConstants.frontCamera, this);
   public LimelightTagsUpdate rearUpdate = new LimelightTagsUpdate(CameraConstants.rearCamera, this);
 
-  @Log
+  @Log(key = "currentReefSection")
   public int reefZone = 0;
   public int reefZoneLast = 0;
 
   public int reefZoneTag = 0;
-  @Log
-  public Pose2d reefTargetPose = new Pose2d();
-  @Log
-  public Pose2d reefFinalTargetPose = new Pose2d();
+  @Log(key = "currentReefTargetPose2d")
+  private Pose2d reefTargetPose = new Pose2d();
+
+  @Log(key = "currentReefFinalTargetPose2d")
+  private Pose2d reefFinalTargetPose = new Pose2d();
 
   public Pose2d poseTagActive = new Pose2d();
 
@@ -121,6 +122,14 @@ public class SwerveSubsystem extends SubsystemBase implements Logged {
   public Pose2d processorStationTargetPose = new Pose2d();
   @Log
   public Pose2d processorStationFinalTargetPose = new Pose2d();
+  @Log(key = "autostartpose")
+  public Pose2d startingPose = new Pose2d();
+  @Log(key = "autostartposediffX")
+  public double startPoseDifferenceX;
+  @Log(key = "autostartposediffY")
+  public double startPoseDifferenceY;
+  @Log(key = "autostartposediffTheta")
+  public double startPoseDifferenceTheta;
 
   @Log
   public Side side = Side.LEFT;
@@ -135,6 +144,10 @@ public class SwerveSubsystem extends SubsystemBase implements Logged {
 
   StructPublisher<Pose2d> robotPosePublisher = NetworkTableInstance.getDefault()
       .getStructTopic("RobotPose", Pose2d.struct).publish();
+
+  private double finalMetersToReef;
+
+  private double finalDegreesToReef;
 
   /**
    * Initialize {@link SwerveDrive} with the directory provided.
@@ -233,18 +246,18 @@ public class SwerveSubsystem extends SubsystemBase implements Logged {
     // for our weird issue but add swerveDrive.stopOdometryThread(); to the
     // constructor if this is called
 
-    double x = getPose().getX();
+    // double x = getPose().getX();
 
-    SmartDashboard.putNumber("XXXXXINCHES", Units.metersToInches(x));
+    // SmartDashboard.putNumber("XXXXXINCHES", Units.metersToInches(x));
 
     frontUpdate.execute();
 
     rearUpdate.execute();
-
   }
 
   @Override
   public void simulationPeriodic() {
+
   }
 
   /**
@@ -801,11 +814,13 @@ public class SwerveSubsystem extends SubsystemBase implements Logged {
   public Rotation2d getPitch() {
     return swerveDrive.getPitch();
   }
+
   @Log(key = "yaw")
   public Rotation2d getYaw() {
     return swerveDrive.getYaw();
   }
-  @Log(key = "roll") 
+
+  @Log(key = "roll")
   public Rotation2d getRoll() {
     return swerveDrive.getRoll();
   }
@@ -834,12 +849,48 @@ public class SwerveSubsystem extends SubsystemBase implements Logged {
       return new Pose3d();
   }
 
+  public double getPoseToPoseDistance(Pose2d pose1, Pose2d pose2) {
+    return pose1.getTranslation().getDistance(pose2.getTranslation());
+  }
+
+  public Rotation2d getPoseToPoseRotation(Pose2d pose1, Pose2d pose2) {
+    return pose1.getRotation().minus(pose2.getRotation());
+  }
+
   public double getGyroRate() {
     return swerveDrive.getGyro().getYawAngularVelocity().abs(DegreesPerSecond);
   }
 
   public Pose2d getFinalReefTargetPose() {
     return reefFinalTargetPose;
+  }
+
+  public void setFinalReefTargetPose(Pose2d pose) {
+    reefFinalTargetPose = pose;
+  }
+
+  public Pose2d getReefTargetPose() {
+    return reefTargetPose;
+  }
+
+  public void setReefTargetPose(Pose2d pose) {
+    reefTargetPose = pose;
+  }
+
+  public void setReefFinalDist(double val) {
+    finalMetersToReef = val;
+  }
+
+  public double getReefFinalDistance() {
+    return finalMetersToReef;
+  }
+
+  public void setReefFinalAngle(double val) {
+    finalDegreesToReef = val;
+  }
+
+  public double getReefFinalAngle() {
+    return finalDegreesToReef;
   }
 
   public Command rumble(CommandXboxController controller, RumbleType type, double timeout) {

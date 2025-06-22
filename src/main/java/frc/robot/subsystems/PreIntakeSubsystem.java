@@ -2,6 +2,7 @@ package frc.robot.subsystems;
 
 import java.util.function.DoubleSupplier;
 
+import com.revrobotics.ColorSensorV3;
 import com.revrobotics.spark.ClosedLoopSlot;
 import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkBase.PersistMode;
@@ -17,6 +18,9 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
+import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.I2C.Port;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -41,6 +45,12 @@ public class PreIntakeSubsystem extends SubsystemBase implements Logged {
     private Alert allStickyFaults = new Alert("AllStickyFaults", AlertType.kError);
 
     SparkMaxConfig preintakeConfig;
+
+    public DigitalInput coralEarlyDetectSwitch = new DigitalInput(1);
+
+    public boolean simcoralatpreintake;
+
+    ColorSensorV3 proxIn = new ColorSensorV3(Port.kMXP);
 
     public boolean atUpperLimit;
 
@@ -90,6 +100,8 @@ public class PreIntakeSubsystem extends SubsystemBase implements Logged {
     public final double maxAngle = 100;
 
     public IdleMode currentMode = IdleMode.kBrake;
+
+    private int proxCoralSeen = 2;
 
     public PreIntakeSubsystem() {
 
@@ -190,6 +202,15 @@ public class PreIntakeSubsystem extends SubsystemBase implements Logged {
         return Commands.runOnce(() -> preIntakeMotor.stopMotor());
     }
 
+    public boolean coralAtPreIntake() {
+        return RobotBase.isReal() && coralEarlyDetectSwitch.get() ||
+                RobotBase.isSimulation() && simcoralatpreintake;
+    }
+
+    public boolean coralAtColorProx() {
+        return proxIn.getProximity() < proxCoralSeen;
+    }
+
     @Override
     public void periodic() {
 
@@ -206,6 +227,7 @@ public class PreIntakeSubsystem extends SubsystemBase implements Logged {
         SmartDashboard.putNumber("PIM/volts",
                 preIntakeMotor.getAppliedOutput() * RobotController.getBatteryVoltage());
         SmartDashboard.putNumber("PIM/amps", getAmps());
+        SmartDashboard.putBoolean("Gamepiece/CoralAtPreIntake", coralAtPreIntake());
 
     }
 

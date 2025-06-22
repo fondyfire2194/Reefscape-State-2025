@@ -69,9 +69,11 @@ public class ArmSubsystem extends SubsystemBase implements Logged {
 
     double maxmotorrps = 5700 / 60;
 
+    public final double NEOKv = 473;// from rev specs
+
     public double maxradpersec = radperencderrev * maxmotorrps;//
 
-    double maxdegrespersec = Units.radiansToDegrees(maxradpersec);
+    double maxdegreespersec = Units.radiansToDegrees(maxradpersec);
 
     /*
      * ( (value that goes up) - (value that goes down) )/ 2 = ks .4up .04 down
@@ -125,7 +127,7 @@ public class ArmSubsystem extends SubsystemBase implements Logged {
 
         if (showTelemetry) {
 
-            SD.sd2("Arm/Values/maxdegpersec", maxdegrespersec);
+            SD.sd2("Arm/Values/maxdegpersec", maxdegreespersec);
             SD.sd2("Arm/Values/poscf", posConvFactor);
             SD.sd2("Arm/Values/maxradpersec", maxradpersec);
             SD.sd2("Arm/Values/kv", armKv);
@@ -134,7 +136,8 @@ public class ArmSubsystem extends SubsystemBase implements Logged {
 
         armConfig
                 .inverted(false)
-                .idleMode(IdleMode.kBrake);
+                .idleMode(IdleMode.kBrake)
+                .smartCurrentLimit(60);
 
         armConfig.encoder
                 .positionConversionFactor(posConvFactor)
@@ -150,7 +153,9 @@ public class ArmSubsystem extends SubsystemBase implements Logged {
                 .p(0.0001, ClosedLoopSlot.kSlot1)
                 .i(0, ClosedLoopSlot.kSlot1)
                 .d(0, ClosedLoopSlot.kSlot1)
-                .velocityFF(1 / maxradpersec, ClosedLoopSlot.kSlot1)
+
+                .velocityFF(1 / NEOKv, ClosedLoopSlot.kSlot1)//now 1/473
+                // .velocityFF(1 / maxradpersec, ClosedLoopSlot.kSlot1) was 1/19.9
                 .outputRange(-1, 1, ClosedLoopSlot.kSlot1);
 
         armConfig.limitSwitch.forwardLimitSwitchEnabled(false);

@@ -63,7 +63,7 @@ public class TeleopSwerve extends Command {
         if (distanceToCoralStation < 2) {
             target = m_swerve.coralStationFinalTargetPose.getRotation();
         } else {
-            target = m_swerve.reefTargetPose.getRotation();
+            target = m_swerve.getReefTargetPose().getRotation();
             target = target.rotateBy(new Rotation2d(Math.PI));
         }
 

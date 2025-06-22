@@ -36,6 +36,11 @@
       "/SmartDashboard/Swerve Drive": "Alerts"
     },
     "windows": {
+      "/FMSInfo": {
+        "window": {
+          "visible": true
+        }
+      },
       "/SmartDashboard/ GIS Arm Sim": {
         "window": {
           "visible": true

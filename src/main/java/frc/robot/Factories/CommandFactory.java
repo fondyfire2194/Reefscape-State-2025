@@ -150,7 +150,7 @@ public class CommandFactory {
                 public static final int kLevel1 = 6;
                 public static final int kLevel2 = 13;
                 public static final int kLevel3 = 30;
-                public static final double kLevel4 = 57.25;//57.5;
+                public static final double kLevel4 = 57.25;// 57.5;
                 public static final int kBarge = 65;
                 public static final int kLevelAlgaeL2 = 27;
                 public static final int kLevelAlgaeL3 = 44;
@@ -301,8 +301,28 @@ public class CommandFactory {
         public Command deliverCoralL4() {
                 return Commands.sequence(
                                 setSetpointCommand(Setpoint.kLevel4),
-                                m_gamepieces.deliverCoralCommand(),
+                                deliverCoralCommand(),
                                 homeElevatorAndArm());
 
         }
+
+        public Command deliverCoralCommand() {
+                return Commands.sequence(
+                    Commands.runOnce(() -> m_gamepieces.disableLimitSwitch()),
+                    Commands.runOnce(() -> m_gamepieces.gamepieceMotor.set(m_gamepieces.coralDeliverSpeed)),
+                    Commands.waitUntil(() -> !m_gamepieces.coralAtIntake()),
+                    new WaitCommand(0.1),
+                    m_gamepieces.stopGamepieceMotorsCommand());
+              }
+
+        public Command deliverCoralFasterCommand() {
+                return Commands.sequence(
+                                Commands.runOnce(() -> m_gamepieces.disableLimitSwitch()),
+                                Commands.waitUntil(() -> m_arm.targetRadians == ArmSetpoints.kLevel4_2),
+                                Commands.runOnce(() -> m_gamepieces.gamepieceMotor
+                                                .set(m_gamepieces.coralFastDeliverSpeed)),
+                                Commands.runOnce(() -> m_gamepieces.simcoralatswitch = false),
+                                Commands.waitUntil(() -> !m_gamepieces.coralAtIntake()));
+        }
+
 }

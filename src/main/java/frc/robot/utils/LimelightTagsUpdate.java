@@ -6,6 +6,7 @@ package frc.robot.utils;
 
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -19,6 +20,12 @@ public class LimelightTagsUpdate {
     private final CameraConstants.CameraValues m_cam;
     private boolean m_useMegaTag2 = false;
     boolean rejectUpdate;
+
+    private final double AMBIGUITY_CUTOFF = 0.7;
+    private final double DISTANCE_CUTOFF = 4.0;
+    private final double DISTANCE_STDDEVS_SCALAR = 2;
+    private final double ROTATION_RATE_CUTOFF = 720;
+
     StructPublisher<Pose2d> mt2PosePublisher = NetworkTableInstance.getDefault()
             .getStructTopic("TagUpdate/MT2Pose", Pose2d.struct).publish();
     StructPublisher<Pose2d> mt1PosePublisher = NetworkTableInstance.getDefault()
@@ -42,7 +49,7 @@ public class LimelightTagsUpdate {
     }
 
     public void execute() {
-        rejectUpdate = true;
+               rejectUpdate = true;
         if (m_cam.isActive && LimelightHelpers.getTV(m_cam.camname)) {
             setLLRobotorientation();
             if (m_useMegaTag2) {
@@ -51,16 +58,19 @@ public class LimelightTagsUpdate {
                 m_swerve.distanceLimelightToEstimator = mt2.rawFiducials[0].distToCamera;
 
                 rejectUpdate = mt2.tagCount == 0
-                        || Math.abs(m_swerve.getGyroRate()) > 720
-                        || (mt2.tagCount == 1 && mt2.rawFiducials[0].ambiguity > .7)
-                        || mt2.rawFiducials[0].distToCamera > 4;
+                        || Math.abs(m_swerve.getGyroRate()) > ROTATION_RATE_CUTOFF
+                        || (mt2.tagCount == 1 && mt2.rawFiducials[0].ambiguity > AMBIGUITY_CUTOFF)
+                        || mt2.rawFiducials[0].distToCamera > DISTANCE_CUTOFF;
 
                 SmartDashboard.putBoolean("TagUpdate/RejectUpdateMT2" + m_cam.camname, rejectUpdate);
+                SD.sd2("TagUpdate/GyroRate", m_swerve.getGyroRate());
+                SD.sd2("TagUpdate/lltoRobDist", getLLToRobotPoseError(mt2.pose));
+                SD.sd2("TagUpdate/robtoReefFinal", getLLToRobotPoseError(m_swerve.getFinalReefTargetPose()));
 
-                mt2PosePublisher.set(mt2.pose);
+                mt2PosePublisher.set(mt2.pose);// send to network tables
 
                 if (!rejectUpdate) {
-                    double standard_devs = mt2.rawFiducials[0].distToCamera / 2;// 0.5
+                    double standard_devs = mt2.rawFiducials[0].distToCamera / DISTANCE_STDDEVS_SCALAR;
                     m_swerve.getPoseEstimator().setVisionMeasurementStdDevs(
                             VecBuilder.fill(standard_devs,
                                     standard_devs, 9999999));
@@ -79,9 +89,7 @@ public class LimelightTagsUpdate {
                                 && mt1.rawFiducials[0].distToCamera > 5;
 
                 SmartDashboard.putBoolean("TagUpdate/RejectUpdateMT1" + m_cam.camname, rejectUpdate);
-                mt2PosePublisher.set(mt1.pose);
-                // SmartDashboard.putNumber("LLMT1 X", mt1.pose.getTranslation().getX());
-                // SmartDashboard.putNumber("LLMT1 Y", mt1.pose.getTranslation().getY());
+                mt1PosePublisher.set(mt1.pose);
 
                 if (!rejectUpdate) {
                     m_swerve.getPoseEstimator().setVisionMeasurementStdDevs(VecBuilder.fill(.7,
@@ -94,7 +102,13 @@ public class LimelightTagsUpdate {
         }
     }
 
-    // private boolean inField(Pose2d pose) {
+    private double getLLToRobotPoseError(Pose2d ll) {
+        Translation2d robtrans = m_swerve.getPose().getTranslation();
+        Translation2d lltrans = ll.getTranslation();
+        return robtrans.getDistance(lltrans);
+    }
+
+    // private boolean inFieldCheck(Pose2d pose) {
     // boolean inLength = pose.getX() > 0 && pose.getX() <
     // FieldConstants.FIELD_LENGTH;
     // boolean inWidth = pose.getY() > 0 && pose.getX() <

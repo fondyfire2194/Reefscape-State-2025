@@ -10,6 +10,7 @@ import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.util.FlippingUtil;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.net.PortForwarder;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -23,9 +24,7 @@ import frc.robot.Constants.FieldConstants;
 import frc.robot.VisionConstants.CameraConstants;
 import frc.robot.commands.Arm.PositionHoldArmPID;
 import frc.robot.commands.Elevator.PositionHoldElevatorPID;
-import frc.robot.commands.teleopAutos.PIDDriveToGroundCoral;
 import frc.robot.utils.LimelightHelpers;
-import monologue.Annotations.Log;
 import monologue.Logged;
 import monologue.Monologue;
 
@@ -45,12 +44,7 @@ public class Robot extends TimedRobot implements Logged {
 
   private Timer disabledTimer;
 
-  private String lastAutName = "";
-  private boolean lastAllianceWasRed;
-  @Log(key = "startPoseBlue")
   Pose2d startingPoseAtBlueAlliance = new Pose2d();
-  @Log(key = "startPose")
-  Pose2d startingPose = new Pose2d();
 
   public Robot() {
     instance = this;
@@ -89,9 +83,6 @@ public class Robot extends TimedRobot implements Logged {
     }
     if (RobotBase.isReal()) {
       URCL.start();
-      // UsbCamera camera = CameraServer.startAutomaticCapture();
-      // Set the resolution
-      // camera.setResolution(640, 480);
     }
   }
 
@@ -137,9 +128,6 @@ public class Robot extends TimedRobot implements Logged {
     m_robotContainer.drivebase.frontUpdate.setLLRobotorientation();
     m_robotContainer.drivebase.rearUpdate.setLLRobotorientation();
 
-    m_robotContainer.drivebase.frontUpdate.setUseMegatag2(true);
-    m_robotContainer.drivebase.rearUpdate.setUseMegatag2(true);
-
     m_robotContainer.llv.inhibitFrontVision = false;
     m_robotContainer.llv.inhibitRearVision = true;
   }
@@ -151,21 +139,32 @@ public class Robot extends TimedRobot implements Logged {
       disabledTimer.stop();
     }
 
-    boolean isRed = m_robotContainer.drivebase.isRedAlliance();
     String autname = m_robotContainer.autoChooser.getSelected().getName();
-
-    SmartDashboard.putBoolean("AUT/Blue", m_robotContainer.drivebase.isBlueAlliance());
-    SmartDashboard.putBoolean("AUT/RED", isRed);
 
     SmartDashboard.putString("AUT/name", autname);
 
-    if (!autname.startsWith("I") && (autname != lastAutName || lastAllianceWasRed != isRed)) {
+    if (DriverStation.isAutonomous() && !DriverStation.isEnabled() && !autname.contains("Instant")) {
+
+      if (m_robotContainer.drivebase.isBlueAlliance())
       startingPoseAtBlueAlliance = new PathPlannerAuto(autname).getStartingPose();
-      startingPose = isRed ? FlippingUtil.flipFieldPose(startingPoseAtBlueAlliance) : startingPoseAtBlueAlliance;
+      m_robotContainer.drivebase.startingPose =
+      m_robotContainer.drivebase.isRedAlliance()
+      ? FlippingUtil.flipFieldPose(startingPoseAtBlueAlliance)
+      : startingPoseAtBlueAlliance;
+
+      m_robotContainer.drivebase.startPoseDifferenceX = Units.metersToInches(
+      m_robotContainer.drivebase.startingPose.getX()
+      - m_robotContainer.drivebase.getPose().getX());
+      m_robotContainer.drivebase.startPoseDifferenceY = Units.metersToInches(
+      m_robotContainer.drivebase.startingPose.getY()
+      - m_robotContainer.drivebase.getPose().getY());
+      m_robotContainer.drivebase.startPoseDifferenceTheta =
+      m_robotContainer.drivebase.startingPose.getRotation()
+      .getDegrees()
+      - m_robotContainer.drivebase.getPose().getRotation().getDegrees();
 
     }
-    lastAutName = autname;
-    lastAllianceWasRed = isRed;
+
     // m_robotContainer.drivebase.resetOdometry(startingPose);
 
     LimelightHelpers.SetRobotOrientation(CameraConstants.frontCamera.camname,

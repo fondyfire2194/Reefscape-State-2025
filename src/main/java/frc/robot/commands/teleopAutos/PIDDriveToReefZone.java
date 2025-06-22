@@ -10,11 +10,13 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.FieldConstants.Side;
 import frc.robot.Constants.RobotConstants;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
+import frc.robot.utils.SD;
 
 public class PIDDriveToReefZone extends Command {
   private final SwerveSubsystem swerve;
@@ -23,13 +25,14 @@ public class PIDDriveToReefZone extends Command {
   private final PIDController xController = new PIDController(2.8, 0, 0);
   private final PIDController yController = new PIDController(2.8, 0, 0);
   private final PIDController thetaController = new PIDController(3, 0, 0);
+  private boolean showTelemetry = true;
 
   /** Creates a new PIDDriveToPose. */
   public PIDDriveToReefZone(SwerveSubsystem swerve, Pose2d target) {
     this.swerve = swerve;
     this.target = target;
 
-    xController.setTolerance(0.02); ///0.0125
+    xController.setTolerance(0.02); /// 0.0125
     yController.setTolerance(0.02);
     xController.setIZone(0.05);
     xController.setIntegratorRange(-0.07, 0.07);
@@ -40,8 +43,6 @@ public class PIDDriveToReefZone extends Command {
     yController.setI(0.03);
     xController.setP(3);
     yController.setP(3);
-
-
 
     thetaController.setTolerance(Rotation2d.fromDegrees(0.5).getRadians());
     thetaController.enableContinuousInput(-Math.PI, Math.PI);
@@ -56,19 +57,13 @@ public class PIDDriveToReefZone extends Command {
     yController.setTolerance(toleranceTranslation);
     xController.setI(0);
     yController.setI(0);
-    xController.setP(3.8); //0.3.4
+    xController.setP(3.8); // 0.3.4
     yController.setP(3.8);
-
-    // xController.setIZone(0.2);
-    // xController.setIntegratorRange(-0.05, 0.05);
-    // yController.setIZone(0.2);
-    // yController.setIntegratorRange(-0.05, 0.05);
 
     thetaController.setTolerance(Rotation2d.fromDegrees(toleranceAngle).getRadians());
     thetaController.enableContinuousInput(-Math.PI, Math.PI);
     addRequirements(swerve);
   }
-   
 
   // Called when the command is initially scheduled.
   @Override
@@ -81,7 +76,7 @@ public class PIDDriveToReefZone extends Command {
     double baseOffsetY = RobotConstants.placementOffsetY;
     if (m_side == Side.CENTER)
       baseOffsetX += Units.inchesToMeters(7);
-      tl2d = new Translation2d(baseOffsetX, baseOffsetY);
+    tl2d = new Translation2d(baseOffsetX, baseOffsetY);
     if (m_side == Side.RIGHT)
       tl2d = new Translation2d(baseOffsetX, FieldConstants.reefOffset + baseOffsetY);
     if (m_side == Side.LEFT)
@@ -90,7 +85,7 @@ public class PIDDriveToReefZone extends Command {
     Transform2d tr2d = new Transform2d(tl2d, new Rotation2d(Units.degreesToRadians(180)));
 
     target = target.transformBy(tr2d);
-    swerve.reefFinalTargetPose = target;
+    swerve.setFinalReefTargetPose(target);
 
     xController.setSetpoint(target.getX());
     yController.setSetpoint(target.getY());
@@ -108,6 +103,18 @@ public class PIDDriveToReefZone extends Command {
         thetaController.calculate(swerve.getPose().getRotation().getRadians()),
         true,
         false);
+
+    double distanceToFinalPose = swerve.getPoseToPoseDistance(swerve.getFinalReefTargetPose(), swerve.getPose());
+    Rotation2d r2dToFinalPose = swerve.getPoseToPoseRotation(swerve.getFinalReefTargetPose(), swerve.getPose());
+
+    if (showTelemetry) {
+      SD.sd2("Reef/meters2final", distanceToFinalPose);
+      SD.sd2("Reef/degrees2final", r2dToFinalPose.getDegrees());
+
+      SmartDashboard.putBoolean("Reef/XIP", xController.atSetpoint());
+      SmartDashboard.putBoolean("Reef/YIP", yController.atSetpoint());
+      SmartDashboard.putBoolean("Reef/THIP", thetaController.atSetpoint());
+    }
   }
 
   // Called once the command ends or is interrupted.

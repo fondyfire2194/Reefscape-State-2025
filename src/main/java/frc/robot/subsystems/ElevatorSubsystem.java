@@ -72,6 +72,8 @@ public class ElevatorSubsystem extends SubsystemBase implements Logged {
   public final double elevatorKi = 0;
   public final double elevatorKd = 0;
 
+  public final double NEOKv = 473;// from rev specs
+
   /*
    * ( (value that goes up) - (value that goes down) )/ 2 = ks 1.6
    * ( (value that goes up) + (value that goes down) )/2 = kg .8
@@ -193,7 +195,8 @@ public class ElevatorSubsystem extends SubsystemBase implements Logged {
         .p(0.001, ClosedLoopSlot.kSlot1)
         .i(0, ClosedLoopSlot.kSlot1)
         .d(0, ClosedLoopSlot.kSlot1)
-        .velocityFF(1 / maxVelocityMPS, ClosedLoopSlot.kSlot1)
+        .velocityFF(1 / NEOKv, ClosedLoopSlot.kSlot1)//now 1/473
+        // .velocityFF(1 / maxVelocityMPS, ClosedLoopSlot.kSlot1) was 1/5.5
         .outputRange(-1, 1, ClosedLoopSlot.kSlot1);
 
     leftConfig.

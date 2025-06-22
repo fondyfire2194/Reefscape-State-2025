@@ -44,8 +44,6 @@ public class GamepieceSubsystem extends SubsystemBase implements Logged {
 
   public SparkLimitSwitch coralDetectSwitch;
 
-  public DigitalInput coralEarlyDetectSwitch;
-
   @Log(key = "alert warning")
   private Alert allWarnings = new Alert("AllWarnings", AlertType.kWarning);
   @Log(key = "alert error")
@@ -69,16 +67,14 @@ public class GamepieceSubsystem extends SubsystemBase implements Logged {
   public double noCoralAtSwitchTime = 15;
 
   public int inOutCoralAmps = 40;
-  private double coralDeliverSpeed = .7;
-  private double coralFastDeliverSpeed = .8;
+  public double coralDeliverSpeed = .7;
+  public double coralFastDeliverSpeed = .8;
   public double coralL1DeliverSpeed = .5;
   public boolean simcoralatswitch;
-  public boolean simcoralatpreintake;
 
   /** Creates a new gamepiece. */
   public GamepieceSubsystem() {
 
-    coralEarlyDetectSwitch = new DigitalInput(1);
     noCoralAtSwitchTime = 10;
     if (RobotBase.isSimulation())
       noCoralAtSwitchTime = 2;
@@ -158,23 +154,6 @@ public class GamepieceSubsystem extends SubsystemBase implements Logged {
         stopGamepieceMotorsCommand());
   }
 
-  public Command deliverCoralCommand() {
-    return Commands.sequence(
-        Commands.runOnce(() -> disableLimitSwitch()),
-        Commands.runOnce(() -> gamepieceMotor.set(coralDeliverSpeed)),
-        Commands.waitUntil(() -> !coralAtIntake()),
-        new WaitCommand(0.1),
-        stopGamepieceMotorsCommand());
-  }
-
-  public Command deliverCoralFasterCommand() {
-    return Commands.sequence(
-        Commands.runOnce(() -> disableLimitSwitch()),
-        Commands.runOnce(() -> gamepieceMotor.set(coralFastDeliverSpeed)),
-        Commands.runOnce(() -> simcoralatswitch = false),
-        Commands.waitUntil(() -> !coralAtIntake()));
-  }
-
   public void run(double speed) {
     gamepieceMotor.set(speed);
   }
@@ -200,11 +179,6 @@ public class GamepieceSubsystem extends SubsystemBase implements Logged {
         RobotBase.isSimulation() && simcoralatswitch;
   }
 
-  public boolean coralAtPreIntake() {
-    return RobotBase.isReal() && coralEarlyDetectSwitch.get() ||
-        RobotBase.isSimulation() && simcoralatpreintake;
-  }
-
   @Override
   public void periodic() {
     allWarnings.set(getWarnings());
@@ -212,8 +186,7 @@ public class GamepieceSubsystem extends SubsystemBase implements Logged {
     allStickyFaults.set(getStickyFault());
 
     SmartDashboard.putBoolean("Gamepiece/CoralAtIntake", coralAtIntake());
-    SmartDashboard.putBoolean("Gamepiece/CoralAtPreIntake", coralAtPreIntake());
-
+  
     SmartDashboard.putNumber("Gamepiece/GPVelocity", gamepieceMotor.getEncoder().getVelocity());
     SmartDashboard.putNumber("Gamepiece/GPAmps", gamepieceMotor.getOutputCurrent());
 

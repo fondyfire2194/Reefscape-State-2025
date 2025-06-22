@@ -8,8 +8,8 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.6865316175675247,
-        "y": 2.1064419432071424
+        "x": 2.1727281113930283,
+        "y": 1.781720737149508
       },
       "isLocked": false,
       "linkedName": "ReefCPose"
@@ -20,8 +20,8 @@
         "y": 1.0649400684931505
       },
       "prevControl": {
-        "x": 2.324087432794994,
-        "y": 1.8994017681087287
+        "x": 1.961096649338387,
+        "y": 1.5716478847173267
       },
       "nextControl": null,
       "isLocked": false,
@@ -35,7 +35,7 @@
       "minWaypointRelativePos": 0.6508474576271195,
       "maxWaypointRelativePos": 1.0,
       "constraints": {
-        "maxVelocity": 2.0,
+        "maxVelocity": 1.5,
         "maxAcceleration": 2.0,
         "maxAngularVelocity": 540.0,
         "maxAngularAcceleration": 720.0,

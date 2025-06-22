@@ -8,8 +8,8 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.0418458031928663,
-        "y": 1.6657886721977997
+        "x": 3.3501728998644205,
+        "y": 2.6511954703336755
       },
       "isLocked": false,
       "linkedName": "RightCoralStationPoseElevator"
@@ -20,8 +20,8 @@
         "y": 2.904149590163935
       },
       "prevControl": {
-        "x": 3.086637855811182,
-        "y": 2.4520030388883196
+        "x": 3.4404465508075055,
+        "y": 2.759376863499527
       },
       "nextControl": null,
       "isLocked": false,
@@ -35,7 +35,7 @@
       "minWaypointRelativePos": 0.6203389830508479,
       "maxWaypointRelativePos": 1.0,
       "constraints": {
-        "maxVelocity": 1.0,
+        "maxVelocity": 1.5,
         "maxAcceleration": 2.0,
         "maxAngularVelocity": 540.0,
         "maxAngularAcceleration": 720.0,

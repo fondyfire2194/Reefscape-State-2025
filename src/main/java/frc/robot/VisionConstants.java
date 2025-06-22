@@ -5,6 +5,7 @@
 package frc.robot;
 
 import edu.wpi.first.math.util.Units;
+
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide
  * numerical or boolean constants. This
@@ -18,7 +19,6 @@ import edu.wpi.first.math.util.Units;
  * constants are needed, to reduce verbosity.
  */
 public final class VisionConstants {
-
 
   public static final class CameraConstants {
 
@@ -37,6 +37,8 @@ public final class VisionConstants {
       public int vertpixels;
       public boolean isUsed = true;
       public boolean isActive = false;
+      public int poseUpdateCount = 0;
+      public boolean showTelemetry = false;
 
       public CameraValues(
           final String camname,
@@ -60,14 +62,14 @@ public final class VisionConstants {
         this.horpixels = horpixels;
         this.vertpixels = vertpixels;
         this.isUsed = isUsed;
-        this.isActive = true;//isActive;
+        this.isActive = true;// isActive;
       }
     }
 
     public static CameraValues frontCamera = new CameraValues(
         "limelight-front",
         "10.21.94.15",
-        Units.inchesToMeters(10.25), //9.5
+        Units.inchesToMeters(10.25), // 9.5
         Units.inchesToMeters(0),
         Units.inchesToMeters(8.0),
         0,
@@ -80,38 +82,21 @@ public final class VisionConstants {
         true,
         false);
 
-          
     public static CameraValues rearCamera = new CameraValues(
-      "limelight-rear",
-      "10.21.94.16",
-      Units.inchesToMeters(0),
-      Units.inchesToMeters(-17.25),
-      Units.inchesToMeters(9.0),
-      0,
-      5,
-      0,
-      63.3,
-      49.7,
-      1280,
-      960,
-      true,
-      false);
-
-    public static final double POSE_AMBIGUITY_CUTOFF = 0.05;
-    public static final double DISTANCE_CUTOFF = 4.0;
-
-    public static final double frontCameraTxAtLeftSideReef = 25;    
-    public static final double frontCameraTxAtCenterReef = 0;    
-    public static final double frontCameraTxAtRightSideReef = -25;
-
-    public static final double frontCameraTyAtLeftSideReef = 25;    
-    public static final double frontCameraTyAtCenterReef = 0;    
-    public static final double frontCameraTyAtRightSideReef = -25;
-
-    public static final double frontCameraTaAtLeftSideReef = 25;    
-    public static final double frontCameraTaAtCenterReef = 0;    
-    public static final double frontCameraTaAtRightSideReef = -25;
-    
+        "limelight-rear",
+        "10.21.94.16",
+        Units.inchesToMeters(0),
+        Units.inchesToMeters(-17.25),
+        Units.inchesToMeters(9.0),
+        0,
+        5,
+        0,
+        63.3,
+        49.7,
+        1280,
+        960,
+        true,
+        false);
 
   }
 

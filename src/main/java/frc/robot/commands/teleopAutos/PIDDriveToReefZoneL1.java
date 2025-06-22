@@ -10,6 +10,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.FieldConstants.Side;
@@ -88,7 +89,7 @@ public class PIDDriveToReefZoneL1 extends Command {
     Transform2d tr2d = new Transform2d(tl2d, new Rotation2d(Units.degreesToRadians(0)));
 
     target = target.transformBy(tr2d);
-    swerve.reefFinalTargetPose = target;
+    swerve.setFinalReefTargetPose(target);
 
     xController.setSetpoint(target.getX());
     yController.setSetpoint(target.getY());
@@ -111,6 +112,13 @@ public class PIDDriveToReefZoneL1 extends Command {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
+    swerve.setReefFinalDist(swerve.getPoseToPoseDistance(swerve.getFinalReefTargetPose(), swerve.getPose()));
+    swerve.setReefFinalAngle(swerve.getPoseToPoseRotation(swerve.getFinalReefTargetPose(), swerve.getPose())
+        .getDegrees());
+
+    SmartDashboard.putNumber("Reef/FDist", swerve.getReefFinalDistance());
+    SmartDashboard.putNumber("Reef/FAng", swerve.getReefFinalAngle());
+
   }
 
   // Returns true when the command should end.
