@@ -29,6 +29,8 @@ public class PositionHoldArmPID extends Command {
 
     private boolean toggle;
 
+    private double ffGain = .25;
+
     public PositionHoldArmPID(ArmSubsystem arm) {
         this.arm = arm;
 
@@ -59,6 +61,10 @@ public class PositionHoldArmPID extends Command {
         arm.nextSetpoint = arm.m_profile.calculate(.02, arm.currentSetpoint, arm.m_goal);
 
         double radpersec = pidController.calculate(arm.getAngleRadians(), arm.nextSetpoint.position);
+
+        double armVelFF = arm.nextSetpoint.velocity * ffGain;
+
+        radpersec += armVelFF;
 
         if (arm.showTelemetry) {
             if (toggle) {
