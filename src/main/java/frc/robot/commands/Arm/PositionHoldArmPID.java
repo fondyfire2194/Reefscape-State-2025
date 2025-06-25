@@ -8,6 +8,7 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.RobotBase;
+import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 
@@ -29,7 +30,7 @@ public class PositionHoldArmPID extends Command {
 
     private boolean toggle;
 
-    private double ffGain = .25;
+    private double ffGain = .5;
 
     public PositionHoldArmPID(ArmSubsystem arm) {
         this.arm = arm;
@@ -76,7 +77,7 @@ public class PositionHoldArmPID extends Command {
                 SmartDashboard.putNumber("Arm/PID/setvel", Units.radiansToDegrees(arm.nextSetpoint.velocity));
                 SmartDashboard.putNumber("Arm/PID/degpersec", Units.radiansToDegrees(radpersec));
                 SmartDashboard.putNumber("Arm/PID/poserror", Units.radiansToDegrees(pidController.getError()));
-                SmartDashboard.putBoolean("Arm/PID/poserror", pidController.atSetpoint());
+                SmartDashboard.putBoolean("Arm/PID/atSetpoint", pidController.atSetpoint());
             }
         }
         radpersec = MathUtil.clamp(radpersec, -maxminusrate, maxplusrate);
@@ -84,7 +85,11 @@ public class PositionHoldArmPID extends Command {
         if (arm.showTelemetry)
             SmartDashboard.putNumber("Arm/PID/dpsclamped", Units.radiansToDegrees(radpersec));
 
-        arm.runAtVelocity(radpersec);
+        double volts = RobotController.getBatteryVoltage() * radpersec / arm.maxradpersec;
+
+        arm.armMotor.setVoltage(volts);
+
+        // arm.runAtVelocity(radpersec);
 
         arm.currentSetpoint = arm.nextSetpoint;
 

@@ -146,8 +146,10 @@ public class SwerveSubsystem extends SubsystemBase implements Logged {
       .getStructTopic("RobotPose", Pose2d.struct).publish();
 
   private double finalMetersToReef;
-
   private double finalDegreesToReef;
+  private double finalMetersToCoralStation;
+  private double finalDegreesToCoralStation;
+public boolean checkDistance;
 
   /**
    * Initialize {@link SwerveDrive} with the directory provided.
@@ -904,6 +906,15 @@ public class SwerveSubsystem extends SubsystemBase implements Logged {
                 () -> RobotBase.isReal()),
             Commands.waitSeconds(timeout)),
         Commands.runOnce(() -> controller.getHID().setRumble(RumbleType.kBothRumble, 0.0)));
+  }
+
+  public void setCoralStationFinalDist(double distance) {
+    finalMetersToCoralStation = distance;
+  }
+
+  public void setCoralStationFinalAngle(double degrees) {
+    finalDegreesToCoralStation = degrees;
+
   }
 
 }

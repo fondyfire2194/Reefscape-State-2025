@@ -40,8 +40,10 @@ import frc.robot.Factories.CommandFactory;
 import frc.robot.Factories.CommandFactory.ArmSetpoints;
 import frc.robot.Factories.CommandFactory.Setpoint;
 import frc.robot.commands.Arm.JogArm;
+import frc.robot.commands.Arm.PositionHoldArm;
 import frc.robot.commands.Arm.PositionHoldArmPID;
 import frc.robot.commands.Elevator.JogElevator;
+import frc.robot.commands.Elevator.PositionHoldElevator;
 import frc.robot.commands.Elevator.PositionHoldElevatorPID;
 import frc.robot.commands.Gamepieces.DetectAlgaeWhileIntaking;
 import frc.robot.commands.Gamepieces.IntakeCoralToPreSwitch;
@@ -49,10 +51,10 @@ import frc.robot.commands.Gamepieces.IntakeCoralToSwitch;
 import frc.robot.commands.GroundIntake.GroundIntakeCoralRPMDetect;
 import frc.robot.commands.swervedrive.drivebase.AbsoluteDriveAdv;
 import frc.robot.commands.swervedrive.drivebase.TeleopSwerve;
-import frc.robot.commands.swervedrive.drivebase.TeleopSwerveStation;
 import frc.robot.commands.teleopAutos.GetNearestCoralStationPose;
 import frc.robot.commands.teleopAutos.GetNearestReefZonePose;
 import frc.robot.commands.teleopAutos.PIDDriveToGroundCoralNoRotation;
+import frc.robot.commands.teleopAutos.PIDDriveToPoseCoralStation;
 import frc.robot.commands.teleopAutos.PIDDriveToReefZone;
 import frc.robot.commands.teleopAutos.PIDDriveToReefZoneL1;
 import frc.robot.subsystems.AlgaeSubsystem;
@@ -117,6 +119,8 @@ public class RobotContainer implements Logged {
         Trigger reefZoneChange = new Trigger(() -> drivebase.reefZone != drivebase.reefZoneLast);
 
         Trigger coralAtIntake = new Trigger(() -> gamepieces.coralAtIntake());
+
+        Trigger checkPositionToReef = new Trigger(() -> drivebase.checkDistance);
 
         Trigger stickyFaultTrigger = new Trigger(
                         () -> gamepieces.getStickyFault() || arm.getStickyFault() || elevator.getStickyFault());
@@ -341,6 +345,10 @@ public class RobotContainer implements Logged {
 
                 arm.setDefaultCommand(new PositionHoldArmPID(arm));
 
+                // elevator.setDefaultCommand(new PositionHoldElevator(elevator));
+
+                // arm.setDefaultCommand(new PositionHoldArm(arm));
+
                 // preIn.setDefaultCommand(preIn.positionCommand());
 
                 gis.setDefaultCommand(gis.positionGroundIntakeArmCommand());
@@ -382,13 +390,13 @@ public class RobotContainer implements Logged {
                                                 () -> !gis.groundCoralMode))
                                 .whileTrue(
                                                 Commands.either(
-                                                                // new PIDDriveToPoseCoralStation(drivebase)
-                                                                new TeleopSwerveStation(drivebase,
-                                                                                () -> driverXbox.getLeftY()
-                                                                                                * getAllianceFactor(),
-                                                                                () -> driverXbox.getLeftX()
-                                                                                                * getAllianceFactor(),
-                                                                                () -> driverXbox.getRightX()),
+                                                                new PIDDriveToPoseCoralStation(drivebase),
+                                                                // new TeleopSwerveStation(drivebase,
+                                                                // () -> driverXbox.getLeftY()
+                                                                // * getAllianceFactor(),
+                                                                // () -> driverXbox.getLeftX()
+                                                                // * getAllianceFactor(),
+                                                                // () -> driverXbox.getRightX()),
                                                                 Commands.deadline(
                                                                                 new GroundIntakeCoralRPMDetect(gis),
                                                                                 Commands.either(
@@ -507,12 +515,14 @@ public class RobotContainer implements Logged {
                                                 drivebase.setSide(side),
                                                 new ConditionalCommand(
                                                                 new PIDDriveToReefZone(drivebase,
-                                                                                drivebase.getReefTargetPose().transformBy(
-                                                                                                l4approachTransform2d),
+                                                                                drivebase.getReefTargetPose()
+                                                                                                .transformBy(
+                                                                                                                l4approachTransform2d),
                                                                                 0.1, 3),
                                                                 new PIDDriveToReefZone(drivebase,
-                                                                                drivebase.getReefTargetPose().transformBy(
-                                                                                                lowerApproachTransform2d),
+                                                                                drivebase.getReefTargetPose()
+                                                                                                .transformBy(
+                                                                                                                lowerApproachTransform2d),
                                                                                 0.15, 3), // 0.1 and 3
                                                                 () -> setpointPosition == Setpoint.kLevel4),
 
@@ -717,9 +727,7 @@ public class RobotContainer implements Logged {
 
         private void setTriggerActions() {
 
-                // coralAtIntake.onTrue(Commands.parallel(
-                // Commands.runOnce(() -> arm.setGoalDegrees(ArmSetpoints.kTravel)),
-                // rumble(driverXbox, RumbleType.kRightRumble, 1)));
+                checkPositionToReef.onTrue(CommandFactory.rumbleDriver(RumbleType.kRightRumble, .4, .04, 4));
 
                 stickyFaultTrigger.onTrue(CommandFactory.rumbleCoDriver(RumbleType.kBothRumble, .4, .04, 3));
 

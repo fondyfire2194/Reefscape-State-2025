@@ -112,13 +112,7 @@ public class PIDDriveToReefZoneL1 extends Command {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    swerve.setReefFinalDist(swerve.getPoseToPoseDistance(swerve.getFinalReefTargetPose(), swerve.getPose()));
-    swerve.setReefFinalAngle(swerve.getPoseToPoseRotation(swerve.getFinalReefTargetPose(), swerve.getPose())
-        .getDegrees());
-
-    SmartDashboard.putNumber("Reef/FDist", swerve.getReefFinalDistance());
-    SmartDashboard.putNumber("Reef/FAng", swerve.getReefFinalAngle());
-
+  
   }
 
   // Returns true when the command should end.

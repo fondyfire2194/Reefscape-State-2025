@@ -16,7 +16,6 @@ import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.FieldConstants.Side;
 import frc.robot.Constants.RobotConstants;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
-import frc.robot.utils.SD;
 
 public class PIDDriveToReefZone extends Command {
   private final SwerveSubsystem swerve;
@@ -26,6 +25,8 @@ public class PIDDriveToReefZone extends Command {
   private final PIDController yController = new PIDController(2.8, 0, 0);
   private final PIDController thetaController = new PIDController(3, 0, 0);
   private boolean showTelemetry = true;
+  private double normalDistance = .25;// meters
+  private double normalAngle = 3;
 
   /** Creates a new PIDDriveToPose. */
   public PIDDriveToReefZone(SwerveSubsystem swerve, Pose2d target) {
@@ -104,12 +105,7 @@ public class PIDDriveToReefZone extends Command {
         true,
         false);
 
-    double distanceToFinalPose = swerve.getPoseToPoseDistance(swerve.getFinalReefTargetPose(), swerve.getPose());
-    Rotation2d r2dToFinalPose = swerve.getPoseToPoseRotation(swerve.getFinalReefTargetPose(), swerve.getPose());
-
     if (showTelemetry) {
-      SD.sd2("Reef/meters2final", distanceToFinalPose);
-      SD.sd2("Reef/degrees2final", r2dToFinalPose.getDegrees());
 
       SmartDashboard.putBoolean("Reef/XIP", xController.atSetpoint());
       SmartDashboard.putBoolean("Reef/YIP", yController.atSetpoint());
@@ -120,6 +116,16 @@ public class PIDDriveToReefZone extends Command {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
+    swerve.setReefFinalDist(swerve.getPoseToPoseDistance(swerve.getFinalReefTargetPose(), swerve.getPose()));
+    swerve.setReefFinalAngle(swerve.getPoseToPoseRotation(swerve.getFinalReefTargetPose(), swerve.getPose())
+        .getDegrees());
+
+    swerve.checkDistance = swerve.getReefFinalDistance() > normalDistance
+        || Math.abs(swerve.getReefFinalAngle()) > normalAngle;
+
+    SmartDashboard.putNumber("Reef/FDist", swerve.getReefFinalDistance());
+    SmartDashboard.putNumber("Reef/FAng", swerve.getReefFinalAngle());
+
   }
 
   // Returns true when the command should end.

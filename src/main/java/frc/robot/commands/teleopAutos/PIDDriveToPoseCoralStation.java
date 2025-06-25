@@ -8,6 +8,7 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 
@@ -62,6 +63,14 @@ public class PIDDriveToPoseCoralStation extends Command {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
+ swerve.setCoralStationFinalDist(swerve.getPoseToPoseDistance(swerve.coralStationFinalTargetPose, swerve.getPose()));
+    swerve.setCoralStationFinalAngle(swerve.getPoseToPoseRotation(swerve.coralStationFinalTargetPose, swerve.getPose())
+        .getDegrees());
+
+    SmartDashboard.putNumber("Coral/FDist", swerve.getReefFinalDistance());
+    SmartDashboard.putNumber("Coral/FAng", swerve.getReefFinalAngle());
+
+
   }
 
   // Returns true when the command should end.

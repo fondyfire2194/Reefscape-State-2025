@@ -83,9 +83,9 @@ public class ArmSubsystem extends SubsystemBase implements Logged {
     public final double armKg = .32;// 0.2;
     public final double armKs = 0.18;
     public final double armKv = 12 / maxradpersec;
-    public final double armKa = 0;// 0.025;
+    public final double armKa = .0;// 0;// 0.025;
 
-    public double armKp = 0.03;
+    public double armKp = 0.0;
 
     public final double armKi = 0.;
     public final double armKd = 0;
@@ -154,7 +154,7 @@ public class ArmSubsystem extends SubsystemBase implements Logged {
                 .i(0, ClosedLoopSlot.kSlot1)
                 .d(0, ClosedLoopSlot.kSlot1)
 
-                .velocityFF(1 / NEOKv, ClosedLoopSlot.kSlot1)//now 1/473
+                .velocityFF(1 / NEOKv, ClosedLoopSlot.kSlot1)// now 1/473
                 // .velocityFF(1 / maxradpersec, ClosedLoopSlot.kSlot1) was 1/19.9
                 .outputRange(-1, 1, ClosedLoopSlot.kSlot1);
 
@@ -248,14 +248,9 @@ public class ArmSubsystem extends SubsystemBase implements Logged {
         SD.sd2("Arm/Trap/actvel",
                 getDegreesPerSec());
 
-        armff = armfeedforward.calculate(getAngleRadians(), nextSetpoint.velocity);
-
-        double accel = (nextSetpoint.velocity - currentSetpoint.velocity) * 50;
-
-        double accelV = accel * armKa;
-
-        armff = armff + accelV;
-
+        // armff = armfeedforward.calculate(getAngleRadians(), nextSetpoint.velocity);
+        armff = armfeedforward.calculateWithVelocities(getAngleRadians(),currentSetpoint.velocity, nextSetpoint.velocity);
+        
         currentSetpoint = nextSetpoint;
 
         SD.sd2("Arm/Trap/ff", armff);

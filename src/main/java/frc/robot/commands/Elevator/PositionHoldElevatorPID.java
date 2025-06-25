@@ -7,8 +7,10 @@ package frc.robot.commands.Elevator;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.RobotContainer;
 import frc.robot.subsystems.ElevatorSubsystem;
 
 public class PositionHoldElevatorPID extends Command {
@@ -75,6 +77,8 @@ public class PositionHoldElevatorPID extends Command {
                 SmartDashboard.putNumber("Elevator/PID/position", elevator.getLeftPositionMeters());
                 SmartDashboard.putNumber("Elevator/PID/setvel", elevator.nextSetpoint.velocity);
                 SmartDashboard.putNumber("Elevator/PID/mps", mps);
+                SmartDashboard.putNumber("Elevator/PID/volts",elevator.getLeftAppliedOutput()*RobotController.getBatteryVoltage());
+                
                 SmartDashboard.putNumber("Elevator/PID/mpsRead", elevator.getLeftVelocityMetersPerSecond());
                 SmartDashboard.putNumber("Elevator/PID/poserror", pidController.getError());
                 SmartDashboard.putBoolean("Elevator/PID/atSetpoint", pidController.atSetpoint());
@@ -85,7 +89,11 @@ public class PositionHoldElevatorPID extends Command {
         if (elevator.showTelemetry)
             SmartDashboard.putNumber("Elevator/PID/mpsclamped", mps);
 
-        elevator.runAtVelocity(mps);
+     //   elevator.runAtVelocity(mps);
+
+     double volts = mps *RobotController.getBatteryVoltage() / elevator.maxVelocityMPS;
+
+     elevator.leftMotor.setVoltage(volts);
 
         elevator.currentSetpoint = elevator.nextSetpoint;
 

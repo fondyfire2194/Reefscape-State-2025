@@ -63,16 +63,27 @@ public class ElevatorSubsystem extends SubsystemBase implements Logged {
 
   public double metersPerMotorRev = (metersPerSprocketRev / kElevatorGearing);//
 
-  public double positionConversionFactor = metersPerMotorRev * 2;// stage multiplier
-  public double velocityConversionFactor = positionConversionFactor / 60;
+  public double positionConversionFactor = metersPerMotorRev * 2;// stage multiplier .058
+  public double velocityConversionFactor = positionConversionFactor / 60;// .001 mmeters per motor rev per sec
 
   public double maxVelocityMPS = positionConversionFactor * 5700 / 60;
 
   public final double elevatorKp = .01;
   public final double elevatorKi = 0;
   public final double elevatorKd = 0;
-
-  public final double NEOKv = 473;// from rev specs
+  /**
+   * rev specs say velff is motor rpm per volt so 5700/12 = 473
+   * rps per volt = 8 approx
+   * meters per rev = .06
+   * mps per volt = 8 *.06 = .48 mult by 12 = 5.5 approx
+   * max meters per sec = 5.5
+   * 
+   * so originally off by 12
+   * 
+   */
+  public final double NEOKv_rpm_per_volt = 473;// rpm per volt
+  public final double NEOKv_revs_per_sec_per_volt = 8;// rps per volt
+  public final double NEOKv_meters_per_sec_per_volt = 8 * positionConversionFactor;// .5
 
   /*
    * ( (value that goes up) - (value that goes down) )/ 2 = ks 1.6
@@ -165,6 +176,8 @@ public class ElevatorSubsystem extends SubsystemBase implements Logged {
   public ElevatorSubsystem() {
 
     SmartDashboard.putNumber("Elevator/Values/posconv", positionConversionFactor);
+    SmartDashboard.putNumber("Elevator/Values/velconv", velocityConversionFactor);
+
     SmartDashboard.putNumber("Elevator/Values/posconvinch",
         Units.metersToInches(positionConversionFactor));
     SmartDashboard.putNumber("Elevator/Values/kv", elevatorKv);
@@ -192,11 +205,10 @@ public class ElevatorSubsystem extends SubsystemBase implements Logged {
         .outputRange(-1, 1)
 
         // Set PID values for velocity control in slot 1
-        .p(0.001, ClosedLoopSlot.kSlot1)
+        .p(0.0001, ClosedLoopSlot.kSlot1)
         .i(0, ClosedLoopSlot.kSlot1)
         .d(0, ClosedLoopSlot.kSlot1)
-        .velocityFF(1 / NEOKv, ClosedLoopSlot.kSlot1)//now 1/473
-        // .velocityFF(1 / maxVelocityMPS, ClosedLoopSlot.kSlot1) was 1/5.5
+        .velocityFF((.5 / (maxVelocityMPS/12)), ClosedLoopSlot.kSlot1) // was 1/5.5
         .outputRange(-1, 1, ClosedLoopSlot.kSlot1);
 
     leftConfig.
@@ -252,6 +264,7 @@ public class ElevatorSubsystem extends SubsystemBase implements Logged {
     SmartDashboard.putNumber("Elevator/Values/reverseSoftLimit", getReverseSoftLimit());
     SmartDashboard.putNumber("Elevator/Values/forwardSoftLimit", getForwardSoftLimit());
     SmartDashboard.putNumber("Elevator/Values/maxvelmps", maxVelocityMPS);
+    SmartDashboard.putNumber("Elevator/Values/ff", (1 / maxVelocityMPS) / 12);
   }
 
   public void position() {
@@ -315,7 +328,7 @@ public class ElevatorSubsystem extends SubsystemBase implements Logged {
     // int n = e.ordinal();
     // REVLibError.fromInt(n);
     // SmartDashboard.putString("D", REVLibError.fromInt(n).toString());
-
+    SmartDashboard.putNumber("Elevator.VelMPS", getLeftVelocityMetersPerSecond());
   }
 
   /**
