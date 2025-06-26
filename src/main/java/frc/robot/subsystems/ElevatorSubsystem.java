@@ -94,7 +94,7 @@ public class ElevatorSubsystem extends SubsystemBase implements Logged {
   public final double elevatorKs = 0.27788;// .3; //0.36
   public final double elevatorKg = 0.5;// .5; //0.56
   public final double elevatorKv = 2.2404;// 12 / maxVelocityMPS;
-  public final double elevatorKa = 0.41589;// 0.3;
+  public final double elevatorKa = 0.3;// 0.41589;// 0.3;
 
   public final double kCarriageMass = Units.lbsToKilograms(16); // kg
 
@@ -202,13 +202,13 @@ public class ElevatorSubsystem extends SubsystemBase implements Logged {
 
         .p(elevatorKp)
 
-        .outputRange(-1, 1)
+        .outputRange(-0.2, 1)
 
         // Set PID values for velocity control in slot 1
         .p(0.0001, ClosedLoopSlot.kSlot1)
         .i(0, ClosedLoopSlot.kSlot1)
         .d(0, ClosedLoopSlot.kSlot1)
-        .velocityFF((.5 / (maxVelocityMPS/12)), ClosedLoopSlot.kSlot1) // was 1/5.5
+        .velocityFF((.5 / (maxVelocityMPS / 12)), ClosedLoopSlot.kSlot1) // was 1/5.5
         .outputRange(-1, 1, ClosedLoopSlot.kSlot1);
 
     leftConfig.
@@ -275,8 +275,13 @@ public class ElevatorSubsystem extends SubsystemBase implements Logged {
     nextSetpoint = m_profile.calculate(.02, currentSetpoint, m_goal);
 
     leftff = eff.calculateWithVelocities(currentSetpoint.velocity, nextSetpoint.velocity);
-    double leftffclamped = MathUtil.clamp(leftff, -1, 12);
+
     SmartDashboard.putNumber("Elevator/ff", leftff);
+
+    boolean openLoop = getGoalInches() < 1 && getLeftPositionInches() < 10;
+
+    if (openLoop)
+      leftff /= 2;
 
     currentSetpoint = nextSetpoint;
 

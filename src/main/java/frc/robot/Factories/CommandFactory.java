@@ -156,19 +156,21 @@ public class CommandFactory {
                 public static final int kLevelAlgaeL3 = 44;
         }
 
+        public static final double offset = 25;
+
         public static final class ArmSetpoints {
 
-                public static final int kokElevatorMove = 90;
-                public static final int kTravel = 100;
-                public static final int kProcessorDeliver = 15;
-                public static final int kBargeDeliver = 85;
-                public static final double kCoralStation = 132;
-                public static final double kLevel1 = 97;
-                public static final double kLevel2 = 97;
-                public static final double kLevel3 = 97;
-                public static final double kLevel4_1 = 103;
-                public static final double kLevel4_2 = 85;
-                public static final double kAlgaeIntake = 0;
+                public static final double kokElevatorMove = 90 - offset;
+                public static final double kTravel = 100 - offset;
+                public static final double kProcessorDeliver = 15 - offset;
+                public static final double kBargeDeliver = 85 - offset;
+                public static final double kCoralStation = 132 - offset;
+                public static final double kLevel1 = 97 - offset;
+                public static final double kLevel2 = 97 - offset;
+                public static final double kLevel3 = 97 - offset;
+                public static final double kLevel4_1 = 103 - offset;
+                public static final double kLevel4_2 = 85 - offset;
+                public static final double kAlgaeIntake = 0 - offset;
 
         }
 
@@ -308,12 +310,12 @@ public class CommandFactory {
 
         public Command deliverCoralCommand() {
                 return Commands.sequence(
-                    Commands.runOnce(() -> m_gamepieces.disableLimitSwitch()),
-                    Commands.runOnce(() -> m_gamepieces.gamepieceMotor.set(m_gamepieces.coralDeliverSpeed)),
-                    Commands.waitUntil(() -> !m_gamepieces.coralAtIntake()),
-                    new WaitCommand(0.1),
-                    m_gamepieces.stopGamepieceMotorsCommand());
-              }
+                                Commands.runOnce(() -> m_gamepieces.disableLimitSwitch()),
+                                Commands.runOnce(() -> m_gamepieces.gamepieceMotor.set(m_gamepieces.coralDeliverSpeed)),
+                                Commands.waitUntil(() -> !m_gamepieces.coralAtIntake()),
+                                new WaitCommand(0.1),
+                                m_gamepieces.stopGamepieceMotorsCommand());
+        }
 
         public Command deliverCoralFasterCommand() {
                 return Commands.sequence(

@@ -18,7 +18,7 @@ public class PositionHoldArmPID extends Command {
     private final ArmSubsystem arm;
 
     private PIDController pidController;
-    private double kp = 20;
+    private double kp = 15;
     private double ki = 0;
     private double kd;
     private double izone = .5;

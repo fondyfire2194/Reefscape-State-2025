@@ -80,12 +80,12 @@ public class ArmSubsystem extends SubsystemBase implements Logged {
      * ( (value that goes up) + (value that goes down) )/2 = kg
      */
 
-    public final double armKg = .32;// 0.2;
-    public final double armKs = 0.18;
+    public final double armKg = .42;// 0.2;
+    public final double armKs = 0.23;
     public final double armKv = 12 / maxradpersec;
     public final double armKa = .0;// 0;// 0.025;
 
-    public double armKp = 0.0;
+    public double armKp = 0.035;
 
     public final double armKi = 0.;
     public final double armKd = 0;
@@ -96,8 +96,8 @@ public class ArmSubsystem extends SubsystemBase implements Logged {
      * 
      */
 
-    public final Angle armStartupOffset = Degrees.of(134);
-    public final Angle minAngle = Degrees.of(-10);
+    public final Angle armStartupOffset = Degrees.of(134-25);
+    public final Angle minAngle = Degrees.of(-10-25);
     public final Angle maxAngle = armStartupOffset;
 
     public double armClearAngleDeg = 104;
@@ -248,9 +248,10 @@ public class ArmSubsystem extends SubsystemBase implements Logged {
         SD.sd2("Arm/Trap/actvel",
                 getDegreesPerSec());
 
-        // armff = armfeedforward.calculate(getAngleRadians(), nextSetpoint.velocity);
-        armff = armfeedforward.calculateWithVelocities(getAngleRadians(),currentSetpoint.velocity, nextSetpoint.velocity);
-        
+         armff = armfeedforward.calculate(getAngleRadians(), nextSetpoint.velocity);
+        // armff = armfeedforward.calculateWithVelocities(getAngleRadians(), currentSetpoint.velocity,
+        //         nextSetpoint.velocity);
+
         currentSetpoint = nextSetpoint;
 
         SD.sd2("Arm/Trap/ff", armff);
@@ -258,11 +259,11 @@ public class ArmSubsystem extends SubsystemBase implements Logged {
         SD.sd2("Arm/Trap/poserror", m_goal.position -
                 armMotor.getEncoder().getPosition());
 
-        armMotor.setVoltage(armff);
+        // armMotor.setVoltage(armff);
 
-        // armClosedLoopController.setReference(
-        // nextSetpoint.position, ControlType.kPosition, ClosedLoopSlot.kSlot0, armff,
-        // ArbFFUnits.kVoltage);
+        armClosedLoopController.setReference(
+                nextSetpoint.position, ControlType.kPosition, ClosedLoopSlot.kSlot0, armff,
+                ArbFFUnits.kVoltage);
 
     }
 

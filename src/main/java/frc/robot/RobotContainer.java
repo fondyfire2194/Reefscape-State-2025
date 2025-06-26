@@ -38,6 +38,7 @@ import frc.robot.Constants.OperatorConstants;
 import frc.robot.VisionConstants.CameraConstants;
 import frc.robot.Factories.CommandFactory;
 import frc.robot.Factories.CommandFactory.ArmSetpoints;
+import frc.robot.Factories.CommandFactory.ElevatorSetpoints;
 import frc.robot.Factories.CommandFactory.Setpoint;
 import frc.robot.commands.Arm.JogArm;
 import frc.robot.commands.Arm.PositionHoldArm;
@@ -341,13 +342,13 @@ public class RobotContainer implements Logged {
                                                                 () -> driverXbox.getRightX(),
                                                                 () -> correctAngle)));
 
-                elevator.setDefaultCommand(new PositionHoldElevatorPID(elevator));
+               // elevator.setDefaultCommand(new PositionHoldElevatorPID(elevator));
 
-                arm.setDefaultCommand(new PositionHoldArmPID(arm));
+              //  arm.setDefaultCommand(new PositionHoldArmPID(arm));
 
-                // elevator.setDefaultCommand(new PositionHoldElevator(elevator));
+                 elevator.setDefaultCommand(new PositionHoldElevator(elevator));
 
-                // arm.setDefaultCommand(new PositionHoldArm(arm));
+                 arm.setDefaultCommand(new PositionHoldArm(arm));
 
                 // preIn.setDefaultCommand(preIn.positionCommand());
 
@@ -592,15 +593,15 @@ public class RobotContainer implements Logged {
                 coCoDriverXbox = new CommandXboxController(2);
                 coCoDriverXbox.rightBumper().onTrue(cf.homeElevatorAndArm().withName("Home Elevator Arm"));
 
-                // coCoDriverXbox.povUp().onTrue(arm.setGoalDegreesCommand(ArmSetpoints.kCoralStation));
+                coCoDriverXbox.povUp().onTrue(arm.setGoalDegreesCommand(ArmSetpoints.kCoralStation));
 
-                // coCoDriverXbox.povDown().onTrue(arm.setGoalDegreesCommand(ArmSetpoints.kLevel2));
+                coCoDriverXbox.povDown().onTrue(arm.setGoalDegreesCommand(ArmSetpoints.kLevel2));
 
-                // coCoDriverXbox.povLeft().onTrue(arm.setGoalDegreesCommand(ArmSetpoints.kLevel4_1));
+                coCoDriverXbox.povLeft().onTrue(arm.setGoalDegreesCommand(ArmSetpoints.kLevel4_2));
 
-                // coDriverXbox.povRight().onTrue(arm.setGoalDegreesCommand(ArmSetpoints.kLevel4_2));
+                coCoDriverXbox.povRight().onTrue(arm.setGoalDegreesCommand(ArmSetpoints.kProcessorDeliver));
 
-                coCoDriverXbox.rightTrigger().onTrue(elevator.setGoalInchesCommand(ArmSetpoints.kLevel1));
+                coCoDriverXbox.rightTrigger().onTrue(arm.setGoalDegreesCommand(ArmSetpoints.kAlgaeIntake));
 
                 // coCoDriverXbox.a().onTrue(elevator.setGoalInchesCommand(ElevatorSetpoints.kHome));
 

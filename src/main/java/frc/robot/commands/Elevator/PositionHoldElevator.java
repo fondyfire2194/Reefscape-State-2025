@@ -12,7 +12,6 @@ public class PositionHoldElevator extends Command {
 
     public PositionHoldElevator(ElevatorSubsystem elevator) {
         this.elevator = elevator;
-
         addRequirements(this.elevator);
     }
 
@@ -20,17 +19,11 @@ public class PositionHoldElevator extends Command {
     public void initialize() {
         double temp = elevator.getLeftPositionMeters();
         elevator.setGoalMeters(temp);
-
     }
 
     @Override
     public void execute() {
-
-      //  boolean openLoop = elevator.getGoalInches() < 1 && elevator.getLeftPositionInches() < 1;
-
-       // if (!openLoop)
-            elevator.position();
-
+        elevator.position();
     }
 
     @Override

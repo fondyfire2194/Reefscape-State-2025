@@ -17,9 +17,9 @@ public class PositionHoldElevatorPID extends Command {
     private final ElevatorSubsystem elevator;
 
     private PIDController pidController;
-    private double kp = 10.;
+    private double kp = 5.;
     private double ki = 0;
-    private double kd = 0.2;
+    private double kd = 0.;
     private double izone = .5;
     private double minIntegral = -.1;
     private double maxIntegral = .1;
@@ -29,7 +29,7 @@ public class PositionHoldElevatorPID extends Command {
 
     private boolean toggle;
 
-    private double ffGain = .2;
+    private double ffGain = 0;
 
     public PositionHoldElevatorPID(ElevatorSubsystem elevator) {
         this.elevator = elevator;
@@ -77,8 +77,9 @@ public class PositionHoldElevatorPID extends Command {
                 SmartDashboard.putNumber("Elevator/PID/position", elevator.getLeftPositionMeters());
                 SmartDashboard.putNumber("Elevator/PID/setvel", elevator.nextSetpoint.velocity);
                 SmartDashboard.putNumber("Elevator/PID/mps", mps);
-                SmartDashboard.putNumber("Elevator/PID/volts",elevator.getLeftAppliedOutput()*RobotController.getBatteryVoltage());
-                
+                SmartDashboard.putNumber("Elevator/PID/volts",
+                        elevator.getLeftAppliedOutput() * RobotController.getBatteryVoltage());
+
                 SmartDashboard.putNumber("Elevator/PID/mpsRead", elevator.getLeftVelocityMetersPerSecond());
                 SmartDashboard.putNumber("Elevator/PID/poserror", pidController.getError());
                 SmartDashboard.putBoolean("Elevator/PID/atSetpoint", pidController.atSetpoint());
@@ -89,11 +90,11 @@ public class PositionHoldElevatorPID extends Command {
         if (elevator.showTelemetry)
             SmartDashboard.putNumber("Elevator/PID/mpsclamped", mps);
 
-     //   elevator.runAtVelocity(mps);
+        // elevator.runAtVelocity(mps);
 
-     double volts = mps *RobotController.getBatteryVoltage() / elevator.maxVelocityMPS;
-
-     elevator.leftMotor.setVoltage(volts);
+        double volts = mps * RobotController.getBatteryVoltage() / elevator.maxVelocityMPS;
+volts =0;
+        elevator.leftMotor.setVoltage(volts);
 
         elevator.currentSetpoint = elevator.nextSetpoint;
 

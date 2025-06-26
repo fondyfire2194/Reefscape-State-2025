@@ -2,12 +2,12 @@ package frc.robot.subsystems;
 
 import java.util.function.DoubleSupplier;
 
-import com.revrobotics.ColorSensorV3;
 import com.revrobotics.spark.ClosedLoopSlot;
 import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkClosedLoopController;
+import com.revrobotics.spark.SparkLimitSwitch;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
@@ -18,8 +18,6 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
-import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.I2C.Port;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -37,6 +35,8 @@ public class PreIntakeSubsystem extends SubsystemBase implements Logged {
 
     private SparkClosedLoopController preIntakeClosedLoopController = preIntakeMotor.getClosedLoopController();
 
+  public SparkLimitSwitch coralPreDetectSwitch;
+
     @Log(key = "alert warning")
     private Alert allWarnings = new Alert("AllWarnings", AlertType.kWarning);
     @Log(key = "alert error")
@@ -46,11 +46,7 @@ public class PreIntakeSubsystem extends SubsystemBase implements Logged {
 
     SparkMaxConfig preintakeConfig;
 
-    public DigitalInput coralEarlyDetectSwitch = new DigitalInput(1);
-
     public boolean simcoralatpreintake;
-
-    ColorSensorV3 proxIn = new ColorSensorV3(Port.kMXP);
 
     public boolean atUpperLimit;
 
@@ -101,9 +97,9 @@ public class PreIntakeSubsystem extends SubsystemBase implements Logged {
 
     public IdleMode currentMode = IdleMode.kBrake;
 
-    private int proxCoralSeen = 2;
-
     public PreIntakeSubsystem() {
+
+    coralPreDetectSwitch = preIntakeMotor.getForwardLimitSwitch();
 
         preintakeConfig = new SparkMaxConfig();
 
@@ -203,16 +199,13 @@ public class PreIntakeSubsystem extends SubsystemBase implements Logged {
     }
 
     public boolean coralAtPreIntake() {
-        return RobotBase.isReal() && coralEarlyDetectSwitch.get() ||
+        return RobotBase.isReal() && coralPreDetectSwitch.isPressed() ||
                 RobotBase.isSimulation() && simcoralatpreintake;
-    }
-
-    public boolean coralAtColorProx() {
-        return proxIn.getProximity() < proxCoralSeen;
     }
 
     @Override
     public void periodic() {
+
 
         // This method will be called once per scheduler run
         allWarnings.set(getWarnings());
@@ -320,5 +313,6 @@ public class PreIntakeSubsystem extends SubsystemBase implements Logged {
     public Command clearStickyFaultsCommand() {
         return Commands.runOnce(() -> preIntakeMotor.clearFaults());
     }
+
 
 }

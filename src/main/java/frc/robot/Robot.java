@@ -229,8 +229,8 @@ public class Robot extends TimedRobot implements Logged {
       CommandScheduler.getInstance().cancelAll();
     }
 
-    new PositionHoldArmPID(m_robotContainer.arm).schedule();
-    new PositionHoldElevatorPID(m_robotContainer.elevator).schedule();
+    new PositionHoldArm(m_robotContainer.arm).schedule();
+    new PositionHoldElevator(m_robotContainer.elevator).schedule();
 
     m_robotContainer.setMotorBrake(true);
 

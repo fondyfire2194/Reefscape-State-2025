@@ -7,6 +7,7 @@ package frc.robot.commands.Arm;
 import static edu.wpi.first.units.Units.Radians;
 
 import edu.wpi.first.wpilibj.RobotController;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.subsystems.ArmSubsystem;
@@ -40,6 +41,7 @@ public class JogArm extends Command {
     if (yval > 0 && !m_arm.atUpperLimit || yval < 0 && !m_arm.atLowerLimit) {
 
       double appliedVolts = yval * RobotController.getBatteryVoltage();
+      SmartDashboard.putNumber("Arm/jogv", appliedVolts);
 
       m_arm.armMotor.setVoltage(appliedVolts);
 
