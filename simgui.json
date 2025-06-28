@@ -10,9 +10,6 @@
         "header": {
           "open": true
         }
-      },
-      "window": {
-        "visible": false
       }
     }
   },
@@ -93,6 +90,9 @@
           "Values": {
             "open": true
           }
+        },
+        "Gamepiece": {
+          "open": true
         },
         "GrndIn": {
           "open": true

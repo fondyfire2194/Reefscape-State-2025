@@ -31,11 +31,15 @@ import monologue.Logged;
 
 public class PreIntakeSubsystem extends SubsystemBase implements Logged {
 
-    public final SparkMax preIntakeMotor = new SparkMax(CANIDConstants.preIntakeMotorID, MotorType.kBrushless);
+    public final SparkMax preIntakeArmMotor = new SparkMax(CANIDConstants.preIntakeMotorID, MotorType.kBrushless);
 
-    private SparkClosedLoopController preIntakeClosedLoopController = preIntakeMotor.getClosedLoopController();
+    private SparkClosedLoopController preIntakeArmClosedLoopController = preIntakeArmMotor.getClosedLoopController();
 
-  public SparkLimitSwitch coralPreDetectSwitch;
+    public SparkMax coralIntakeMotor;
+    public SparkClosedLoopController coralIntakeController;
+    SparkMaxConfig coralIntakeConfig;
+
+    public SparkLimitSwitch coralPreDetectSwitch;
 
     @Log(key = "alert warning")
     private Alert allWarnings = new Alert("AllWarnings", AlertType.kWarning);
@@ -44,7 +48,14 @@ public class PreIntakeSubsystem extends SubsystemBase implements Logged {
     @Log(key = "alert sticky fault")
     private Alert allStickyFaults = new Alert("AllStickyFaults", AlertType.kError);
 
-    SparkMaxConfig preintakeConfig;
+    SparkMaxConfig preintakeArmConfig;
+
+    public final double coralIntakeKp = .002; // P gains caused oscilliation
+    public final double coralIntakeKi = 0.0;
+    public final double coralIntakeKd = 0.00;
+    public final double coralIntakeKFF = .8 / 5700;
+
+    public double noCoralAtSwitchTime = 15;
 
     public boolean simcoralatpreintake;
 
@@ -57,6 +68,7 @@ public class PreIntakeSubsystem extends SubsystemBase implements Logged {
     public boolean presetOnce;
 
     public double gearReduction = 125;// 100.;
+
     double degperencderrev = (360) / gearReduction;
 
     double posConvFactor = degperencderrev;
@@ -99,57 +111,94 @@ public class PreIntakeSubsystem extends SubsystemBase implements Logged {
 
     public PreIntakeSubsystem() {
 
-    coralPreDetectSwitch = preIntakeMotor.getForwardLimitSwitch();
+       
+        coralIntakeMotor = new SparkMax(CANIDConstants.coralIntakeID, MotorType.kBrushless);
+        coralIntakeController = coralIntakeMotor.getClosedLoopController();
+        coralIntakeConfig = new SparkMaxConfig();
 
-        preintakeConfig = new SparkMaxConfig();
+        coralPreDetectSwitch = coralIntakeMotor.getForwardLimitSwitch();
 
-        preintakeConfig
+        preintakeArmConfig = new SparkMaxConfig();
+
+        preintakeArmConfig
                 .inverted(true)
                 .idleMode(IdleMode.kBrake)
                 .smartCurrentLimit(40);
 
-        preintakeConfig.encoder
+        preintakeArmConfig.encoder
                 .positionConversionFactor(posConvFactor)
                 .velocityConversionFactor(velConvFactor);
 
-        preintakeConfig.closedLoop
+        preintakeArmConfig.closedLoop
                 .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
                 // Set PID values for position control
                 .p(preintakeKp)
                 .outputRange(-0.4, 0.4);
 
-        preintakeConfig.softLimit.forwardSoftLimit(maxAngle)
+        preintakeArmConfig.softLimit.forwardSoftLimit(maxAngle)
                 .reverseSoftLimit(minAngle)
+                .forwardSoftLimitEnabled(false)
+                .reverseSoftLimitEnabled(false);
+
+        preintakeArmConfig.signals.primaryEncoderPositionPeriodMs(20);
+
+        preIntakeArmMotor.configure(preintakeArmConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+
+        preIntakeArmMotor.getEncoder().setPosition(0);
+
+        m_goal.position = 0;
+
+        coralIntakeConfig
+                .inverted(true)
+                .smartCurrentLimit(20, 20)
+                .idleMode(IdleMode.kBrake);
+
+        coralIntakeConfig.encoder
+                .positionConversionFactor(1)
+                .velocityConversionFactor(1);
+
+        coralIntakeConfig.softLimit
                 .forwardSoftLimitEnabled(true)
                 .reverseSoftLimitEnabled(false);
 
-        preintakeConfig.signals.primaryEncoderPositionPeriodMs(20);
+        coralIntakeConfig.closedLoop
+                .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
+                .velocityFF(coralIntakeKFF)
+                .pid(coralIntakeKp, coralIntakeKi, coralIntakeKd);
 
-        preIntakeMotor.configure(preintakeConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        coralIntakeConfig.signals.primaryEncoderPositionPeriodMs(10);
 
-        preIntakeMotor.getEncoder().setPosition(0);
-
-        m_goal.position = 0;
+        coralIntakeMotor.configure(coralIntakeConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
     }
 
     public boolean getActiveFault() {
-        return preIntakeMotor.hasActiveFault();
+        return preIntakeArmMotor.hasActiveFault();
     }
 
     public boolean getStickyFault() {
-        return preIntakeMotor.hasStickyFault();
+        return preIntakeArmMotor.hasStickyFault();
     }
 
     public boolean getWarnings() {
-        return preIntakeMotor.hasActiveWarning();
+        return preIntakeArmMotor.hasActiveWarning();
+    }
+
+    public void runCoralIntakeMotorAtVelocity(double rpm) {
+        if (RobotBase.isReal())
+            coralIntakeController.setReference(rpm, ControlType.kVelocity);
+    }
+
+    public void stopCoralIntakeMotor() {
+        coralIntakeMotor.set(0);
+        coralIntakeMotor.stopMotor();
     }
 
     public void position() {
         // Send setpoint to spark max controller
         nextSetpoint = m_profile.calculate(.02, currentSetpoint, m_goal);
 
-        preIntakeClosedLoopController.setReference(
+        preIntakeArmClosedLoopController.setReference(
                 nextSetpoint.position, ControlType.kPosition, ClosedLoopSlot.kSlot0);
 
         currentSetpoint = nextSetpoint;
@@ -161,24 +210,26 @@ public class PreIntakeSubsystem extends SubsystemBase implements Logged {
 
     public void setMotorToCoast() {
         currentMode = IdleMode.kCoast;
-        preintakeConfig.idleMode(IdleMode.kCoast);
-        preIntakeMotor.configure(preintakeConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
+        preintakeArmConfig.idleMode(IdleMode.kCoast);
+        preIntakeArmMotor.configure(preintakeArmConfig, ResetMode.kNoResetSafeParameters,
+                PersistMode.kNoPersistParameters);
     }
 
     public Command preIntakeToStartCommand() {
         return Commands.sequence(Commands.runOnce(() -> setMotorToCoast()),
-                Commands.runOnce(() -> preIntakeMotor.setVoltage(-0.2)), new WaitCommand(1),
+                Commands.runOnce(() -> preIntakeArmMotor.setVoltage(-0.2)), new WaitCommand(1),
                 Commands.runOnce(() -> stop()),
                 new WaitCommand(1),
                 Commands.runOnce(() -> setMotorToBrake()),
-                Commands.runOnce(() -> preIntakeMotor.getEncoder().setPosition(0)));
+                Commands.runOnce(() -> preIntakeArmMotor.getEncoder().setPosition(0)));
 
     }
 
     public void setMotorToBrake() {
         currentMode = IdleMode.kBrake;
-        preintakeConfig.idleMode(IdleMode.kBrake);
-        preIntakeMotor.configure(preintakeConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
+        preintakeArmConfig.idleMode(IdleMode.kBrake);
+        preIntakeArmMotor.configure(preintakeArmConfig, ResetMode.kNoResetSafeParameters,
+                PersistMode.kNoPersistParameters);
     }
 
     public Command goHome() {
@@ -191,21 +242,39 @@ public class PreIntakeSubsystem extends SubsystemBase implements Logged {
 
     public Command jogMotorCommand(DoubleSupplier speed) {
         return Commands
-                .run(() -> preIntakeMotor.setVoltage(speed.getAsDouble() * RobotController.getBatteryVoltage()), this);
+                .run(() -> preIntakeArmMotor.setVoltage(speed.getAsDouble() * RobotController.getBatteryVoltage()),
+                        this);
     }
 
-    public Command stopMotorCommand() {
-        return Commands.runOnce(() -> preIntakeMotor.stopMotor());
+    public Command jogCoralIntakeMotorCommand(DoubleSupplier speed) {
+        return Commands
+                .run(() -> coralIntakeMotor.setVoltage(speed.getAsDouble() * RobotController.getBatteryVoltage()));
     }
 
+    public Command stopArmMotorCommand() {
+        return Commands.runOnce(() -> preIntakeArmMotor.stopMotor());
+    }
+
+    public Command stopIntakeMotorCommand() {
+        return Commands.runOnce(() -> coralIntakeMotor.stopMotor());
+    }
+
+    @Log(key = "coralatpreintake")
     public boolean coralAtPreIntake() {
         return RobotBase.isReal() && coralPreDetectSwitch.isPressed() ||
                 RobotBase.isSimulation() && simcoralatpreintake;
     }
 
+    public double getIntakeAmps() {
+        return coralIntakeMotor.getOutputCurrent();
+    }
+
+    public double getIntakeRPM() {
+        return coralIntakeMotor.getEncoder().getVelocity();
+    }
+
     @Override
     public void periodic() {
-
 
         // This method will be called once per scheduler run
         allWarnings.set(getWarnings());
@@ -214,13 +283,15 @@ public class PreIntakeSubsystem extends SubsystemBase implements Logged {
 
         atUpperLimit = getAngle() > maxAngle;
         atLowerLimit = getAngle() < minAngle;
-        SmartDashboard.putNumber("PIM/pos", preIntakeMotor.getEncoder().getPosition());
+        SmartDashboard.putNumber("PIM/pos", preIntakeArmMotor.getEncoder().getPosition());
         // SmartDashboard.putBoolean("PIM/atpos", preintakeAtStartPosition());
-        SmartDashboard.putNumber("PIM/vel", preIntakeMotor.getEncoder().getVelocity());
+        SmartDashboard.putNumber("PIM/vel", preIntakeArmMotor.getEncoder().getVelocity());
         SmartDashboard.putNumber("PIM/volts",
-                preIntakeMotor.getAppliedOutput() * RobotController.getBatteryVoltage());
+                preIntakeArmMotor.getAppliedOutput() * RobotController.getBatteryVoltage());
         SmartDashboard.putNumber("PIM/amps", getAmps());
-        SmartDashboard.putBoolean("Gamepiece/CoralAtPreIntake", coralAtPreIntake());
+        SmartDashboard.putBoolean("PIM/CoralAtPreIntake", coralAtPreIntake());
+        SmartDashboard.putNumber("PIM/INTVelocity", coralIntakeMotor.getEncoder().getVelocity());
+        SmartDashboard.putNumber("PIM/INTAmps", coralIntakeMotor.getOutputCurrent());
 
     }
 
@@ -230,7 +301,7 @@ public class PreIntakeSubsystem extends SubsystemBase implements Logged {
     }
 
     public void resetEncoder(double val) {
-        preIntakeMotor.getEncoder().setPosition(val);
+        preIntakeArmMotor.getEncoder().setPosition(val);
     }
 
     public void setTolerance(double toleranceDeg) {
@@ -243,44 +314,44 @@ public class PreIntakeSubsystem extends SubsystemBase implements Logged {
     }
 
     public double getMotorEncoderAngleRadians() {
-        return preIntakeMotor.getEncoder().getPosition();
+        return preIntakeArmMotor.getEncoder().getPosition();
     }
 
     @Log.NT(key = "motor degrees")
     public double getMotorDegrees() {
-        return Units.radiansToDegrees(preIntakeMotor.getEncoder().getPosition());
+        return Units.radiansToDegrees(preIntakeArmMotor.getEncoder().getPosition());
     }
 
     public double getMotorEncoderRadsPerSec() {
-        return preIntakeMotor.getEncoder().getVelocity();
+        return preIntakeArmMotor.getEncoder().getVelocity();
     }
 
     public double getMotorEncoderDegsPerSec() {
-        return Units.radiansToDegrees(preIntakeMotor.getEncoder().getVelocity());
+        return Units.radiansToDegrees(preIntakeArmMotor.getEncoder().getVelocity());
     }
 
     @Log(key = "angle")
     public double getAngle() {
-        return preIntakeMotor.getEncoder().getPosition();
+        return preIntakeArmMotor.getEncoder().getPosition();
 
     }
 
     public double getRadsPerSec() {
-        return preIntakeMotor.getEncoder().getVelocity();
+        return preIntakeArmMotor.getEncoder().getVelocity();
     }
 
     @Log.NT(key = "preintake degrees per sec")
     public double getDegreesPerSec() {
-        return Units.radiansToDegrees(preIntakeMotor.getEncoder().getVelocity());
+        return Units.radiansToDegrees(preIntakeArmMotor.getEncoder().getVelocity());
     }
 
     public boolean onPlusSoftwareLimit() {
-        return preIntakeMotor.getEncoder().getPosition() >= preIntakeMotor.configAccessor.softLimit
+        return preIntakeArmMotor.getEncoder().getPosition() >= preIntakeArmMotor.configAccessor.softLimit
                 .getForwardSoftLimit();
     }
 
     public boolean onMinusSoftwareLimit() {
-        return preIntakeMotor.getEncoder().getPosition() <= preIntakeMotor.configAccessor.softLimit
+        return preIntakeArmMotor.getEncoder().getPosition() <= preIntakeArmMotor.configAccessor.softLimit
                 .getReverseSoftLimit();
     }
 
@@ -290,29 +361,28 @@ public class PreIntakeSubsystem extends SubsystemBase implements Logged {
     }
 
     public void stop() {
-        preIntakeMotor.setVoltage(0);
+        preIntakeArmMotor.setVoltage(0);
     }
 
     public double getAmps() {
-        return preIntakeMotor.getOutputCurrent();
+        return preIntakeArmMotor.getOutputCurrent();
     }
 
     public boolean isBraked() {
-        return preIntakeMotor.configAccessor.getIdleMode() == IdleMode.kBrake;
+        return preIntakeArmMotor.configAccessor.getIdleMode() == IdleMode.kBrake;
     }
 
     public boolean getSoftwareLimitsEnabled() {
-        return preIntakeMotor.configAccessor.softLimit.getForwardSoftLimitEnabled()
-                || preIntakeMotor.configAccessor.softLimit.getReverseSoftLimitEnabled();
+        return preIntakeArmMotor.configAccessor.softLimit.getForwardSoftLimitEnabled()
+                || preIntakeArmMotor.configAccessor.softLimit.getReverseSoftLimitEnabled();
     }
 
     public boolean getStickyFaults() {
-        return preIntakeMotor.hasStickyFault();
+        return preIntakeArmMotor.hasStickyFault();
     }
 
     public Command clearStickyFaultsCommand() {
-        return Commands.runOnce(() -> preIntakeMotor.clearFaults());
+        return Commands.runOnce(() -> preIntakeArmMotor.clearFaults());
     }
-
 
 }
