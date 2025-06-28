@@ -53,6 +53,7 @@ public class JogElevator extends Command {
 
         }
         SmartDashboard.putNumber("Elevator/jogttes", leftPower);
+        SmartDashboard.putNumber("Elevator/posn", elevator.getLeftPositionMeters());
 
         double volts = elevator.leftMotor.getAppliedOutput() * RobotController.getBatteryVoltage();
 

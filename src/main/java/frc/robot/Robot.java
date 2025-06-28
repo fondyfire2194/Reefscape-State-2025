@@ -23,8 +23,6 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.Constants.FieldConstants;
 import frc.robot.VisionConstants.CameraConstants;
 import frc.robot.commands.Arm.PositionHoldArm;
-import frc.robot.commands.Arm.PositionHoldArmPID;
-import frc.robot.commands.Elevator.PositionHoldElevator;
 import frc.robot.commands.Elevator.PositionHoldElevatorPID;
 import frc.robot.utils.LimelightHelpers;
 import monologue.Logged;
@@ -190,7 +188,7 @@ public class Robot extends TimedRobot implements Logged {
 
     m_robotContainer.preIn.preIntakeToStartCommand().schedule();
 
-    new PositionHoldArmPID(m_robotContainer.arm).schedule();
+    new PositionHoldArm(m_robotContainer.arm).schedule();
     new PositionHoldElevatorPID(m_robotContainer.elevator).schedule();
     // m_robotContainer.preIn.preIntakeToStartCommand().schedule();
 
@@ -230,7 +228,7 @@ public class Robot extends TimedRobot implements Logged {
     }
 
     new PositionHoldArm(m_robotContainer.arm).schedule();
-    new PositionHoldElevator(m_robotContainer.elevator).schedule();
+    new PositionHoldElevatorPID(m_robotContainer.elevator).schedule();
 
     m_robotContainer.setMotorBrake(true);
 
@@ -255,7 +253,7 @@ public class Robot extends TimedRobot implements Logged {
     // Cancels all running commands at the start of test mode.
     CommandScheduler.getInstance().cancelAll();
 
-    new PositionHoldArmPID(m_robotContainer.arm).schedule();
+    new PositionHoldArm(m_robotContainer.arm).schedule();
     new PositionHoldElevatorPID(m_robotContainer.elevator).schedule();
     m_robotContainer.configureCoDriverTestBindings();
   }

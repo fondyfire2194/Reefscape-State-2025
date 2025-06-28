@@ -120,7 +120,7 @@ public class PreIntakeSubsystem extends SubsystemBase implements Logged {
 
         preintakeConfig.softLimit.forwardSoftLimit(maxAngle)
                 .reverseSoftLimit(minAngle)
-                .forwardSoftLimitEnabled(false)
+                .forwardSoftLimitEnabled(true)
                 .reverseSoftLimitEnabled(false);
 
         preintakeConfig.signals.primaryEncoderPositionPeriodMs(20);

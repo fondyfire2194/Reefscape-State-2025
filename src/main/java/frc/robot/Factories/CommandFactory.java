@@ -156,21 +156,21 @@ public class CommandFactory {
                 public static final int kLevelAlgaeL3 = 44;
         }
 
-        public static final double offset = 25;
+        public static final double armCompOffset = 25;
 
         public static final class ArmSetpoints {
-
-                public static final double kokElevatorMove = 90 - offset;
-                public static final double kTravel = 100 - offset;
-                public static final double kProcessorDeliver = 15 - offset;
-                public static final double kBargeDeliver = 85 - offset;
-                public static final double kCoralStation = 132 - offset;
-                public static final double kLevel1 = 97 - offset;
-                public static final double kLevel2 = 97 - offset;
-                public static final double kLevel3 = 97 - offset;
-                public static final double kLevel4_1 = 103 - offset;
-                public static final double kLevel4_2 = 85 - offset;
-                public static final double kAlgaeIntake = 0 - offset;
+                
+                public static final double kokElevatorMove = 90 - armCompOffset;
+                public static final double kTravel = 100 - armCompOffset;
+                public static final double kProcessorDeliver = 15 - armCompOffset;
+                public static final double kBargeDeliver = 85 - armCompOffset;
+                public static final double kCoralStation = 132 - armCompOffset;
+                public static final double kLevel1 = 97 - armCompOffset;
+                public static final double kLevel2 = 97 - armCompOffset;
+                public static final double kLevel3 = 97 - armCompOffset;
+                public static final double kLevel4_1 = 103 - armCompOffset;
+                public static final double kLevel4_2 = 85 - armCompOffset;
+                public static final double kAlgaeIntake = 0 - armCompOffset;
 
         }
 

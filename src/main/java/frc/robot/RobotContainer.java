@@ -342,11 +342,11 @@ public class RobotContainer implements Logged {
                                                                 () -> driverXbox.getRightX(),
                                                                 () -> correctAngle)));
 
-               // elevator.setDefaultCommand(new PositionHoldElevatorPID(elevator));
+                elevator.setDefaultCommand(new PositionHoldElevatorPID(elevator));
 
               //  arm.setDefaultCommand(new PositionHoldArmPID(arm));
 
-                 elevator.setDefaultCommand(new PositionHoldElevator(elevator));
+               //  elevator.setDefaultCommand(new PositionHoldElevator(elevator));
 
                  arm.setDefaultCommand(new PositionHoldArm(arm));
 
@@ -603,13 +603,13 @@ public class RobotContainer implements Logged {
 
                 coCoDriverXbox.rightTrigger().onTrue(arm.setGoalDegreesCommand(ArmSetpoints.kAlgaeIntake));
 
-                // coCoDriverXbox.a().onTrue(elevator.setGoalInchesCommand(ElevatorSetpoints.kHome));
+                 coCoDriverXbox.a().onTrue(elevator.setGoalInchesCommand(ElevatorSetpoints.kHome));
 
-                coCoDriverXbox.b().onTrue(cf.setSetpointCommand(Setpoint.kLevel2));
+                coCoDriverXbox.b().onTrue(elevator.setGoalInchesCommand(ElevatorSetpoints.kLevel2));
 
-                coCoDriverXbox.x().onTrue(cf.setSetpointCommand(Setpoint.kLevel3));
+                coCoDriverXbox.x().onTrue(elevator.setGoalInchesCommand(ElevatorSetpoints.kLevel2));
 
-                coCoDriverXbox.y().onTrue(cf.setSetpointCommand(Setpoint.kLevel4));
+                coCoDriverXbox.y().onTrue(elevator.setGoalInchesCommand(ElevatorSetpoints.kLevel2));
 
                 // coCoDriverXbox.leftTrigger().onTrue(elevator.setGoalInchesCommand(ElevatorSetpoints.kLevel4));
 
