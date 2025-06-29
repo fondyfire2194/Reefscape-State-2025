@@ -29,6 +29,7 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.Constants;
 import frc.robot.Constants.CANIDConstants;
 import frc.robot.Factories.CommandFactory.AlgaeRPMSetpoints;
+import frc.robot.utils.SD;
 import monologue.Annotations.Log;
 import monologue.Logged;
 
@@ -103,6 +104,7 @@ public class AlgaeSubsystem extends SubsystemBase implements Logged {
   private double algaeDelverSpeed = .6;
   public boolean motorLocked = false;
   public double detectThreshold;
+  public boolean showTelemetry;
 
   /** Creates a new algae. */
   public AlgaeSubsystem() {
@@ -150,8 +152,8 @@ public class AlgaeSubsystem extends SubsystemBase implements Logged {
     algaeLeftConfig.signals.primaryEncoderPositionPeriodMs(20);
 
     algaeLeftMotor.configure(algaeLeftConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-
-    SmartDashboard.putData("AlgaeInAndHoldTune", this);
+    if (showTelemetry)
+      SmartDashboard.putData("AlgaeInAndHoldTune", this);
   }
 
   public void setCurrentLimit(int amps) {
@@ -225,7 +227,8 @@ public class AlgaeSubsystem extends SubsystemBase implements Logged {
 
   public void runalgaeMotorAtVelocity(double rpm) {
     setCurrentLimit(40);
-    SmartDashboard.putNumber("algae/tgtrpm", rpm);
+    if (showTelemetry)
+      SD.sd2("algae/tgtrpm", rpm);
     if (RobotBase.isReal())
       algaeRightController.setReference(rpm, ControlType.kVelocity);
     algaeLeftController.setReference(rpm, ControlType.kVelocity);
@@ -240,19 +243,19 @@ public class AlgaeSubsystem extends SubsystemBase implements Logged {
     allWarnings.set(getWarnings());
     allErrors.set(getActiveFault());
     allStickyFaults.set(getStickyFault());
+    if (showTelemetry) {
+      SmartDashboard.putBoolean("algae/MotorLocked", motorLocked);
 
-    SmartDashboard.putBoolean("algae/MotorLocked", motorLocked);
+      SD.sd2("Algae/Adjust/LockSpeed", lockAlgaeSet);
+      SD.sd2("Algae/Adjust/LockAmps", lockAlgaeAmps);
 
-    SmartDashboard.putNumber("Algae/Adjust/LockSpeed", lockAlgaeSet);
-    SmartDashboard.putNumber("Algae/Adjust/LockAmps", lockAlgaeAmps);
+      SD.sd2("algae/RightVelocity", algaeRightMotor.getEncoder().getVelocity());
+      SD.sd2("algae/LeftAmps", algaeRightMotor.getOutputCurrent());
+      SD.sd2("algae/GPLimitAmps", getSmartCurrentLimit());
 
-    SmartDashboard.putNumber("algae/RightVelocity", algaeRightMotor.getEncoder().getVelocity());
-    SmartDashboard.putNumber("algae/LeftAmps", algaeRightMotor.getOutputCurrent());
-    SmartDashboard.putNumber("algae/GPLimitAmps", getSmartCurrentLimit());
-
-    SmartDashboard.putNumber("algae/LeftVelocity", algaeLeftMotor.getEncoder().getVelocity());
-    SmartDashboard.putNumber("algae/LeftAmps", algaeLeftMotor.getOutputCurrent());
-
+      SD.sd2("algae/LeftVelocity", algaeLeftMotor.getEncoder().getVelocity());
+      SD.sd2("algae/LeftAmps", algaeLeftMotor.getOutputCurrent());
+    }
   }
 
   @Log(key = "algae rpm")

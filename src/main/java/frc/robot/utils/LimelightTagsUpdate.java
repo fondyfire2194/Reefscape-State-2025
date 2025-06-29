@@ -42,14 +42,15 @@ public class LimelightTagsUpdate {
     }
 
     public void setLLRobotorientation() {
-        SmartDashboard.putNumber("TagUpdate/LLGyroRead", m_swerve.getPose().getRotation().getDegrees());
+        if (m_swerve.showTelemetry)
+            SmartDashboard.putNumber("TagUpdate/LLGyroRead", m_swerve.getPose().getRotation().getDegrees());
         LimelightHelpers.SetRobotOrientation(m_cam.camname,
                 m_swerve.getPose().getRotation().getDegrees(),
                 m_swerve.getGyroRate(), 0, 0, 0, 0); // m_swerve.getPoseEstimator().getEstimatedPosition().getRotation().getDegrees()
     }
 
     public void execute() {
-               rejectUpdate = true;
+        rejectUpdate = true;
         if (m_cam.isActive && LimelightHelpers.getTV(m_cam.camname)) {
             setLLRobotorientation();
             if (m_useMegaTag2) {
@@ -61,12 +62,12 @@ public class LimelightTagsUpdate {
                         || Math.abs(m_swerve.getGyroRate()) > ROTATION_RATE_CUTOFF
                         || (mt2.tagCount == 1 && mt2.rawFiducials[0].ambiguity > AMBIGUITY_CUTOFF)
                         || mt2.rawFiducials[0].distToCamera > DISTANCE_CUTOFF;
-
-                SmartDashboard.putBoolean("TagUpdate/RejectUpdateMT2" + m_cam.camname, rejectUpdate);
-                SD.sd2("TagUpdate/GyroRate", m_swerve.getGyroRate());
-                SD.sd2("TagUpdate/lltoRobDist", getLLToRobotPoseError(mt2.pose));
-                SD.sd2("TagUpdate/robtoReefFinal", getLLToRobotPoseError(m_swerve.getFinalReefTargetPose()));
-
+                if (m_swerve.showTelemetry) {
+                    SmartDashboard.putBoolean("TagUpdate/RejectUpdateMT2" + m_cam.camname, rejectUpdate);
+                    SD.sd2("TagUpdate/GyroRate", m_swerve.getGyroRate());
+                    SD.sd2("TagUpdate/lltoRobDist", getLLToRobotPoseError(mt2.pose));
+                    SD.sd2("TagUpdate/robtoReefFinal", getLLToRobotPoseError(m_swerve.getFinalReefTargetPose()));
+                }
                 mt2PosePublisher.set(mt2.pose);// send to network tables
 
                 if (!rejectUpdate) {
@@ -87,8 +88,8 @@ public class LimelightTagsUpdate {
                         || mt1.tagCount == 1 && mt1.rawFiducials.length == 1 &&
                                 mt1.rawFiducials[0].ambiguity > .7
                                 && mt1.rawFiducials[0].distToCamera > 5;
-
-                SmartDashboard.putBoolean("TagUpdate/RejectUpdateMT1" + m_cam.camname, rejectUpdate);
+                if (m_swerve.showTelemetry)
+                    SmartDashboard.putBoolean("TagUpdate/RejectUpdateMT1" + m_cam.camname, rejectUpdate);
                 mt1PosePublisher.set(mt1.pose);
 
                 if (!rejectUpdate) {

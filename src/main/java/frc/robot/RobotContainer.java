@@ -241,6 +241,8 @@ public class RobotContainer implements Logged {
 
                 logCommandEvents();
 
+                setShowTelemetry();
+
         }
 
         private void setNamedCommands() {
@@ -289,7 +291,7 @@ public class RobotContainer implements Logged {
                         NamedCommands.registerCommand("DelayStartIntake",
                                         Commands.sequence(
                                                         Commands.waitSeconds(.5),
-                                                        new IntakeCoralToSwitch(gamepieces, preIn,  true))
+                                                        new IntakeCoralToSwitch(gamepieces, preIn, true))
                                                         .withName("DelayedIntakeCoral"));
 
                         NamedCommands.registerCommand("Intake Algae L2",
@@ -601,9 +603,9 @@ public class RobotContainer implements Logged {
 
                 coCoDriverXbox.b().onTrue(elevator.setGoalInchesCommand(ElevatorSetpoints.kLevel2));
 
-                coCoDriverXbox.x().onTrue(elevator.setGoalInchesCommand(ElevatorSetpoints.kLevel2));
+                coCoDriverXbox.x().onTrue(elevator.setGoalInchesCommand(ElevatorSetpoints.kLevel3));
 
-                coCoDriverXbox.y().onTrue(elevator.setGoalInchesCommand(ElevatorSetpoints.kLevel2));
+                coCoDriverXbox.y().onTrue(elevator.setGoalInchesCommand(ElevatorSetpoints.kLevel4));
 
                 // coCoDriverXbox.leftTrigger().onTrue(elevator.setGoalInchesCommand(ElevatorSetpoints.kLevel4));
 
@@ -718,6 +720,16 @@ public class RobotContainer implements Logged {
                                                 command -> Shuffleboard.addEventMarker(
                                                                 "Command finished", command.getName(),
                                                                 EventImportance.kNormal));
+        }
+
+        private void setShowTelemetry() {
+                drivebase.showTelemetry=false;
+                elevator.showTelemetry = false;
+                arm.showTelemetry = false;
+                gamepieces.showTelemetry = false;
+                preIn.showTelemetry = false;
+                algae.showTelemetry = false;
+                gis.showTelemetry = false;
         }
 
         private void setTriggerActions() {

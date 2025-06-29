@@ -150,6 +150,7 @@ public class SwerveSubsystem extends SubsystemBase implements Logged {
   private double finalMetersToCoralStation;
   private double finalDegreesToCoralStation;
 public boolean checkDistance;
+public boolean showTelemetry;
 
   /**
    * Initialize {@link SwerveDrive} with the directory provided.

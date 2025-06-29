@@ -26,6 +26,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.utils.SD;
 import monologue.Annotations.Log;
 import monologue.Logged;
 
@@ -59,6 +60,7 @@ public class GamepieceSubsystem extends SubsystemBase implements Logged {
   public double coralL1DeliverSpeed = .5;
 
   public int inOutCoralAmps = 40;
+  public boolean showTelemetry;
 
   /** Creates a new gamepiece. */
   public GamepieceSubsystem() {
@@ -115,7 +117,7 @@ public class GamepieceSubsystem extends SubsystemBase implements Logged {
   }
 
   public void runGamepieceMotorAtVelocity(double rpm) {
-    SmartDashboard.putNumber("Gamepiece/tgtrpm", rpm);
+    SD.sd2("Gamepiece/tgtrpm", rpm);
     if (RobotBase.isReal())
       gamepieceController.setReference(rpm, ControlType.kVelocity);
   }
@@ -137,10 +139,10 @@ public class GamepieceSubsystem extends SubsystemBase implements Logged {
     allStickyFaults.set(getStickyFault());
 
     SmartDashboard.putBoolean("Gamepiece/CoralAtIntake", coralAtIntake());
-
-    SmartDashboard.putNumber("Gamepiece/GPVelocity", gamepieceMotor.getEncoder().getVelocity());
-    SmartDashboard.putNumber("Gamepiece/GPAmps", gamepieceMotor.getOutputCurrent());
-
+    if (showTelemetry) {
+      SD.sd2("Gamepiece/GPVelocity", gamepieceMotor.getEncoder().getVelocity());
+      SD.sd2("Gamepiece/GPAmps", gamepieceMotor.getOutputCurrent());
+    }
   }
 
   public void enableLimitSwitch() {
@@ -210,7 +212,5 @@ public class GamepieceSubsystem extends SubsystemBase implements Logged {
     return Commands.sequence(Commands.runOnce(() -> disableLimitSwitch()),
         Commands.run(() -> gamepieceMotor.setVoltage(speed.getAsDouble() * RobotController.getBatteryVoltage())));
   }
-
- 
 
 }

@@ -24,6 +24,7 @@ import frc.robot.Constants.FieldConstants;
 import frc.robot.VisionConstants.CameraConstants;
 import frc.robot.commands.Arm.PositionHoldArm;
 import frc.robot.commands.Elevator.PositionHoldElevatorPID;
+import frc.robot.commands.Elevator.PositionHoldElevatorStateSpace;
 import frc.robot.utils.LimelightHelpers;
 import monologue.Logged;
 import monologue.Monologue;
@@ -254,7 +255,7 @@ public class Robot extends TimedRobot implements Logged {
     CommandScheduler.getInstance().cancelAll();
 
     new PositionHoldArm(m_robotContainer.arm).schedule();
-    new PositionHoldElevatorPID(m_robotContainer.elevator).schedule();
+    new PositionHoldElevatorStateSpace(m_robotContainer.elevator).schedule();
     m_robotContainer.configureCoDriverTestBindings();
   }
 

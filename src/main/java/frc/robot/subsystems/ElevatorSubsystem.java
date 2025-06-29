@@ -42,6 +42,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.CANIDConstants;
+import frc.robot.utils.SD;
 import monologue.Annotations.Log;
 import monologue.Logged;
 
@@ -122,7 +123,7 @@ public class ElevatorSubsystem extends SubsystemBase implements Logged {
   public TrapezoidProfile.State currentSetpoint = new TrapezoidProfile.State();
   public TrapezoidProfile.State nextSetpoint = new TrapezoidProfile.State();
 
-  private ElevatorFeedforward eff;
+  public ElevatorFeedforward eff;
 
   public int posrng;
 
@@ -146,7 +147,7 @@ public class ElevatorSubsystem extends SubsystemBase implements Logged {
   @Log.NT(key = "left ff")
   private double leftff;
 
-  public boolean showTelemetry = true;
+  public boolean showTelemetry;
 
   public double tolerance_inches = 3;
 
@@ -158,13 +159,13 @@ public class ElevatorSubsystem extends SubsystemBase implements Logged {
    * Subsystem constructor.
    */
   public ElevatorSubsystem() {
-
-    SmartDashboard.putNumber("Elevator/Values/posconv", positionConversionFactor);
-    SmartDashboard.putNumber("Elevator/Values/posconvinch",
-        Units.metersToInches(positionConversionFactor));
-    SmartDashboard.putNumber("Elevator/Values/kv", elevatorKv);
-    SmartDashboard.putNumber("Elevator/Values/maxmetrprsec", positionConversionFactor * 5700 / 60);
-
+    if (showTelemetry) {
+      SD.sd2("Elevator/Values/posconv", positionConversionFactor);
+      SD.sd2("Elevator/Values/posconvinch",
+          Units.metersToInches(positionConversionFactor));
+      SD.sd2("Elevator/Values/kv", elevatorKv);
+      SD.sd2("Elevator/Values/maxmetrprsec", positionConversionFactor * 5700 / 60);
+    }
     SparkMaxConfig leftConfig = new SparkMaxConfig();
     SparkMaxConfig rightConfig = new SparkMaxConfig();
 
@@ -242,14 +243,16 @@ public class ElevatorSubsystem extends SubsystemBase implements Logged {
 
     // setGoalMeters(minElevatorHeight.in(Meters));
     setGoalMeters(leftEncoder.getPosition());
-
-    SmartDashboard.putNumber("Elevator/Values/reverseSoftLimit", getReverseSoftLimit());
-    SmartDashboard.putNumber("Elevator/Values/forwardSoftLimit", getForwardSoftLimit());
-    SmartDashboard.putNumber("Elevator/Values/maxvelmps", maxVelocityMPS);
+    if (showTelemetry) {
+      SD.sd2("Elevator/Values/reverseSoftLimit", getReverseSoftLimit());
+      SD.sd2("Elevator/Values/forwardSoftLimit", getForwardSoftLimit());
+      SD.sd2("Elevator/Values/maxvelmps", maxVelocityMPS);
+    }
   }
 
   public void position() {
-    SmartDashboard.putNumber("Elevator/posrng", posrng);
+    if (showTelemetry)
+      SD.sd2("Elevator/posrng", posrng);
     posrng++;
 
     // Send setpoint to spark max controller
@@ -257,13 +260,13 @@ public class ElevatorSubsystem extends SubsystemBase implements Logged {
 
     leftff = eff.calculateWithVelocities(currentSetpoint.velocity, nextSetpoint.velocity);
 
-    SmartDashboard.putNumber("Elevator/ff", leftff);
+    SD.sd2("Elevator/ff", leftff);
 
     currentSetpoint = nextSetpoint;
-
-    SmartDashboard.putNumber("Elevator/setpos", currentSetpoint.position);
-    SmartDashboard.putNumber("Elevator/setvel", currentSetpoint.velocity);
-
+    if (showTelemetry) {
+      SD.sd2("Elevator/setpos", currentSetpoint.position);
+      SD.sd2("Elevator/setvel", currentSetpoint.velocity);
+    }
     leftClosedLoopController.setReference(
         nextSetpoint.position, ControlType.kPosition, ClosedLoopSlot.kSlot0, leftff, ArbFFUnits.kVoltage);
   }
@@ -278,9 +281,9 @@ public class ElevatorSubsystem extends SubsystemBase implements Logged {
   }
 
   public void logMotors(SysIdRoutineLog log) {
-    SmartDashboard.putNumber("ElevatorTest/volts", leftMotor.getAppliedOutput() * RobotController.getBatteryVoltage());
-    SmartDashboard.putNumber("ElevatorTest/velocity", getLeftVelocityMetersPerSecond());
-    SmartDashboard.putNumber("ElevatorTest/position", getLeftPositionMeters());
+    SD.sd2("ElevatorTest/volts", leftMotor.getAppliedOutput() * RobotController.getBatteryVoltage());
+    SD.sd2("ElevatorTest/velocity", getLeftVelocityMetersPerSecond());
+    SD.sd2("ElevatorTest/position", getLeftPositionMeters());
 
     log.motor("elevator-motor-left")
         .voltage(Volts.of(leftMotor.getAppliedOutput() * RobotController.getBatteryVoltage()))
@@ -433,27 +436,27 @@ public class ElevatorSubsystem extends SubsystemBase implements Logged {
 
     if (showTelemetry) {
 
-      SmartDashboard.putNumber("Elevator/targetInches", Units.metersToInches(targetMeters));
+      SD.sd2("Elevator/targetInches", Units.metersToInches(targetMeters));
 
-      SmartDashboard.putNumber("Elevator/Goal", m_goal.position);
-      SmartDashboard.putNumber("Elevator/LeftVolts",
+      SD.sd2("Elevator/Goal", m_goal.position);
+      SD.sd2("Elevator/LeftVolts",
           leftMotor.getAppliedOutput() * RobotController.getBatteryVoltage());
 
-      SmartDashboard.putNumber("Elevator/RightVolts",
+      SD.sd2("Elevator/RightVolts",
           rightMotor.getAppliedOutput() * RobotController.getBatteryVoltage());
 
-      SmartDashboard.putNumber("Elevator/LeftAmps",
+      SD.sd2("Elevator/LeftAmps",
           leftMotor.getOutputCurrent());
 
-      SmartDashboard.putNumber("Elevator/RightAmps",
+      SD.sd2("Elevator/RightAmps",
           rightMotor.getOutputCurrent());
 
-      SmartDashboard.putNumber("Elevator/positionleftinches", Units.metersToInches(getLeftPositionMeters()));
-      SmartDashboard.putNumber("Elevator/Velleftipsec", Units.metersToInches(leftEncoder.getVelocity()));
-      SmartDashboard.putNumber("Elevator/positionrightinches", Units.metersToInches(rightEncoder.getPosition()));
-      SmartDashboard.putNumber("Elevator/Velrightipsec", Units.metersToInches(rightEncoder.getVelocity()));
+      SD.sd2("Elevator/positionleftinches", Units.metersToInches(getLeftPositionMeters()));
+      SD.sd2("Elevator/Velleftipsec", Units.metersToInches(leftEncoder.getVelocity()));
+      SD.sd2("Elevator/positionrightinches", Units.metersToInches(rightEncoder.getPosition()));
+      SD.sd2("Elevator/Velrightipsec", Units.metersToInches(rightEncoder.getVelocity()));
 
-      SmartDashboard.putNumber("Elevator/APPO", leftMotor.getAppliedOutput());
+      SD.sd2("Elevator/APPO", leftMotor.getAppliedOutput());
     }
     allWarnings.set(getWarnings());
     allErrors.set(getActiveFault());
@@ -466,7 +469,7 @@ public class ElevatorSubsystem extends SubsystemBase implements Logged {
         || (rightEncoder.getPosition() <= minElevatorHeight.in(Meters)
             && RobotBase.isReal());
 
-    SmartDashboard.putNumber("Elevator/kvcalc",
+    SD.sd2("Elevator/kvcalc",
         RobotController.getBatteryVoltage() / leftMotor.getEncoder().getVelocity());
 
     elevatorError.set(Math.abs(getLeftRightDiffInches()) > 2);

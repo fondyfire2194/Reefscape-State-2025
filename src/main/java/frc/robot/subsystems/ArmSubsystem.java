@@ -82,49 +82,49 @@ public class ArmSubsystem extends SubsystemBase implements Logged {
      */
 
     public double armKg = .42;// 0.2;
-        public final double armKs = 0.23;
-        public final double armKv = 12 / maxradpersec;
-        public final double armKa = .0;// 0;// 0.025;
-    
-        public double armKp = 0.035;
-    
-        public final double armKi = 0.;
-        public final double armKd = 0;
-    
-        /**
-         * Angles are set so that 90 degrees is with the arm balanced over center
-         * This means kg will act equally on both sides of top center
-         * 
-         */
-    
-        public final Angle armStartupOffset = Degrees.of(134 - CommandFactory.armCompOffset);
-        public final Angle minAngle = Degrees.of(-10 - CommandFactory.armCompOffset);
-        public final Angle maxAngle = armStartupOffset;
-    
-        public double armClearAngleDeg = 104 - CommandFactory.armCompOffset;
-    
-        double TRAJECTORY_VEL = 2 * Math.PI;
-        double TRAJECTORY_ACCEL = 6 * Math.PI;
-    
-        public final TrapezoidProfile m_profile = new TrapezoidProfile(new TrapezoidProfile.Constraints(
-                TRAJECTORY_VEL, TRAJECTORY_ACCEL));
-        @Log(key = "goal")
-        public TrapezoidProfile.State m_goal = new TrapezoidProfile.State();
-        public TrapezoidProfile.State currentSetpoint = new TrapezoidProfile.State();
-        public TrapezoidProfile.State nextSetpoint = new TrapezoidProfile.State();
-    
-        private int inPositionCtr;
-    
-        public double targetRadians;
-    
-        private double armff;
-    
-        public boolean showTelemetry = true;
-    
-        public ArmSubsystem() {
-    
-            if (RobotBase.isSimulation()){
-                armKp = .001;
+    public final double armKs = 0.23;
+    public final double armKv = 12 / maxradpersec;
+    public final double armKa = .0;// 0;// 0.025;
+
+    public double armKp = 0.035;
+
+    public final double armKi = 0.;
+    public final double armKd = 0;
+
+    /**
+     * Angles are set so that 90 degrees is with the arm balanced over center
+     * This means kg will act equally on both sides of top center
+     * 
+     */
+
+    public final Angle armStartupOffset = Degrees.of(134 - CommandFactory.armCompOffset);
+    public final Angle minAngle = Degrees.of(-10 - CommandFactory.armCompOffset);
+    public final Angle maxAngle = armStartupOffset;
+
+    public double armClearAngleDeg = 104 - CommandFactory.armCompOffset;
+
+    double TRAJECTORY_VEL = 2 * Math.PI;
+    double TRAJECTORY_ACCEL = 6 * Math.PI;
+
+    public final TrapezoidProfile m_profile = new TrapezoidProfile(new TrapezoidProfile.Constraints(
+            TRAJECTORY_VEL, TRAJECTORY_ACCEL));
+    @Log(key = "goal")
+    public TrapezoidProfile.State m_goal = new TrapezoidProfile.State();
+    public TrapezoidProfile.State currentSetpoint = new TrapezoidProfile.State();
+    public TrapezoidProfile.State nextSetpoint = new TrapezoidProfile.State();
+
+    private int inPositionCtr;
+
+    public double targetRadians;
+
+    private double armff;
+
+    public boolean showTelemetry = true;
+
+    public ArmSubsystem() {
+
+        if (RobotBase.isSimulation()) {
+            armKp = .001;
         }
         if (showTelemetry) {
 
@@ -170,7 +170,8 @@ public class ArmSubsystem extends SubsystemBase implements Logged {
 
         armMotor.configure(armConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
-        if(RobotBase.isSimulation())armKg=0;
+        if (RobotBase.isSimulation())
+            armKg = 0;
 
         armfeedforward = new ArmFeedforward(armKa, armKg, armKv);
 
@@ -241,24 +242,24 @@ public class ArmSubsystem extends SubsystemBase implements Logged {
             inPositionCtr++;
         // Send setpoint to spark max controller
         nextSetpoint = m_profile.calculate(.02, currentSetpoint, m_goal);
-
-        SD.sd2("Arm/Trap/setpos",
-                Units.radiansToDegrees(nextSetpoint.position));
-        SD.sd2("Arm/Trap/setvel",
-                Units.radiansToDegrees(nextSetpoint.velocity));
-        SD.sd2("Arm/Trap/actpos",
-                Units.radiansToDegrees(getAngleRadians()));
-        SD.sd2("Arm/Trap/actvel",
-                getDegreesPerSec());
-
+        if (showTelemetry) {
+            SD.sd2("Arm/Trap/setpos",
+                    Units.radiansToDegrees(nextSetpoint.position));
+            SD.sd2("Arm/Trap/setvel",
+                    Units.radiansToDegrees(nextSetpoint.velocity));
+            SD.sd2("Arm/Trap/actpos",
+                    Units.radiansToDegrees(getAngleRadians()));
+            SD.sd2("Arm/Trap/actvel",
+                    getDegreesPerSec());
+        }
         armff = armfeedforward.calculate(getAngleRadians(), nextSetpoint.velocity);
 
         currentSetpoint = nextSetpoint;
-
-        SD.sd2("Arm/Trap/ff", armff);
-        SD.sd2("Arm/Trap/poserror", m_goal.position -
-                armMotor.getEncoder().getPosition());
-
+        if (showTelemetry) {
+            SD.sd2("Arm/Trap/ff", armff);
+            SD.sd2("Arm/Trap/poserror", m_goal.position -
+                    armMotor.getEncoder().getPosition());
+        }
         armClosedLoopController.setReference(
                 nextSetpoint.position, ControlType.kPosition, ClosedLoopSlot.kSlot0, armff,
                 ArbFFUnits.kVoltage);

@@ -46,8 +46,8 @@ public class GroundIntakeSubsystem extends SubsystemBase implements Logged {
     private Alert allErrors = new Alert("AllErrors", AlertType.kError);
     @Log(key = "alert sticky fault")
     private Alert allStickyFaults = new Alert("AllStickyFaults", AlertType.kError);
-//mass 5lb
-//cog 7.7"
+    // mass 5lb
+    // cog 7.7"
     SparkMaxConfig groundintakeArmConfig;
     SparkMaxConfig groundintakerollerConfig;
 
@@ -100,7 +100,7 @@ public class GroundIntakeSubsystem extends SubsystemBase implements Logged {
     public final double homeAngle = Units.degreesToRadians(100);
 
     public final double pickupAngle = Units.degreesToRadians(207);
-    public final double deliverAngle = Units.degreesToRadians(115); //108
+    public final double deliverAngle = Units.degreesToRadians(115); // 108
     public final double pickupSpeed = .8;
 
     public final double groundintakerollerKp = .00002; // P gains caused oscilliation
@@ -120,6 +120,7 @@ public class GroundIntakeSubsystem extends SubsystemBase implements Logged {
     public boolean groundCoralMode;
 
     private boolean toggleTelem;
+    public boolean showTelemetry;
 
     public GroundIntakeSubsystem() {
 
@@ -176,9 +177,10 @@ public class GroundIntakeSubsystem extends SubsystemBase implements Logged {
         groundIntakeArmMotor.getEncoder().setPosition(minAngle);
 
         m_goal.position = minAngle;
-
-        SD.sd2("GIS/Values/maxdegpersec", maxdegpersec);
-        SD.sd2("GIS/Values/radperencrev", radperencderrev);
+        if (showTelemetry) {
+            SD.sd2("GIS/Values/maxdegpersec", maxdegpersec);
+            SD.sd2("GIS/Values/radperencrev", radperencderrev);
+        }
     }
 
     public boolean getActiveFault() {
@@ -276,20 +278,22 @@ public class GroundIntakeSubsystem extends SubsystemBase implements Logged {
 
         atUpperLimit = getArmAnglerads() > maxAngle;
         atLowerLimit = getArmAnglerads() < minAngle;
-        if (toggleTelem) {
-            SD.sd2("GIS/goaldeg", Units.radiansToDegrees(m_goal.position));
-            SD.sd2("GIS/posdeg", Units.radiansToDegrees(groundIntakeArmMotor.getEncoder().getPosition()));
-            // SmartDashboard.putBoolean("GIS/atpos", groundintakeAtStartPosition());
-            SD.sd2("GIS/degpersec",
-                    Units.radiansToDegrees(groundIntakeArmMotor.getEncoder().getVelocity()));
-            SD.sd2("GIS/volts",
-                    groundIntakeArmMotor.getAppliedOutput() * RobotController.getBatteryVoltage());
-            SD.sd2("GIS/amps", getArmAmps());
-        } else {
-            SD.sd2("GIS/RolVolts",
-                    groundIntakeRollerMotor.getAppliedOutput() * RobotController.getBatteryVoltage());
-            SD.sd2("GIS/RolRPM", groundIntakeRollerMotor.getEncoder().getVelocity());
-            SD.sd2("GIS/RolAmps", groundIntakeRollerMotor.getOutputCurrent());
+        if (showTelemetry) {
+            if (toggleTelem) {
+                SD.sd2("GIS/goaldeg", Units.radiansToDegrees(m_goal.position));
+                SD.sd2("GIS/posdeg", Units.radiansToDegrees(groundIntakeArmMotor.getEncoder().getPosition()));
+                // SmartDashboard.putBoolean("GIS/atpos", groundintakeAtStartPosition());
+                SD.sd2("GIS/degpersec",
+                        Units.radiansToDegrees(groundIntakeArmMotor.getEncoder().getVelocity()));
+                SD.sd2("GIS/volts",
+                        groundIntakeArmMotor.getAppliedOutput() * RobotController.getBatteryVoltage());
+                SD.sd2("GIS/amps", getArmAmps());
+            } else {
+                SD.sd2("GIS/RolVolts",
+                        groundIntakeRollerMotor.getAppliedOutput() * RobotController.getBatteryVoltage());
+                SD.sd2("GIS/RolRPM", groundIntakeRollerMotor.getEncoder().getVelocity());
+                SD.sd2("GIS/RolAmps", groundIntakeRollerMotor.getOutputCurrent());
+            }
         }
     }
 
@@ -388,7 +392,7 @@ public class GroundIntakeSubsystem extends SubsystemBase implements Logged {
                 Commands.runOnce(() -> groundIntakeRollerMotor.set(deliverSpeed)),
                 new WaitCommand(0.5),
                 Commands.runOnce(() -> simCoralAtGroundIntake = false),
-                Commands.runOnce(() -> groundIntakeRollerMotor.stopMotor()), 
+                Commands.runOnce(() -> groundIntakeRollerMotor.stopMotor()),
                 Commands.runOnce(() -> m_goal.position = homeAngle));
     }
 }

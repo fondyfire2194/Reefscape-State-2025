@@ -26,6 +26,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.Constants.CANIDConstants;
+import frc.robot.utils.SD;
 import monologue.Annotations.Log;
 import monologue.Logged;
 
@@ -108,6 +109,8 @@ public class PreIntakeSubsystem extends SubsystemBase implements Logged {
     public final double maxAngle = 100;
 
     public IdleMode currentMode = IdleMode.kBrake;
+
+    public boolean showTelemetry;
 
     public PreIntakeSubsystem() {
 
@@ -283,15 +286,15 @@ public class PreIntakeSubsystem extends SubsystemBase implements Logged {
 
         atUpperLimit = getAngle() > maxAngle;
         atLowerLimit = getAngle() < minAngle;
-        SmartDashboard.putNumber("PIM/pos", preIntakeArmMotor.getEncoder().getPosition());
+        SD.sd2("PIM/pos", preIntakeArmMotor.getEncoder().getPosition());
         // SmartDashboard.putBoolean("PIM/atpos", preintakeAtStartPosition());
-        SmartDashboard.putNumber("PIM/vel", preIntakeArmMotor.getEncoder().getVelocity());
-        SmartDashboard.putNumber("PIM/volts",
+        SD.sd2("PIM/vel", preIntakeArmMotor.getEncoder().getVelocity());
+        SD.sd2("PIM/volts",
                 preIntakeArmMotor.getAppliedOutput() * RobotController.getBatteryVoltage());
-        SmartDashboard.putNumber("PIM/amps", getAmps());
+        SD.sd2("PIM/amps", getAmps());
         SmartDashboard.putBoolean("PIM/CoralAtPreIntake", coralAtPreIntake());
-        SmartDashboard.putNumber("PIM/INTVelocity", coralIntakeMotor.getEncoder().getVelocity());
-        SmartDashboard.putNumber("PIM/INTAmps", coralIntakeMotor.getOutputCurrent());
+        SD.sd2("PIM/INTVelocity", coralIntakeMotor.getEncoder().getVelocity());
+        SD.sd2("PIM/INTAmps", coralIntakeMotor.getOutputCurrent());
 
     }
 
