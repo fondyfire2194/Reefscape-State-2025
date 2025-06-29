@@ -23,6 +23,8 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.Constants.FieldConstants;
 import frc.robot.VisionConstants.CameraConstants;
 import frc.robot.commands.Arm.PositionHoldArm;
+import frc.robot.commands.Elevator.PositionHoldElevator;
+import frc.robot.commands.Elevator.PositionHoldElevatorExponential;
 import frc.robot.commands.Elevator.PositionHoldElevatorPID;
 import frc.robot.commands.Elevator.PositionHoldElevatorStateSpace;
 import frc.robot.utils.LimelightHelpers;
@@ -147,22 +149,20 @@ public class Robot extends TimedRobot implements Logged {
     if (DriverStation.isAutonomous() && !DriverStation.isEnabled() && !autname.contains("Instant")) {
 
       if (m_robotContainer.drivebase.isBlueAlliance())
-      startingPoseAtBlueAlliance = new PathPlannerAuto(autname).getStartingPose();
-      m_robotContainer.drivebase.startingPose =
-      m_robotContainer.drivebase.isRedAlliance()
-      ? FlippingUtil.flipFieldPose(startingPoseAtBlueAlliance)
-      : startingPoseAtBlueAlliance;
+        startingPoseAtBlueAlliance = new PathPlannerAuto(autname).getStartingPose();
+      m_robotContainer.drivebase.startingPose = m_robotContainer.drivebase.isRedAlliance()
+          ? FlippingUtil.flipFieldPose(startingPoseAtBlueAlliance)
+          : startingPoseAtBlueAlliance;
 
       m_robotContainer.drivebase.startPoseDifferenceX = Units.metersToInches(
-      m_robotContainer.drivebase.startingPose.getX()
-      - m_robotContainer.drivebase.getPose().getX());
+          m_robotContainer.drivebase.startingPose.getX()
+              - m_robotContainer.drivebase.getPose().getX());
       m_robotContainer.drivebase.startPoseDifferenceY = Units.metersToInches(
-      m_robotContainer.drivebase.startingPose.getY()
-      - m_robotContainer.drivebase.getPose().getY());
-      m_robotContainer.drivebase.startPoseDifferenceTheta =
-      m_robotContainer.drivebase.startingPose.getRotation()
-      .getDegrees()
-      - m_robotContainer.drivebase.getPose().getRotation().getDegrees();
+          m_robotContainer.drivebase.startingPose.getY()
+              - m_robotContainer.drivebase.getPose().getY());
+      m_robotContainer.drivebase.startPoseDifferenceTheta = m_robotContainer.drivebase.startingPose.getRotation()
+          .getDegrees()
+          - m_robotContainer.drivebase.getPose().getRotation().getDegrees();
 
     }
 
@@ -255,7 +255,12 @@ public class Robot extends TimedRobot implements Logged {
     CommandScheduler.getInstance().cancelAll();
 
     new PositionHoldArm(m_robotContainer.arm).schedule();
-    new PositionHoldElevatorStateSpace(m_robotContainer.elevator).schedule();
+
+    // new PositionHoldElevatorStateSpace(m_robotContainer.elevator).schedule();
+    // new PositionHoldElevatorExponential(m_robotContainer.elevator).schedule();
+     new PositionHoldElevator(m_robotContainer.elevator).schedule();
+   // new PositionHoldElevatorPID(m_robotContainer.elevator).schedule();
+
     m_robotContainer.configureCoDriverTestBindings();
   }
 

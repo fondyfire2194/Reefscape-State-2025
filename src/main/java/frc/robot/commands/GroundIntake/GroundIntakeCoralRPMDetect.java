@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.GroundIntakeSubsystem;
+import frc.robot.utils.SD;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 
@@ -56,7 +57,7 @@ public class GroundIntakeCoralRPMDetect extends Command {
     detectFilter.reset();
     m_groundintake.simCoralAtGroundIntake = false;
 
-    SmartDashboard.putNumber("GrndIn/TEST", 911);
+    SD.sd2("GrndIn/TEST", 911);
     m_groundintake.groundIntakeRollerMotor.set(groundIntakeMotorSpeed);
   }
 
@@ -65,7 +66,7 @@ public class GroundIntakeCoralRPMDetect extends Command {
   public void execute() {
     sampleCount++;
 
-    SmartDashboard.putNumber("GrndIn/sc", sampleCount);
+    SD.sd2("GrndIn/sc", sampleCount);
     if (sampleCount <= numberSamplesWanted) {
       sampledRPM = sampleFilter.calculate(m_groundintake.getRollerRPM());
     } else {
@@ -76,11 +77,11 @@ public class GroundIntakeCoralRPMDetect extends Command {
     m_groundintake.coralAtGroundIntake = RobotBase.isReal() && detectCount > numberDetectsWanted
         && filteredRPM < sampledRPM * coralDetectLevel;
 
-    SmartDashboard.putNumber("GrndIn/FilteredRPM", filteredRPM);
-    SmartDashboard.putNumber("GrndIn/SampledRPM", sampledRPM);
+    SD.sd2("GrndIn/FilteredRPM", filteredRPM);
+    SD.sd2("GrndIn/SampledRPM", sampledRPM);
     SmartDashboard.putBoolean("GrndIn/Detected", m_groundintake.coralAtGroundIntake);
 
-    SmartDashboard.putNumber("GrndIn/Timer", noCoralTimer.get());
+    SD.sd2("GrndIn/Timer", noCoralTimer.get());
   }
 
   // Called once the command ends or is interrupted.

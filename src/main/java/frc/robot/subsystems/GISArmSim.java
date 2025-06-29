@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.utils.SD;
 
 public class GISArmSim extends SubsystemBase implements AutoCloseable {
 
@@ -79,16 +80,16 @@ public class GISArmSim extends SubsystemBase implements AutoCloseable {
 
   public void periodic(){
 
-    SmartDashboard.putNumber("GISArmSim/SimAngle", m_gisarm.getAngle());
-    SmartDashboard.putNumber("GISArmSim/EncoderAngle", m_gis.getMotorDegrees());
+    SD.sd2("GISArmSim/SimAngle", m_gisarm.getAngle());
+    SD.sd2("GISArmSim/EncoderAngle", m_gis.getMotorDegrees());
 
-    SmartDashboard.putNumber("GISArmSim/SimEncoder", gisarmMotorSim.getPosition());
-    SmartDashboard.putNumber("GISArmSim/APPO", gisarmMotorSim.getAppliedOutput() * 12);
-    SmartDashboard.putNumber("GISArmSim/SimVel", gisarmMotorSim.getVelocity());
+    SD.sd2("GISArmSim/SimEncoder", gisarmMotorSim.getPosition());
+    SD.sd2("GISArmSim/APPO", gisarmMotorSim.getAppliedOutput() * 12);
+    SD.sd2("GISArmSim/SimVel", gisarmMotorSim.getVelocity());
 
     SmartDashboard.putBoolean("GISArmSim/SimUpperLim", m_armSim.hasHitUpperLimit());
     SmartDashboard.putBoolean("GISArmSim/SimLowerLim", m_armSim.hasHitLowerLimit());
-    SmartDashboard.putNumber("GISArmSim/SimAmps", m_armSim.getCurrentDrawAmps());
+    SD.sd2("GISArmSim/SimAmps", m_armSim.getCurrentDrawAmps());
 
 
   }

@@ -724,7 +724,7 @@ public class RobotContainer implements Logged {
 
         private void setShowTelemetry() {
                 drivebase.showTelemetry=false;
-                elevator.showTelemetry = false;
+                elevator.showTelemetry = true;
                 arm.showTelemetry = false;
                 gamepieces.showTelemetry = false;
                 preIn.showTelemetry = false;

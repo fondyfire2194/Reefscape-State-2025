@@ -18,6 +18,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import static edu.wpi.first.units.Units.*;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.SimulationRobotConstants;
+import frc.robot.utils.SD;
 
 public class ElevatorArmSim extends SubsystemBase implements AutoCloseable {
   // This gearbox represents a gearbox containing 4 Vex 775pro motors.
@@ -125,16 +126,16 @@ public class ElevatorArmSim extends SubsystemBase implements AutoCloseable {
     // subtract 90 degrees to account for the elevator
     );
     if (showValues) {
-      SmartDashboard.putNumber("ArmSim/SimAngle", m_armLig2d.getAngle());
-      SmartDashboard.putNumber("ArmSim/EncoderAngle", m_arm.getMotorDegrees());
+      SD.sd2("ArmSim/SimAngle", m_armLig2d.getAngle());
+      SD.sd2("ArmSim/EncoderAngle", m_arm.getMotorDegrees());
 
-      SmartDashboard.putNumber("ArmSim/SimEncoder", m_armMotorSim.getPosition());
-      SmartDashboard.putNumber("ArmSim/APPO", m_armMotorSim.getAppliedOutput() * 12);
-      SmartDashboard.putNumber("ArmSim/SimVel", m_armMotorSim.getVelocity());
+      SD.sd2("ArmSim/SimEncoder", m_armMotorSim.getPosition());
+      SD.sd2("ArmSim/APPO", m_armMotorSim.getAppliedOutput() * 12);
+      SD.sd2("ArmSim/SimVel", m_armMotorSim.getVelocity());
 
       SmartDashboard.putBoolean("ArmSim/SimUpperLim", m_armSim.hasHitUpperLimit());
       SmartDashboard.putBoolean("ArmSim/SimLowerLim", m_armSim.hasHitLowerLimit());
-      SmartDashboard.putNumber("ArmSim/SimAmps", m_armSim.getCurrentDrawAmps());
+      SD.sd2("ArmSim/SimAmps", m_armSim.getCurrentDrawAmps());
     }
   }
 
@@ -145,12 +146,12 @@ public class ElevatorArmSim extends SubsystemBase implements AutoCloseable {
     // First, we set our "inputs" (voltages)
 
     if (showValues) {
-      SmartDashboard.putNumber("ElevatorSim/SIMAPPO", m_elevatorMotorSim.getAppliedOutput());
-      SmartDashboard.putNumber("ElevatorSim/sim velocity", m_elevatorSim.getVelocityMetersPerSecond());
-      SmartDashboard.putNumber("ElevatorSim/sim height", m_elevatorSim.getPositionMeters());
+      SD.sd2("ElevatorSim/SIMAPPO", m_elevatorMotorSim.getAppliedOutput());
+      SD.sd2("ElevatorSim/sim velocity", m_elevatorSim.getVelocityMetersPerSecond());
+      SD.sd2("ElevatorSim/sim height", m_elevatorSim.getPositionMeters());
       SmartDashboard.putBoolean("ElevatorSim/simupperlimit", m_elevatorSim.hasHitUpperLimit());
       SmartDashboard.putBoolean("ElevatorSim/simlowerlimit", m_elevatorSim.hasHitLowerLimit());
-      SmartDashboard.putNumber("ElevatorSim/simAmps", m_elevatorSim.getCurrentDrawAmps());
+      SD.sd2("ElevatorSim/simAmps", m_elevatorSim.getCurrentDrawAmps());
     }
     m_elevatorSim.setInput(m_elevatorMotorSim.getAppliedOutput() * RobotController.getBatteryVoltage());
     m_armSim.setInput(m_armMotorSim.getAppliedOutput() * RobotController.getBatteryVoltage());

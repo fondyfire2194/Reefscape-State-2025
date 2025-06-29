@@ -128,7 +128,7 @@ public class PositionHoldElevatorStateSpace extends Command {
 
                 SD.sd2("Elevator/SS/setvel", elevator.currentSetpoint.velocity);
                 SD.sd2("Elevator/SS/setpos", elevator.currentSetpoint.position);
-                SD.sd2("Elevator/SS/mpsRead", elevator.getLeftVelocityMetersPerSecond());
+                SD.sd2("Elevator/SS/actvel", elevator.getLeftVelocityMetersPerSecond());
 
             }
         }

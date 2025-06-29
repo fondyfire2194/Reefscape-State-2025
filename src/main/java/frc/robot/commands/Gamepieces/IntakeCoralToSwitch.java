@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.GamepieceSubsystem;
 import frc.robot.subsystems.PreIntakeSubsystem;
+import frc.robot.utils.SD;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 
@@ -70,7 +71,7 @@ public class IntakeCoralToSwitch extends Command {
       if (simCtr >= 35)
         m_preIn.simcoralatpreintake = true;
 
-      SmartDashboard.putNumber("PIM/simctr", simCtr);
+      SD.sd2("PIM/simctr", simCtr);
       if (revctr >= 4)
         m_gamepiece.simcoralatswitch = true;
       m_preIn.simcoralatpreintake = false;

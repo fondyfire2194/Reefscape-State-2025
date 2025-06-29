@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Factories.CommandFactory.AlgaeRPMSetpoints;
 import frc.robot.subsystems.AlgaeSubsystem;
+import frc.robot.utils.SD;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class DetectAlgaeWhileIntaking extends Command {
@@ -69,8 +70,8 @@ public class DetectAlgaeWhileIntaking extends Command {
 
     algaeDetected = detectCount > numberDetectsWanted && filteredRPM < sampledRPM * m_algae.getAlgaeDetectLevel();
 
-    SmartDashboard.putNumber("Algae/FIlteredRPM", filteredRPM);
-    SmartDashboard.putNumber("Algae/SampledRPM", sampledRPM);
+    SD.sd2("Algae/FIlteredRPM", filteredRPM);
+    SD.sd2("Algae/SampledRPM", sampledRPM);
     SmartDashboard.putBoolean("Algae/Detected", algaeDetected);
 
   }

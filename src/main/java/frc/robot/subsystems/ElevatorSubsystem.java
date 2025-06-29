@@ -145,7 +145,7 @@ public class ElevatorSubsystem extends SubsystemBase implements Logged {
   private double targetInches;
 
   @Log.NT(key = "left ff")
-  private double leftff;
+public double leftff;
 
   public boolean showTelemetry;
 
@@ -250,30 +250,10 @@ public class ElevatorSubsystem extends SubsystemBase implements Logged {
     }
   }
 
-  public void position() {
-    if (showTelemetry)
-      SD.sd2("Elevator/posrng", posrng);
-    posrng++;
-
-    // Send setpoint to spark max controller
-    nextSetpoint = m_profile.calculate(.02, currentSetpoint, m_goal);
-
-    leftff = eff.calculateWithVelocities(currentSetpoint.velocity, nextSetpoint.velocity);
-
-    SD.sd2("Elevator/ff", leftff);
-
-    currentSetpoint = nextSetpoint;
-    if (showTelemetry) {
-      SD.sd2("Elevator/setpos", currentSetpoint.position);
-      SD.sd2("Elevator/setvel", currentSetpoint.velocity);
-    }
-    leftClosedLoopController.setReference(
-        nextSetpoint.position, ControlType.kPosition, ClosedLoopSlot.kSlot0, leftff, ArbFFUnits.kVoltage);
-  }
-
   public void runAtVelocity(double metersPerSecond) {
     leftClosedLoopController.setReference(metersPerSecond, ControlType.kVelocity, ClosedLoopSlot.kSlot1);
   }
+
 
   public void setVoltageSysId(Voltage voltage) {
     leftMotor.setVoltage(voltage);
@@ -434,7 +414,9 @@ public class ElevatorSubsystem extends SubsystemBase implements Logged {
   @Override
   public void periodic() {
 
-    if (showTelemetry) {
+
+  if (showTelemetry) {
+  
 
       SD.sd2("Elevator/targetInches", Units.metersToInches(targetMeters));
 
@@ -468,9 +450,6 @@ public class ElevatorSubsystem extends SubsystemBase implements Logged {
     atLowerLimit = getLeftPositionMeters() <= minElevatorHeight.in(Meters)
         || (rightEncoder.getPosition() <= minElevatorHeight.in(Meters)
             && RobotBase.isReal());
-
-    SD.sd2("Elevator/kvcalc",
-        RobotController.getBatteryVoltage() / leftMotor.getEncoder().getVelocity());
 
     elevatorError.set(Math.abs(getLeftRightDiffInches()) > 2);
     elevatorError.setText(String.valueOf(getLeftRightDiffInches()));

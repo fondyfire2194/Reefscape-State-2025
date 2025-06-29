@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 
 import frc.robot.subsystems.ArmSubsystem;
+import frc.robot.utils.SD;
 
 public class PositionHoldArmPID extends Command {
     private final ArmSubsystem arm;
@@ -69,21 +70,21 @@ public class PositionHoldArmPID extends Command {
 
         if (arm.showTelemetry) {
             if (toggle) {
-                SmartDashboard.putNumber("Arm/PID/goalpos", Units.radiansToDegrees(arm.m_goal.position));
-                SmartDashboard.putNumber("Arm/PID/currsetpos", Units.radiansToDegrees(arm.currentSetpoint.position));
-                SmartDashboard.putNumber("Arm/PID/currsetvel", Units.radiansToDegrees(arm.currentSetpoint.velocity));
-                SmartDashboard.putNumber("Arm/PID/setpos", Units.radiansToDegrees(arm.nextSetpoint.position));
+                SD.sd2("Arm/PID/goalpos", Units.radiansToDegrees(arm.m_goal.position));
+                SD.sd2("Arm/PID/currsetpos", Units.radiansToDegrees(arm.currentSetpoint.position));
+                SD.sd2("Arm/PID/currsetvel", Units.radiansToDegrees(arm.currentSetpoint.velocity));
+                SD.sd2("Arm/PID/setpos", Units.radiansToDegrees(arm.nextSetpoint.position));
             } else {
-                SmartDashboard.putNumber("Arm/PID/setvel", Units.radiansToDegrees(arm.nextSetpoint.velocity));
-                SmartDashboard.putNumber("Arm/PID/degpersec", Units.radiansToDegrees(radpersec));
-                SmartDashboard.putNumber("Arm/PID/poserror", Units.radiansToDegrees(pidController.getError()));
+                SD.sd2("Arm/PID/setvel", Units.radiansToDegrees(arm.nextSetpoint.velocity));
+                SD.sd2("Arm/PID/degpersec", Units.radiansToDegrees(radpersec));
+                SD.sd2("Arm/PID/poserror", Units.radiansToDegrees(pidController.getError()));
                 SmartDashboard.putBoolean("Arm/PID/atSetpoint", pidController.atSetpoint());
             }
         }
         radpersec = MathUtil.clamp(radpersec, -maxminusrate, maxplusrate);
 
         if (arm.showTelemetry)
-            SmartDashboard.putNumber("Arm/PID/dpsclamped", Units.radiansToDegrees(radpersec));
+            SD.sd2("Arm/PID/dpsclamped", Units.radiansToDegrees(radpersec));
 
         double volts = RobotController.getBatteryVoltage() * radpersec / arm.maxradpersec;
 

@@ -14,6 +14,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
+import frc.robot.utils.SD;
 
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
@@ -91,9 +92,9 @@ public class TeleopSwerve extends Command {
                 true,
                 true);
 
-        SmartDashboard.putNumber("TransVal", translationVal);
-        SmartDashboard.putNumber("StrafeVal", strafeVal);
-        SmartDashboard.putNumber("RotVal", rotationVal);
+        SD.sd2("TransVal", translationVal);
+        SD.sd2("StrafeVal", strafeVal);
+        SD.sd2("RotVal", rotationVal);
 
     }
 }
