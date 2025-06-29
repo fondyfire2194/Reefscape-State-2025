@@ -20,6 +20,8 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
+import edu.wpi.first.wpilibj.PowerDistribution;
+import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.shuffleboard.EventImportance;
@@ -34,6 +36,7 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.FieldConstants.Side;
+import frc.robot.Constants.CANIDConstants;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.VisionConstants.CameraConstants;
 import frc.robot.Factories.CommandFactory;
@@ -97,6 +100,8 @@ public class RobotContainer implements Logged {
         GISArmSim gisarmsim;
 
         LedStrip ls = new LedStrip();
+
+        PowerDistribution pdp = new PowerDistribution(CANIDConstants.pdp, ModuleType.kRev);
 
         SendableChooser<Command> autoChooser;
 
@@ -224,6 +229,8 @@ public class RobotContainer implements Logged {
                         gisarmsim = new GISArmSim(gis);
                         DriverStation.silenceJoystickConnectionWarning(true);
                 }
+
+                SmartDashboard.putData("PDP", pdp);
 
                 setNamedCommands();
 
@@ -723,7 +730,7 @@ public class RobotContainer implements Logged {
         }
 
         private void setShowTelemetry() {
-                drivebase.showTelemetry=false;
+                drivebase.showTelemetry = false;
                 elevator.showTelemetry = true;
                 arm.showTelemetry = false;
                 gamepieces.showTelemetry = false;

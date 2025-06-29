@@ -24,10 +24,9 @@ import frc.robot.Constants.FieldConstants;
 import frc.robot.VisionConstants.CameraConstants;
 import frc.robot.commands.Arm.PositionHoldArm;
 import frc.robot.commands.Elevator.PositionHoldElevator;
-import frc.robot.commands.Elevator.PositionHoldElevatorExponential;
 import frc.robot.commands.Elevator.PositionHoldElevatorPID;
-import frc.robot.commands.Elevator.PositionHoldElevatorStateSpace;
 import frc.robot.utils.LimelightHelpers;
+import frc.robot.utils.SD;
 import monologue.Logged;
 import monologue.Monologue;
 
@@ -46,6 +45,8 @@ public class Robot extends TimedRobot implements Logged {
   private RobotContainer m_robotContainer;
 
   private Timer disabledTimer;
+
+  private Timer oneShotTimer;
 
   Pose2d startingPoseAtBlueAlliance = new Pose2d();
 
@@ -87,6 +88,9 @@ public class Robot extends TimedRobot implements Logged {
     if (RobotBase.isReal()) {
       URCL.start();
     }
+
+    oneShotTimer = new Timer();
+    oneShotTimer.start();
   }
 
   /**
@@ -116,6 +120,18 @@ public class Robot extends TimedRobot implements Logged {
     // This method needs to be called periodically, or no logging annotations will
     // process properly.
     Monologue.updateAll();
+
+    if (oneShotTimer.(5)) {
+      // Get the voltage going into the PDP, in Volts.
+      // The PDP returns the voltage in increments of 0.05 Volts.
+      double voltage = m_robotContainer.pdp.getVoltage();
+      SD.sd2("PDP/Voltage", voltage);
+      // Retrieves the temperature of the PDP, in degrees Celsius.
+      double temperatureCelsius = m_robotContainer.pdp.getTemperature();
+      SD.sd2("PDP/TemperatureF", temperatureCelsius);
+ 
+      oneShotTimer.restart();
+    }
 
   }
 
@@ -246,7 +262,22 @@ public class Robot extends TimedRobot implements Logged {
    */
   @Override
   public void teleopPeriodic() {
+
     SmartDashboard.putNumber("MatchTime", Timer.getMatchTime());
+
+    if (!DriverStation.isTeleopEnabled()) {
+      double totalAmps = m_robotContainer.pdp.getTotalCurrent();
+      SD.sd2("PDP/TotalAmps", totalAmps);
+      // Get the total power of all channels.
+      // Power is the bus voltage multiplied by the current with the units Watts.
+      double totalPower = m_robotContainer.pdp.getTotalPower();
+      SD.sd2("PDP/TotalPower", totalPower);
+
+      // Get the total energy of all channels.
+      // Energy is the power summed over time with units Joules.
+      double totalEnergy = m_robotContainer.pdp.getTotalEnergy();
+      SD.sd2("PDP/TotalEnergy", totalEnergy);
+    }
   }
 
   @Override
@@ -258,8 +289,8 @@ public class Robot extends TimedRobot implements Logged {
 
     // new PositionHoldElevatorStateSpace(m_robotContainer.elevator).schedule();
     // new PositionHoldElevatorExponential(m_robotContainer.elevator).schedule();
-     new PositionHoldElevator(m_robotContainer.elevator).schedule();
-   // new PositionHoldElevatorPID(m_robotContainer.elevator).schedule();
+    new PositionHoldElevator(m_robotContainer.elevator).schedule();
+    // new PositionHoldElevatorPID(m_robotContainer.elevator).schedule();
 
     m_robotContainer.configureCoDriverTestBindings();
   }
