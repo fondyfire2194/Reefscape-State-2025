@@ -48,6 +48,7 @@ import frc.robot.commands.Arm.PositionHoldArm;
 import frc.robot.commands.Elevator.JogElevator;
 import frc.robot.commands.Elevator.PositionHoldElevatorPID;
 import frc.robot.commands.Gamepieces.DetectAlgaeWhileIntaking;
+import frc.robot.commands.Gamepieces.IntakeCoralToPreSwitch;
 import frc.robot.commands.Gamepieces.IntakeCoralToSwitch;
 import frc.robot.commands.GroundIntake.GroundIntakeCoralRPMDetect;
 import frc.robot.commands.swervedrive.drivebase.AbsoluteDriveAdv;
@@ -274,6 +275,11 @@ public class RobotContainer implements Logged {
                         NamedCommands.registerCommand("ElevatorToHome",
                                         cf.homeElevatorAndArm());
 
+                        NamedCommands.registerCommand("DelayElevatorToHome",
+                                        Commands.sequence(
+                                                        Commands.waitSeconds(.25),
+                                                        cf.homeElevatorAndArm()));
+
                         NamedCommands.registerCommand("ElevatorToBarge",
                                         cf.setSetpointCommand(Setpoint.kAlgaeDeliverBarge));
 
@@ -282,23 +288,22 @@ public class RobotContainer implements Logged {
                                                         Commands.waitSeconds(.25),
                                                         cf.setSetpointCommand(Setpoint.kLevel4)));
 
-                        NamedCommands.registerCommand("DelayElevatorToHome",
-                                        Commands.sequence(
-                                                        Commands.waitSeconds(.25),
-                                                        cf.homeElevatorAndArm()));
-
                         NamedCommands.registerCommand("Deliver Coral L4", cf.deliverCoralL4());
 
                         NamedCommands.registerCommand("Deliver Coral", cf.deliverCoralCommand());
 
-                        NamedCommands.registerCommand("IntakeCoralToSwitch",
-                                        new IntakeCoralToSwitch(gamepieces, preIn, true)
-                                                        .withName("IntakeCoralToSwitch"));
+                        NamedCommands.registerCommand("WaitArmElevatorAtDeliver",
+                                        Commands.parallel(
+                                                        Commands.waitUntil(() -> elevator
+                                                                        .atPosition(Units.inchesToMeters(3))),
+                                                        Commands.waitUntil(() -> arm
+                                                                        .atPosition(Units.degreesToRadians(5)))));
 
                         NamedCommands.registerCommand("DelayStartIntake",
                                         Commands.sequence(
                                                         Commands.waitSeconds(.5),
-                                                        new IntakeCoralToSwitch(gamepieces, preIn, true))
+                                                        new IntakeCoralToPreSwitch(gamepieces),
+                                                        new IntakeCoralToSwitch(gamepieces, true))
                                                         .withName("DelayedIntakeCoral"));
 
                         NamedCommands.registerCommand("Intake Algae L2",
@@ -321,9 +326,21 @@ public class RobotContainer implements Logged {
                                                                         .withName("Deliver Algae Barge"))
                                                         .withName("Deliver Barge"));
 
-                        eventTriggerL4.onTrue(cf.setSetpointCommand(Setpoint.kLevel4));
+                        eventTriggerL4.onTrue(cf.elevatorL4IfCoral());
                         eventTriggerL2.onTrue(cf.setSetpointCommand(Setpoint.kLevel2));
                         eventTriggerAlgaeL3.onTrue(cf.pickupAlgaeL3());
+
+                        // pre intake switch
+
+                        NamedCommands.registerCommand("DelayStartIntakeToPreSwitch",
+                                        Commands.sequence(
+                                                        Commands.waitSeconds(.5),
+                                                         new IntakeCoralToPreSwitch(gamepieces))
+                                                        .withName("DelayedIntakeCoralToPreSwitch"));
+
+                        NamedCommands.registerCommand("IntakeCoralToSwitch",
+                                        new IntakeCoralToSwitch(gamepieces, true)
+                                                        .withName("IntakeCoralToSwitch"));
 
                 }
         }
@@ -375,12 +392,11 @@ public class RobotContainer implements Logged {
                 driverXbox.leftTrigger().onFalse(gis.goHome());
                 driverXbox.leftTrigger().onTrue(
                                 Commands.either(
-                                                Commands.parallel(
-                                                                new IntakeCoralToSwitch(gamepieces, preIn,
+                                                Commands.sequence(
+                                                                new IntakeCoralToPreSwitch(gamepieces),
+                                                                new IntakeCoralToSwitch(gamepieces,
                                                                                 true)
-                                                                                .withName("IntakeCoral"),
-                                                                Commands.sequence(
-                                                                                Commands.waitSeconds(.5))),
+                                                                                .withName("IntakeCoral")),
 
                                                 Commands.parallel(gis.goPickup(),
                                                                 new GroundIntakeCoralRPMDetect(gis)),
@@ -570,13 +586,15 @@ public class RobotContainer implements Logged {
                 coDriverXbox.leftTrigger().whileTrue(
                                 Commands.defer(
                                                 () -> Commands.parallel(
-                                                                preIn.jogCoralIntakeMotorCommand(
-                                                                                () -> coDriverXbox.getLeftY()),
+                                                                gamepieces
+                                                                                .jogCoralIntakeMotorCommand(
+                                                                                                () -> coDriverXbox
+                                                                                                                .getLeftY()),
                                                                 gamepieces.jogGamepieceMotorCommand(
                                                                                 () -> coDriverXbox.getLeftY())),
                                                 Set.of(gamepieces)))
                                 .onFalse(Commands.parallel(
-                                                preIn.stopIntakeMotorCommand(),
+                                                gamepieces.stopIntakeMotorCommand(),
                                                 gamepieces.stopGamepieceMotorsCommand()));
 
                 coDriverXbox.back() // RE-HOME Arm incase encoder count gets messed up

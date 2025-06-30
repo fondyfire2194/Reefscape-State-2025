@@ -36,12 +36,7 @@ public class PreIntakeSubsystem extends SubsystemBase implements Logged {
 
     private SparkClosedLoopController preIntakeArmClosedLoopController = preIntakeArmMotor.getClosedLoopController();
 
-    public SparkMax coralIntakeMotor;
-    public SparkClosedLoopController coralIntakeController;
-    SparkMaxConfig coralIntakeConfig;
-
-    public SparkLimitSwitch coralPreDetectSwitch;
-
+  
     @Log(key = "alert warning")
     private Alert allWarnings = new Alert("AllWarnings", AlertType.kWarning);
     @Log(key = "alert error")
@@ -51,15 +46,7 @@ public class PreIntakeSubsystem extends SubsystemBase implements Logged {
 
     SparkMaxConfig preintakeArmConfig;
 
-    public final double coralIntakeKp = .002; // P gains caused oscilliation
-    public final double coralIntakeKi = 0.0;
-    public final double coralIntakeKd = 0.00;
-    public final double coralIntakeKFF = .8 / 5700;
-
-    public double noCoralAtSwitchTime = 15;
-
-    public boolean simcoralatpreintake;
-
+  
     public boolean atUpperLimit;
 
     public boolean atLowerLimit;
@@ -114,12 +101,7 @@ public class PreIntakeSubsystem extends SubsystemBase implements Logged {
 
     public PreIntakeSubsystem() {
 
-       
-        coralIntakeMotor = new SparkMax(CANIDConstants.coralIntakeID, MotorType.kBrushless);
-        coralIntakeController = coralIntakeMotor.getClosedLoopController();
-        coralIntakeConfig = new SparkMaxConfig();
-
-        coralPreDetectSwitch = coralIntakeMotor.getForwardLimitSwitch();
+      
 
         preintakeArmConfig = new SparkMaxConfig();
 
@@ -151,28 +133,6 @@ public class PreIntakeSubsystem extends SubsystemBase implements Logged {
 
         m_goal.position = 0;
 
-        coralIntakeConfig
-                .inverted(true)
-                .smartCurrentLimit(20, 20)
-                .idleMode(IdleMode.kBrake);
-
-        coralIntakeConfig.encoder
-                .positionConversionFactor(1)
-                .velocityConversionFactor(1);
-
-        coralIntakeConfig.softLimit
-                .forwardSoftLimitEnabled(true)
-                .reverseSoftLimitEnabled(false);
-
-        coralIntakeConfig.closedLoop
-                .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
-                .velocityFF(coralIntakeKFF)
-                .pid(coralIntakeKp, coralIntakeKi, coralIntakeKd);
-
-        coralIntakeConfig.signals.primaryEncoderPositionPeriodMs(10);
-
-        coralIntakeMotor.configure(coralIntakeConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-
     }
 
     public boolean getActiveFault() {
@@ -187,16 +147,7 @@ public class PreIntakeSubsystem extends SubsystemBase implements Logged {
         return preIntakeArmMotor.hasActiveWarning();
     }
 
-    public void runCoralIntakeMotorAtVelocity(double rpm) {
-        if (RobotBase.isReal())
-            coralIntakeController.setReference(rpm, ControlType.kVelocity);
-    }
-
-    public void stopCoralIntakeMotor() {
-        coralIntakeMotor.set(0);
-        coralIntakeMotor.stopMotor();
-    }
-
+   
     public void position() {
         // Send setpoint to spark max controller
         nextSetpoint = m_profile.calculate(.02, currentSetpoint, m_goal);
@@ -249,33 +200,12 @@ public class PreIntakeSubsystem extends SubsystemBase implements Logged {
                         this);
     }
 
-    public Command jogCoralIntakeMotorCommand(DoubleSupplier speed) {
-        return Commands
-                .run(() -> coralIntakeMotor.setVoltage(speed.getAsDouble() * RobotController.getBatteryVoltage()));
-    }
-
+   
     public Command stopArmMotorCommand() {
         return Commands.runOnce(() -> preIntakeArmMotor.stopMotor());
     }
 
-    public Command stopIntakeMotorCommand() {
-        return Commands.runOnce(() -> coralIntakeMotor.stopMotor());
-    }
-
-    @Log(key = "coralatpreintake")
-    public boolean coralAtPreIntake() {
-        return RobotBase.isReal() && coralPreDetectSwitch.isPressed() ||
-                RobotBase.isSimulation() && simcoralatpreintake;
-    }
-
-    public double getIntakeAmps() {
-        return coralIntakeMotor.getOutputCurrent();
-    }
-
-    public double getIntakeRPM() {
-        return coralIntakeMotor.getEncoder().getVelocity();
-    }
-
+  
     @Override
     public void periodic() {
 
@@ -286,15 +216,13 @@ public class PreIntakeSubsystem extends SubsystemBase implements Logged {
 
         atUpperLimit = getAngle() > maxAngle;
         atLowerLimit = getAngle() < minAngle;
-        SD.sd2("PIM/pos", preIntakeArmMotor.getEncoder().getPosition());
-        // SmartDashboard.putBoolean("PIM/atpos", preintakeAtStartPosition());
-        SD.sd2("PIM/vel", preIntakeArmMotor.getEncoder().getVelocity());
-        SD.sd2("PIM/volts",
+        SD.sd2("PreIn/pos", preIntakeArmMotor.getEncoder().getPosition());
+        // SmartDashboard.putBoolean("PreIn/atpos", preintakeAtStartPosition());
+        SD.sd2("PreIn/vel", preIntakeArmMotor.getEncoder().getVelocity());
+        SD.sd2("PreIn/volts",
                 preIntakeArmMotor.getAppliedOutput() * RobotController.getBatteryVoltage());
-        SD.sd2("PIM/amps", getAmps());
-        SmartDashboard.putBoolean("PIM/CoralAtPreIntake", coralAtPreIntake());
-        SD.sd2("PIM/INTVelocity", coralIntakeMotor.getEncoder().getVelocity());
-        SD.sd2("PIM/INTAmps", coralIntakeMotor.getOutputCurrent());
+        SD.sd2("PreIn/amps", getAmps());
+      
 
     }
 

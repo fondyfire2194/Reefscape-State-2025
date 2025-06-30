@@ -78,11 +78,21 @@
         "open": true
       },
       "Monologue": {
+        "arm": {
+          "open": true
+        },
+        "gamepieces": {
+          "open": true
+        },
         "gis": {
           "open": true
-        }
+        },
+        "open": true
       },
       "Shuffleboard": {
+        ".metadata": {
+          "open": true
+        },
         "open": true
       },
       "SmartDashboard": {

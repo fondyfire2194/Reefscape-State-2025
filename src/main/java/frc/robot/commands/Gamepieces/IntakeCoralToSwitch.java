@@ -6,9 +6,9 @@ package frc.robot.commands.Gamepieces;
 
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.GamepieceSubsystem;
-import frc.robot.subsystems.PreIntakeSubsystem;
 import frc.robot.utils.SD;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
@@ -16,28 +16,35 @@ import frc.robot.utils.SD;
 public class IntakeCoralToSwitch extends Command {
   /** Creates a new IntakeCoralToswitch. */
   private final GamepieceSubsystem m_gamepiece;
-  private final PreIntakeSubsystem m_preIn;
   private final boolean m_autoUnstick;
-  private Timer coralStuckTimer;
 
-  private Timer noCoralTimer;
-  private double stuckTimelimit = 1;
+  private Timer waitForCoralAtIntakeTimer;
+  private double waitForCoralTime = .5;
+  private Timer coralUnstickTimer;
+  private double unstickReverseTime = .25;
+
+  private Timer noCoralLoadedTimer;// coral never loaded
+  private double noCoralLoadedTime = 15;
+
   private double coralIntakeSpeed = .55;
   private double gamepieceMotorIntakeSpeed = .45;
 
-  private double coralUnstickSpeed = .05;
-  private double coralReverseSpeedLimit = .02;
+  private double coralUnstickSpeed = -.15;
+  private double gamepieceUnstickSpeed = -.05;
+
+  private double coralReverseSpeedLimit = -.02;
   private boolean reversing;
   private boolean coralSeenAtPreswitch;
   private boolean unsticking;
   private int simCtr;
-  private int revctr;
+  private int simrevctr;
+  private boolean waiting;
 
-  public IntakeCoralToSwitch(GamepieceSubsystem gamepiece, PreIntakeSubsystem prein,
+  public IntakeCoralToSwitch(GamepieceSubsystem gamepiece,
       boolean autoUnstick) {
     // Use addRequirements() here to declare subsystem dependencies.
     m_gamepiece = gamepiece;
-    m_preIn = prein;
+
     m_autoUnstick = autoUnstick;
   }
 
@@ -45,60 +52,87 @@ public class IntakeCoralToSwitch extends Command {
   @Override
   public void initialize() {
     m_gamepiece.simcoralatswitch = false;
-    m_gamepiece.simcoralatswitch = false;
+    m_gamepiece.simcoralatpreintake = false;
     simCtr = 0;
-    revctr = 0;
-    noCoralTimer = new Timer();
-    noCoralTimer.reset();
-    noCoralTimer.start();
-    coralStuckTimer = new Timer();
-    coralStuckTimer.reset();
-    coralStuckTimer.start();
+    simrevctr = 0;
+    waitForCoralAtIntakeTimer = new Timer();
+    noCoralLoadedTimer = new Timer();
+    // noCoralLoadedTimer.reset();
+    // noCoralLoadedTimer.start();
+    coralUnstickTimer = new Timer();
     m_gamepiece.enableLimitSwitch();
     reversing = false;
     unsticking = false;
-    m_gamepiece.gamepieceMotor.set(gamepieceMotorIntakeSpeed); // 0.25
-    m_preIn.coralIntakeMotor.set(coralIntakeSpeed);
+    waiting = false;
+    m_gamepiece.runGamepieceMotor(gamepieceMotorIntakeSpeed); // 0.25
+    m_gamepiece.runCoralIntakeMotor(coralIntakeSpeed);
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
     if (RobotBase.isSimulation()) {
-      simCtr++;
-      if (simCtr >= 35)
-        m_preIn.simcoralatpreintake = true;
-
+     
       SD.sd2("PIM/simctr", simCtr);
-      if (revctr >= 4)
+      SD.sd2("PIM/simrevctr", simrevctr);
+
+      simrevctr++;
+
+      if (simrevctr >= 20) {
         m_gamepiece.simcoralatswitch = true;
-      m_preIn.simcoralatpreintake = false;
+        m_gamepiece.simcoralatpreintake = false;
+      }
     }
+    /**
+     * look for coral at preswitch and time it to intake switch
+     * 
+     */
+    coralSeenAtPreswitch = m_autoUnstick && m_gamepiece.coralAtPreIntake();
 
-    coralSeenAtPreswitch = m_autoUnstick &&m_preIn.coralAtPreIntake();
+    SmartDashboard.putBoolean("PIM/csapsw", coralSeenAtPreswitch);
 
-    if (coralSeenAtPreswitch && !unsticking) {
-      coralStuckTimer.reset();
-      coralStuckTimer.start();
+    if (coralSeenAtPreswitch && !m_gamepiece.coralAtIntake() && !waiting) {
+      waitForCoralAtIntakeTimer.reset();
+      waitForCoralAtIntakeTimer.start();
+      waiting = true;
+    }
+    SmartDashboard.putBoolean("PIM/waiting", waiting);
+
+    /**
+     * coral was seen at preswitch but didn't reach intake switch in preset time
+     * Start unstick sequence
+     */
+    if (waiting && waitForCoralAtIntakeTimer.hasElapsed(waitForCoralTime) && !unsticking) {
+      coralUnstickTimer.reset();
+      coralUnstickTimer.start();
       unsticking = true;
     }
 
-    if (m_autoUnstick && unsticking && coralStuckTimer.hasElapsed(stuckTimelimit) && !reversing) {
-      m_preIn.coralIntakeMotor.set(-coralUnstickSpeed);
-      m_gamepiece.gamepieceMotor.set(-coralIntakeSpeed);
-      coralStuckTimer.reset();
-      coralStuckTimer.start();
+    SmartDashboard.putBoolean("PIM/unsticking", unsticking);
+
+    /**
+     * reverse pre intake and gamepiece motors for a short time
+     * or pre intake motor reaches a reverse rpm limit
+     * 
+     */
+    if (unsticking && !reversing) {
+      m_gamepiece.runCoralIntakeMotor(coralUnstickSpeed);
+      m_gamepiece.runGamepieceMotor(gamepieceUnstickSpeed);
       reversing = true;
-      revctr++;
+    
     }
 
-    if (m_autoUnstick && reversing && (m_preIn.getIntakeRPM() < -coralReverseSpeedLimit ||
-        coralStuckTimer.hasElapsed(stuckTimelimit))) {
-      m_preIn.coralIntakeMotor.set(coralIntakeSpeed);
-      m_gamepiece.gamepieceMotor.set(coralIntakeSpeed);
-      coralStuckTimer.reset();
-      coralStuckTimer.start();
+    /**
+     * after the pre intake motor reaches a reverse speed or a timer elapses
+     * run both motors forward again and restart the coral at intake check
+     */
+
+    if (reversing && (m_gamepiece.getIntakeRPM() < coralReverseSpeedLimit ||
+        coralUnstickTimer.hasElapsed(unstickReverseTime))) {
+      m_gamepiece.runCoralIntakeMotor(coralIntakeSpeed);
+      m_gamepiece.runGamepieceMotor(gamepieceMotorIntakeSpeed);
       reversing = false;
+      unsticking = false;
     }
 
   }
@@ -106,16 +140,19 @@ public class IntakeCoralToSwitch extends Command {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    m_preIn.simcoralatpreintake = false;
-    m_preIn.stopCoralIntakeMotor();
+    m_gamepiece.simcoralatpreintake = false;
+    m_gamepiece.stopCoralIntakeMotor();
     m_gamepiece.stopGamepieceMotor();
+    reversing = false;
+    unsticking = false;
+    waiting = false;
   }
 
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
     return m_gamepiece.coralAtIntake()
-        || noCoralTimer.hasElapsed(m_preIn.noCoralAtSwitchTime);
+        || noCoralLoadedTimer.hasElapsed(noCoralLoadedTime);
 
   }
 }

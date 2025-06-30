@@ -159,7 +159,7 @@ public class CommandFactory {
         public static final double armCompOffset = 25;
 
         public static final class ArmSetpoints {
-                
+
                 public static final double kokElevatorMove = 90 - armCompOffset;
                 public static final double kTravel = 100 - armCompOffset;
                 public static final double kProcessorDeliver = 15 - armCompOffset;
@@ -312,6 +312,7 @@ public class CommandFactory {
                 return Commands.sequence(
                                 Commands.runOnce(() -> m_gamepieces.disableLimitSwitch()),
                                 Commands.runOnce(() -> m_gamepieces.gamepieceMotor.set(m_gamepieces.coralDeliverSpeed)),
+                                Commands.runOnce(() -> m_gamepieces.simcoralatswitch = false),
                                 Commands.waitUntil(() -> !m_gamepieces.coralAtIntake()),
                                 new WaitCommand(0.1),
                                 m_gamepieces.stopGamepieceMotorsCommand());
@@ -325,6 +326,13 @@ public class CommandFactory {
                                                 .set(m_gamepieces.coralFastDeliverSpeed)),
                                 Commands.runOnce(() -> m_gamepieces.simcoralatswitch = false),
                                 Commands.waitUntil(() -> !m_gamepieces.coralAtIntake()));
+        }
+
+        public Command elevatorL4IfCoral() {
+                return Commands.sequence(
+                                Commands.waitUntil(() -> m_gamepieces.coralAtIntake()),
+                                setSetpointCommand(Setpoint.kLevel4));
+
         }
 
 }

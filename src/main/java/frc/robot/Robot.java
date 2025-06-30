@@ -121,7 +121,7 @@ public class Robot extends TimedRobot implements Logged {
     // process properly.
     Monologue.updateAll();
 
-    if (oneShotTimer.(5)) {
+    if (oneShotTimer.hasElapsed(5)) {
       // Get the voltage going into the PDP, in Volts.
       // The PDP returns the voltage in increments of 0.05 Volts.
       double voltage = m_robotContainer.pdp.getVoltage();

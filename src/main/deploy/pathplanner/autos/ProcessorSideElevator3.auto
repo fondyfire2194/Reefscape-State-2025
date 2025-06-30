@@ -5,7 +5,7 @@
     "data": {
       "commands": [
         {
-          "type": "parallel",
+          "type": "sequential",
           "data": {
             "commands": [
               {
@@ -13,14 +13,14 @@
                 "data": {
                   "pathName": "BLRStart2ToF1Elevator"
                 }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Deliver Coral"
+                }
               }
             ]
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Deliver Coral"
           }
         },
         {
@@ -36,33 +36,20 @@
               {
                 "type": "named",
                 "data": {
-                  "name": "DelayStartIntake"
+                  "name": "DelayElevatorToHome"
                 }
               },
               {
-                "type": "sequential",
+                "type": "named",
                 "data": {
-                  "commands": [
-                    {
-                      "type": "wait",
-                      "data": {
-                        "waitTime": 0.1
-                      }
-                    },
-                    {
-                      "type": "named",
-                      "data": {
-                        "name": "ElevatorToHome"
-                      }
-                    }
-                  ]
+                  "name": "DelayStartIntake"
                 }
               }
             ]
           }
         },
         {
-          "type": "parallel",
+          "type": "sequential",
           "data": {
             "commands": [
               {
@@ -70,14 +57,14 @@
                 "data": {
                   "pathName": "CoStToCElevator"
                 }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Deliver Coral"
+                }
               }
             ]
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Deliver Coral"
           }
         },
         {
@@ -97,29 +84,16 @@
                 }
               },
               {
-                "type": "sequential",
+                "type": "named",
                 "data": {
-                  "commands": [
-                    {
-                      "type": "wait",
-                      "data": {
-                        "waitTime": 0.1
-                      }
-                    },
-                    {
-                      "type": "named",
-                      "data": {
-                        "name": "ElevatorToHome"
-                      }
-                    }
-                  ]
+                  "name": "DelayElevatorToHome"
                 }
               }
             ]
           }
         },
         {
-          "type": "parallel",
+          "type": "sequential",
           "data": {
             "commands": [
               {
@@ -127,14 +101,14 @@
                 "data": {
                   "pathName": "CoStToDElevator"
                 }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Deliver Coral"
+                }
               }
             ]
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Deliver Coral"
           }
         },
         {
@@ -148,22 +122,9 @@
                 }
               },
               {
-                "type": "sequential",
+                "type": "named",
                 "data": {
-                  "commands": [
-                    {
-                      "type": "wait",
-                      "data": {
-                        "waitTime": 0.1
-                      }
-                    },
-                    {
-                      "type": "named",
-                      "data": {
-                        "name": "ElevatorToHome"
-                      }
-                    }
-                  ]
+                  "name": "DelayElevatorToHome"
                 }
               }
             ]

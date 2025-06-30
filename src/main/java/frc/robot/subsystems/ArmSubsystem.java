@@ -269,6 +269,10 @@ public class ArmSubsystem extends SubsystemBase implements Logged {
         angleToleranceRads = toleranceRads;
     }
 
+    public boolean atPosition(double toleranceRads) {
+        return Math.abs(m_goal.position - getAngleRadians()) < toleranceRads;
+    }
+
     public void setGoalRadians(double targetRads) {
         m_goal.position = targetRads;
         currentSetpoint.position = getAngle().in(Radians);

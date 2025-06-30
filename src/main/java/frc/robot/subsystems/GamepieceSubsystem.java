@@ -26,6 +26,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.Constants.CANIDConstants;
 import frc.robot.utils.SD;
 import monologue.Annotations.Log;
 import monologue.Logged;
@@ -39,6 +40,18 @@ public class GamepieceSubsystem extends SubsystemBase implements Logged {
   public SparkLimitSwitch coralDetectSwitch;
 
   public boolean simcoralatswitch;
+
+  public final double coralIntakeKp = .002; // P gains caused oscilliation
+  public final double coralIntakeKi = 0.0;
+  public final double coralIntakeKd = 0.00;
+  public final double coralIntakeKFF = .8 / 5700;
+
+  public SparkMax coralIntakeMotor;
+  public SparkClosedLoopController coralIntakeController;
+  SparkMaxConfig coralIntakeConfig;
+
+  public SparkLimitSwitch coralPreDetectSwitch;
+  public boolean simcoralatpreintake;
 
   @Log(key = "alert warning")
   private Alert allWarnings = new Alert("AllWarnings", AlertType.kWarning);
@@ -91,6 +104,47 @@ public class GamepieceSubsystem extends SubsystemBase implements Logged {
     gamepieceMotor.configure(gamepieceConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     disableLimitSwitch();
 
+    coralIntakeMotor = new SparkMax(CANIDConstants.coralIntakeID, MotorType.kBrushless);
+    coralIntakeController = coralIntakeMotor.getClosedLoopController();
+    coralIntakeConfig = new SparkMaxConfig();
+
+    coralIntakeConfig
+        .inverted(true)
+        .smartCurrentLimit(20, 20)
+        .idleMode(IdleMode.kBrake);
+
+    coralIntakeConfig.encoder
+        .positionConversionFactor(1)
+        .velocityConversionFactor(1);
+
+    coralIntakeConfig.softLimit
+        .forwardSoftLimitEnabled(true)
+        .reverseSoftLimitEnabled(false);
+
+    coralIntakeConfig.closedLoop
+        .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
+        .velocityFF(coralIntakeKFF)
+        .pid(coralIntakeKp, coralIntakeKi, coralIntakeKd);
+
+    coralIntakeConfig.signals.primaryEncoderPositionPeriodMs(10);
+
+    coralIntakeMotor.configure(coralIntakeConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+
+    coralPreDetectSwitch = coralIntakeMotor.getForwardLimitSwitch();
+  }
+
+  public void runCoralIntakeMotor(double speed){
+    coralIntakeMotor.set(speed);
+  }
+
+  public void runCoralIntakeMotorAtVelocity(double rpm) {
+    if (RobotBase.isReal())
+      coralIntakeController.setReference(rpm, ControlType.kVelocity);
+  }
+
+  public void stopCoralIntakeMotor() {
+    coralIntakeMotor.set(0);
+    coralIntakeMotor.stopMotor();
   }
 
   public void stopGamepieceMotor() {
@@ -112,7 +166,7 @@ public class GamepieceSubsystem extends SubsystemBase implements Logged {
         stopGamepieceMotorsCommand());
   }
 
-  public void run(double speed) {
+  public void runGamepieceMotor(double speed) {
     gamepieceMotor.set(speed);
   }
 
@@ -142,6 +196,10 @@ public class GamepieceSubsystem extends SubsystemBase implements Logged {
     if (showTelemetry) {
       SD.sd2("Gamepiece/GPVelocity", gamepieceMotor.getEncoder().getVelocity());
       SD.sd2("Gamepiece/GPAmps", gamepieceMotor.getOutputCurrent());
+      SmartDashboard.putBoolean("PreIn/CoralAtPreIntake", coralAtPreIntake());
+      SD.sd2("Gamepiece/Velocity", coralIntakeMotor.getEncoder().getVelocity());
+      SD.sd2("Gamepiece/Amps", coralIntakeMotor.getOutputCurrent());
+
     }
   }
 
@@ -171,6 +229,29 @@ public class GamepieceSubsystem extends SubsystemBase implements Logged {
       return gamepieceMotor.getEncoder().getVelocity();
     else
       return targetRPM;
+  }
+
+  public Command jogCoralIntakeMotorCommand(DoubleSupplier speed) {
+    return Commands
+        .run(() -> coralIntakeMotor.setVoltage(speed.getAsDouble() * RobotController.getBatteryVoltage()));
+  }
+
+  public Command stopIntakeMotorCommand() {
+    return Commands.runOnce(() -> coralIntakeMotor.stopMotor());
+  }
+
+  @Log(key = "coralatpreintake")
+  public boolean coralAtPreIntake() {
+    return RobotBase.isReal() && coralPreDetectSwitch.isPressed() ||
+        RobotBase.isSimulation() && simcoralatpreintake;
+  }
+
+  public double getIntakeAmps() {
+    return coralIntakeMotor.getOutputCurrent();
+  }
+
+  public double getIntakeRPM() {
+    return coralIntakeMotor.getEncoder().getVelocity();
   }
 
   @Log(key = "fault")
