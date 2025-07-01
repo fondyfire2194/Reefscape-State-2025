@@ -395,7 +395,7 @@ public class RobotContainer implements Logged {
                                 Commands.either(
 
                                                 new IntakeCoralToSwitch(gamepieces,
-                                                                false)
+                                                                true)
                                                                 .withName("IntakeCoral"),
 
                                                 Commands.parallel(gis.goPickup(),

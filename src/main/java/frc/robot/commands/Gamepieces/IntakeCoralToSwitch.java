@@ -4,12 +4,13 @@
 
 package frc.robot.commands.Gamepieces;
 
+import org.ejml.dense.block.MatrixOps_DDRB;
+
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.GamepieceSubsystem;
-import frc.robot.utils.SD;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 
@@ -20,6 +21,7 @@ public class IntakeCoralToSwitch extends Command {
 
   private Timer waitForCoralAtIntakeTimer;
   private double waitForCoralTime = 1;
+  
   private Timer coralUnstickTimer;
   private double unstickReverseTime = .25;
 
@@ -31,10 +33,9 @@ public class IntakeCoralToSwitch extends Command {
 
   private double coralUnstickSpeed = -.25;
   private double gamepieceUnstickSpeed = -.25;
+
   private boolean coralSeenAtPreswitch;
 
-  private int simCtr;
-  private int simrevctr;
   /**
    * state = 0 waitng for coral at pre switch both motors running forward
    * state= 1 coral at pre switch
@@ -57,19 +58,22 @@ public class IntakeCoralToSwitch extends Command {
   public void initialize() {
     m_gamepiece.simcoralatswitch = false;
     m_gamepiece.simcoralatpreintake = false;
-    simCtr = 0;
-    simrevctr = 0;
     waitForCoralAtIntakeTimer = new Timer();
     noCoralLoadedTimer = new Timer();
+    noCoralLoadedTimer.start();
     coralUnstickTimer = new Timer();
     m_gamepiece.enableLimitSwitch();
     state = 0;
-
+    coralSeenAtPreswitch=false;
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
+
+    SmartDashboard.putNumber("PIM/state", state);
+    SmartDashboard.putNumber("PIM/nocoral", noCoralLoadedTimer.get());
+
     /**
      * state 0 run both motors forward
      * 
@@ -79,26 +83,27 @@ public class IntakeCoralToSwitch extends Command {
       m_gamepiece.runCoralIntakeMotor(coralIntakeSpeed);
       waitForCoralAtIntakeTimer.reset();
       waitForCoralAtIntakeTimer.start();
-      state = 1;
+      if (m_autoUnstick)
+        state = 1;
     }
 
     /**
      * state 1 look for coral at preswitch
      * keep motors running forward
      */
-    coralSeenAtPreswitch = state == 0 && m_autoUnstick && m_gamepiece.coralAtPreIntake();
+    if (state == 1 &&  m_gamepiece.coralAtPreIntake())
+      coralSeenAtPreswitch = true;
 
-    if (state == 0 && coralSeenAtPreswitch) {
-      state = 1;
-      SmartDashboard.putBoolean("PIM/csapsw", coralSeenAtPreswitch);
-    }
+    SmartDashboard.putBoolean("PIM/csapsw", coralSeenAtPreswitch);
 
     /**
      * state 1 both motors forward
      * start timer for reaching second switch
      */
 
-    if (state == 1) {
+    if (state == 1 && coralSeenAtPreswitch)
+
+    {
       m_gamepiece.runGamepieceMotor(gamepieceMotorIntakeSpeed); // 0.25
       m_gamepiece.runCoralIntakeMotor(coralIntakeSpeed);
       waitForCoralAtIntakeTimer.reset();
@@ -138,14 +143,8 @@ public class IntakeCoralToSwitch extends Command {
     }
 
     if (RobotBase.isSimulation()) {
-      SD.sd2("PIM/simctr", simCtr);
-      SD.sd2("PIM/simrevctr", simrevctr);
-
-      simrevctr++;
-
-      if (simrevctr >= 20) {
-        m_gamepiece.simcoralatpreintake = true;
-      }
+      m_gamepiece.simcoralatpreintake =  noCoralLoadedTimer.get() > 3;
+      m_gamepiece.simcoralatswitch = state == 2 && noCoralLoadedTimer.get() > 10;
     }
   }
 
@@ -153,9 +152,10 @@ public class IntakeCoralToSwitch extends Command {
   @Override
   public void end(boolean interrupted) {
     m_gamepiece.simcoralatpreintake = false;
-    m_gamepiece.stopCoralIntakeMotor();
-    m_gamepiece.stopGamepieceMotor();
+    m_gamepiece.runGamepieceMotor(0);
+    m_gamepiece.runCoralIntakeMotor(0);
     state = 0;
+    coralSeenAtPreswitch=false;
   }
 
   // Returns true when the command should end.

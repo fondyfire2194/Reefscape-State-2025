@@ -138,6 +138,7 @@ public class GamepieceSubsystem extends SubsystemBase implements Logged {
   }
 
   public void runCoralIntakeMotor(double speed){
+    SD.sd2("Gamepiece/cimtgtspd", speed);
     coralIntakeMotor.set(speed);
   }
 
@@ -171,6 +172,7 @@ public class GamepieceSubsystem extends SubsystemBase implements Logged {
   }
 
   public void runGamepieceMotor(double speed) {
+    SD.sd2("Gamepiece/gptgtspd", speed);
     gamepieceMotor.set(speed);
   }
 
