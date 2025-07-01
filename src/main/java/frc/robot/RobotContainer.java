@@ -137,7 +137,7 @@ public class RobotContainer implements Logged {
         EventTrigger eventTriggerL4 = new EventTrigger("ElevatorL4Event");
         EventTrigger eventTriggerL2 = new EventTrigger("ElevatorL2Event");
         EventTrigger eventTriggerAlgaeL3 = new EventTrigger("IntakeAlgaeL3Event");
-
+        EventTrigger eventTriggerL4WaitCoral = new EventTrigger("ElevatorL4EventWaitCoral");
         // Applies deadbands and inverts controls because joysticks
         // are back-right positive while robot
         // controls are front-left positive
@@ -327,17 +327,17 @@ public class RobotContainer implements Logged {
                                                                         .withName("Deliver Algae Barge"))
                                                         .withName("Deliver Barge"));
 
-                        eventTriggerL4.onTrue(cf.elevatorL4IfCoral());
+                        eventTriggerL4.onTrue(cf.setSetpointCommand(Setpoint.kLevel4));
                         eventTriggerL2.onTrue(cf.setSetpointCommand(Setpoint.kLevel2));
                         eventTriggerAlgaeL3.onTrue(cf.pickupAlgaeL3());
+                        eventTriggerL4.onTrue(cf.elevatorL4IfCoral());
 
-                        // pre intake switch
-
-                        NamedCommands.registerCommand("DelayStartIntakeToPreSwitch",
+                        NamedCommands.registerCommand("DelayStartIntakeToPreswitch",
                                         Commands.sequence(
                                                         Commands.waitSeconds(.5),
                                                         new IntakeCoralToPreSwitch(gamepieces))
                                                         .withName("DelayedIntakeCoralToPreSwitch"));
+                   
 
                         NamedCommands.registerCommand("IntakeCoralToSwitch",
                                         new IntakeCoralToSwitch(gamepieces, true)

@@ -5,7 +5,7 @@
     "data": {
       "commands": [
         {
-          "type": "parallel",
+          "type": "sequential",
           "data": {
             "commands": [
               {
@@ -36,13 +36,76 @@
               {
                 "type": "named",
                 "data": {
-                  "name": "DelayStartIntake"
+                  "name": "DelayElevatorToHome"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "DelayStartIntakeToPreswitch"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "PreIntakeCoStToC"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "IntakeCoralToSwitch"
+                }
+              },
+              {
+                "type": "sequential",
+                "data": {
+                  "commands": [
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "WaitElevatorWithCoral"
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "Deliver Coral"
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "PreIntakeCToCoSt"
                 }
               },
               {
                 "type": "named",
                 "data": {
                   "name": "DelayElevatorToHome"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "DelayStartIntakeToPreswitch"
                 }
               }
             ]
@@ -68,81 +131,25 @@
           }
         },
         {
-          "type": "named",
-          "data": {
-            "name": "Deliver Coral"
-          }
-        },
-        {
-          "type": "parallel",
+          "type": "sequential",
           "data": {
             "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "WaitElevatorWithCoral"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Deliver Coral"
+                }
+              },
               {
                 "type": "path",
                 "data": {
                   "pathName": "PreIntakeDToCoSt"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "DelayStartIntake"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "DelayElevatorToHome"
-                }
-              }
-            ]
-          }
-        },
-        {
-          "type": "parallel",
-          "data": {
-            "commands": [
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "PreIntakeCoStToC"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "IntakeCoralToSwitch"
-                }
-              }
-            ]
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Deliver Coral"
-          }
-        },
-        {
-          "type": "parallel",
-          "data": {
-            "commands": [
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "PreIntakeCToCoSt"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "DelayStartIntake"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "DelayElevatorToHome"
                 }
               }
             ]

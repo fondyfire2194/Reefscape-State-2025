@@ -28,7 +28,12 @@
       "linkedName": "RightCoralStationPoseElevator"
     }
   ],
-  "rotationTargets": [],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.4683464566929135,
+      "rotationDegrees": 58.20150389023692
+    }
+  ],
   "constraintZones": [
     {
       "name": "SlowToCoralStation",

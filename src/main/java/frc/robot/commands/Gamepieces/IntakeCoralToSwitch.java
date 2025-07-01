@@ -21,7 +21,7 @@ public class IntakeCoralToSwitch extends Command {
 
   private Timer waitForCoralAtIntakeTimer;
   private double waitForCoralTime = 1;
-  
+
   private Timer coralUnstickTimer;
   private double unstickReverseTime = .25;
 
@@ -34,7 +34,7 @@ public class IntakeCoralToSwitch extends Command {
   private double coralUnstickSpeed = -.25;
   private double gamepieceUnstickSpeed = -.25;
 
-  private boolean coralSeenAtPreswitch;
+  private boolean coralWasSeenAtPreswitch;
 
   /**
    * state = 0 waitng for coral at pre switch both motors running forward
@@ -64,7 +64,7 @@ public class IntakeCoralToSwitch extends Command {
     coralUnstickTimer = new Timer();
     m_gamepiece.enableLimitSwitch();
     state = 0;
-    coralSeenAtPreswitch=false;
+    coralWasSeenAtPreswitch=false;
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -92,17 +92,16 @@ public class IntakeCoralToSwitch extends Command {
      * keep motors running forward
      */
     if (state == 1 &&  m_gamepiece.coralAtPreIntake())
-      coralSeenAtPreswitch = true;
+      coralWasSeenAtPreswitch = true;
 
-    SmartDashboard.putBoolean("PIM/csapsw", coralSeenAtPreswitch);
+    SmartDashboard.putBoolean("PIM/csapsw", coralWasSeenAtPreswitch);
 
     /**
      * state 1 both motors forward
      * start timer for reaching second switch
      */
 
-    if (state == 1 && coralSeenAtPreswitch)
-
+    if (state == 1 && coralWasSeenAtPreswitch)
     {
       m_gamepiece.runGamepieceMotor(gamepieceMotorIntakeSpeed); // 0.25
       m_gamepiece.runCoralIntakeMotor(coralIntakeSpeed);
@@ -110,11 +109,11 @@ public class IntakeCoralToSwitch extends Command {
       waitForCoralAtIntakeTimer.start();
       state = 2;
     }
+
     /**
      * state 2
      * coral didn't reach second switch in time
-     * 
-     * 
+     * try to unstick it
      */
 
     if (state == 2 && waitForCoralAtIntakeTimer.hasElapsed(waitForCoralTime)) {
@@ -155,7 +154,7 @@ public class IntakeCoralToSwitch extends Command {
     m_gamepiece.runGamepieceMotor(0);
     m_gamepiece.runCoralIntakeMotor(0);
     state = 0;
-    coralSeenAtPreswitch=false;
+    coralWasSeenAtPreswitch=false;
   }
 
   // Returns true when the command should end.

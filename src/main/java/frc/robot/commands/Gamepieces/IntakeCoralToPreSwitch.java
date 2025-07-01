@@ -32,6 +32,7 @@ public class IntakeCoralToPreSwitch extends Command {
   @Override
   public void initialize() {
     noCoralLoadedTimer = new Timer();
+    noCoralLoadedTimer.start();
     m_gamepiece.simcoralatswitch = false;
     m_gamepiece.simcoralatpreintake = false;
     simctr = 0;
