@@ -13,7 +13,7 @@ import frc.robot.utils.SD;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class JogElevator extends Command {
-    /** Creates a new JogArm. */
+    /** Creates a new JogEl. */
     private final CommandXboxController gamepad;
     private final ElevatorSubsystem elevator;
     private final double deadband = .00;

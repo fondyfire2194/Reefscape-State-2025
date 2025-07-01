@@ -18,7 +18,7 @@ public class PositionHoldElevator extends Command {
     private final ElevatorSubsystem elevator;
 
     private PIDController pidController;
-    private double kp = 20.;
+    private double kp = 25.;
     private double ki = 0;
     private double kd = 0.;
     private double tolerance = Units.inchesToMeters(1);
@@ -36,7 +36,7 @@ public class PositionHoldElevator extends Command {
         double temp = elevator.getLeftPositionMeters();
         elevator.setGoalMeters(temp);
         if (elevator.showTelemetry)
-            SmartDashboard.putData(" Elevator/PID/controller", pidController);
+            SmartDashboard.putData(" Elevator/PID/controller1", pidController);
     }
 
     @Override
@@ -46,7 +46,7 @@ public class PositionHoldElevator extends Command {
 
         elevator.leftff = elevator.eff.calculate(elevator.nextSetpoint.velocity);
         double accel = (elevator.nextSetpoint.velocity - elevator.currentSetpoint.velocity) * elevator.elevatorKa * 50;
-        double pidout = pidController.calculate(elevator.getLeftPositionMeters(), elevator.nextSetpoint.position);
+        double pidout =0;// pidController.calculate(elevator.getLeftPositionMeters(), elevator.nextSetpoint.position);
 
         elevator.currentSetpoint = elevator.nextSetpoint;
         double ff = elevator.leftff + accel + pidout;

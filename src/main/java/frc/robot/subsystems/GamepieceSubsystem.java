@@ -98,6 +98,8 @@ public class GamepieceSubsystem extends SubsystemBase implements Logged {
         .pid(gamepieceKp, gamepieceKi, gamepieceKd);
 
     gamepieceConfig.limitSwitch.forwardLimitSwitchEnabled(false);
+    gamepieceConfig.limitSwitch.reverseLimitSwitchEnabled(false);
+
 
     gamepieceConfig.signals.primaryEncoderPositionPeriodMs(20);
 
@@ -118,7 +120,7 @@ public class GamepieceSubsystem extends SubsystemBase implements Logged {
         .velocityConversionFactor(1);
 
     coralIntakeConfig.softLimit
-        .forwardSoftLimitEnabled(true)
+        .forwardSoftLimitEnabled(false)
         .reverseSoftLimitEnabled(false);
 
     coralIntakeConfig.closedLoop
@@ -131,6 +133,8 @@ public class GamepieceSubsystem extends SubsystemBase implements Logged {
     coralIntakeMotor.configure(coralIntakeConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
     coralPreDetectSwitch = coralIntakeMotor.getForwardLimitSwitch();
+
+    
   }
 
   public void runCoralIntakeMotor(double speed){

@@ -19,7 +19,7 @@ public class IntakeCoralToSwitch extends Command {
   private final boolean m_autoUnstick;
 
   private Timer waitForCoralAtIntakeTimer;
-  private double waitForCoralTime = .5;
+  private double waitForCoralTime = 1;
   private Timer coralUnstickTimer;
   private double unstickReverseTime = .25;
 
@@ -29,16 +29,20 @@ public class IntakeCoralToSwitch extends Command {
   private double coralIntakeSpeed = .55;
   private double gamepieceMotorIntakeSpeed = .45;
 
-  private double coralUnstickSpeed = -.15;
-  private double gamepieceUnstickSpeed = -.05;
-
-  private double coralReverseSpeedLimit = -.02;
-  private boolean reversing;
+  private double coralUnstickSpeed = -.25;
+  private double gamepieceUnstickSpeed = -.25;
   private boolean coralSeenAtPreswitch;
-  private boolean unsticking;
+
   private int simCtr;
   private int simrevctr;
-  private boolean waiting;
+  /**
+   * state = 0 waitng for coral at pre switch both motors running forward
+   * state= 1 coral at pre switch
+   * 
+   * 
+   * 
+   */
+  private int state;
 
   public IntakeCoralToSwitch(GamepieceSubsystem gamepiece,
       boolean autoUnstick) {
@@ -57,84 +61,92 @@ public class IntakeCoralToSwitch extends Command {
     simrevctr = 0;
     waitForCoralAtIntakeTimer = new Timer();
     noCoralLoadedTimer = new Timer();
-    // noCoralLoadedTimer.reset();
-    // noCoralLoadedTimer.start();
     coralUnstickTimer = new Timer();
     m_gamepiece.enableLimitSwitch();
-    reversing = false;
-    unsticking = false;
-    waiting = false;
-    m_gamepiece.runGamepieceMotor(gamepieceMotorIntakeSpeed); // 0.25
-    m_gamepiece.runCoralIntakeMotor(coralIntakeSpeed);
+    state = 0;
+
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
+    /**
+     * state 0 run both motors forward
+     * 
+     */
+    if (state == 0) {
+      m_gamepiece.runGamepieceMotor(gamepieceMotorIntakeSpeed); // 0.25
+      m_gamepiece.runCoralIntakeMotor(coralIntakeSpeed);
+      waitForCoralAtIntakeTimer.reset();
+      waitForCoralAtIntakeTimer.start();
+      state = 1;
+    }
+
+    /**
+     * state 1 look for coral at preswitch
+     * keep motors running forward
+     */
+    coralSeenAtPreswitch = state == 0 && m_autoUnstick && m_gamepiece.coralAtPreIntake();
+
+    if (state == 0 && coralSeenAtPreswitch) {
+      state = 1;
+      SmartDashboard.putBoolean("PIM/csapsw", coralSeenAtPreswitch);
+    }
+
+    /**
+     * state 1 both motors forward
+     * start timer for reaching second switch
+     */
+
+    if (state == 1) {
+      m_gamepiece.runGamepieceMotor(gamepieceMotorIntakeSpeed); // 0.25
+      m_gamepiece.runCoralIntakeMotor(coralIntakeSpeed);
+      waitForCoralAtIntakeTimer.reset();
+      waitForCoralAtIntakeTimer.start();
+      state = 2;
+    }
+    /**
+     * state 2
+     * coral didn't reach second switch in time
+     * 
+     * 
+     */
+
+    if (state == 2 && waitForCoralAtIntakeTimer.hasElapsed(waitForCoralTime)) {
+      coralUnstickTimer.reset();
+      coralUnstickTimer.start();
+      state = 3;
+    }
+
+    if (state == 3) {
+      m_gamepiece.runGamepieceMotor(gamepieceUnstickSpeed); // 0.25
+      m_gamepiece.runCoralIntakeMotor(coralUnstickSpeed);
+      coralUnstickTimer.reset();
+      coralUnstickTimer.start();
+      state = 4;
+    }
+
+    /**
+     * after a timer elapses
+     * run both motors forward again and restart the coral at intake check
+     */
+
+    if (state == 4 && (coralUnstickTimer.hasElapsed(unstickReverseTime))) {
+      waitForCoralAtIntakeTimer.reset();
+      waitForCoralAtIntakeTimer.start();
+      state = 1;
+    }
+
     if (RobotBase.isSimulation()) {
-     
       SD.sd2("PIM/simctr", simCtr);
       SD.sd2("PIM/simrevctr", simrevctr);
 
       simrevctr++;
 
       if (simrevctr >= 20) {
-        m_gamepiece.simcoralatswitch = true;
-        m_gamepiece.simcoralatpreintake = false;
+        m_gamepiece.simcoralatpreintake = true;
       }
     }
-    /**
-     * look for coral at preswitch and time it to intake switch
-     * 
-     */
-    coralSeenAtPreswitch = m_autoUnstick && m_gamepiece.coralAtPreIntake();
-
-    SmartDashboard.putBoolean("PIM/csapsw", coralSeenAtPreswitch);
-
-    if (coralSeenAtPreswitch && !m_gamepiece.coralAtIntake() && !waiting) {
-      waitForCoralAtIntakeTimer.reset();
-      waitForCoralAtIntakeTimer.start();
-      waiting = true;
-    }
-    SmartDashboard.putBoolean("PIM/waiting", waiting);
-
-    /**
-     * coral was seen at preswitch but didn't reach intake switch in preset time
-     * Start unstick sequence
-     */
-    if (waiting && waitForCoralAtIntakeTimer.hasElapsed(waitForCoralTime) && !unsticking) {
-      coralUnstickTimer.reset();
-      coralUnstickTimer.start();
-      unsticking = true;
-    }
-
-    SmartDashboard.putBoolean("PIM/unsticking", unsticking);
-
-    /**
-     * reverse pre intake and gamepiece motors for a short time
-     * or pre intake motor reaches a reverse rpm limit
-     * 
-     */
-    if (unsticking && !reversing) {
-      m_gamepiece.runCoralIntakeMotor(coralUnstickSpeed);
-      m_gamepiece.runGamepieceMotor(gamepieceUnstickSpeed);
-      reversing = true;
-    
-    }
-
-    /**
-     * after the pre intake motor reaches a reverse speed or a timer elapses
-     * run both motors forward again and restart the coral at intake check
-     */
-
-    if (reversing && (m_gamepiece.getIntakeRPM() < coralReverseSpeedLimit ||
-        coralUnstickTimer.hasElapsed(unstickReverseTime))) {
-      m_gamepiece.runCoralIntakeMotor(coralIntakeSpeed);
-      m_gamepiece.runGamepieceMotor(gamepieceMotorIntakeSpeed);
-      reversing = false;
-      unsticking = false;
-    }
-
   }
 
   // Called once the command ends or is interrupted.
@@ -143,9 +155,7 @@ public class IntakeCoralToSwitch extends Command {
     m_gamepiece.simcoralatpreintake = false;
     m_gamepiece.stopCoralIntakeMotor();
     m_gamepiece.stopGamepieceMotor();
-    reversing = false;
-    unsticking = false;
-    waiting = false;
+    state = 0;
   }
 
   // Returns true when the command should end.

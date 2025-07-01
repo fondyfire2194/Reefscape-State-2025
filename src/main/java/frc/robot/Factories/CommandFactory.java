@@ -321,11 +321,13 @@ public class CommandFactory {
         public Command deliverCoralFasterCommand() {
                 return Commands.sequence(
                                 Commands.runOnce(() -> m_gamepieces.disableLimitSwitch()),
-                                Commands.waitUntil(() -> m_arm.targetRadians == ArmSetpoints.kLevel4_2),
+                               // Commands.waitUntil(() -> m_arm.targetRadians == ArmSetpoints.kLevel4_2),
                                 Commands.runOnce(() -> m_gamepieces.gamepieceMotor
                                                 .set(m_gamepieces.coralFastDeliverSpeed)),
                                 Commands.runOnce(() -> m_gamepieces.simcoralatswitch = false),
-                                Commands.waitUntil(() -> !m_gamepieces.coralAtIntake()));
+                                new WaitCommand(0.1),
+                                Commands.waitUntil(() -> !m_gamepieces.coralAtIntake()),
+                                m_gamepieces.stopGamepieceMotorsCommand());
         }
 
         public Command elevatorL4IfCoral() {

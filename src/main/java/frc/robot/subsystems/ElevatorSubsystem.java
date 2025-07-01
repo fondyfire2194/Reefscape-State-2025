@@ -75,8 +75,8 @@ public class ElevatorSubsystem extends SubsystemBase implements Logged {
    */
 
   // Got these values from sysID
-  public final double elevatorKs = 0.27788;// .3; //0.36
-  public final double elevatorKg = 0.5;// .5; //0.56
+  public final double elevatorKs = 0.5;// .3; //0.36
+  public final double elevatorKg = 0.9;// .5; //0.56
   public final double elevatorKv = 2.2404;// 12 / maxVelocityMPS;
   public final double elevatorKa = 0.41589;// 0.3;
 
@@ -184,7 +184,7 @@ public double leftff;
         .outputRange(-1, 1)
 
         // Set PID values for velocity control in slot 1
-        .p(0.1, ClosedLoopSlot.kSlot1)
+        .p(0.001, ClosedLoopSlot.kSlot1)
         .i(0, ClosedLoopSlot.kSlot1)
         .d(0, ClosedLoopSlot.kSlot1)
         .velocityFF(1 / maxVelocityMPS, ClosedLoopSlot.kSlot1)

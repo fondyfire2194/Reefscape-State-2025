@@ -16,7 +16,7 @@ public class PositionHoldElevatorPID extends Command {
     private final ElevatorSubsystem elevator;
 
     private PIDController pidController;
-    private double kp = 5.;
+    private double kp = 10.;
     private double ki = 0;
     private double kd = 0.;
     private double izone = .5;
@@ -28,7 +28,7 @@ public class PositionHoldElevatorPID extends Command {
 
     private boolean toggle;
 
-    private double ffGain = .2;
+    private double ffGain = .4;
 
     public PositionHoldElevatorPID(ElevatorSubsystem elevator) {
         this.elevator = elevator;
@@ -60,7 +60,7 @@ public class PositionHoldElevatorPID extends Command {
 
         mps += elevator.nextSetpoint.velocity * ffGain;
 
-        double kgmps = 1.2 * elevator.elevatorKg / elevator.elevatorKv;
+        double kgmps = .5 * elevator.elevatorKg / elevator.elevatorKv;
 
         mps += kgmps;
 

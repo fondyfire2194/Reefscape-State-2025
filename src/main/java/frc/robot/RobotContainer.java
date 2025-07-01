@@ -53,6 +53,7 @@ import frc.robot.commands.Gamepieces.IntakeCoralToSwitch;
 import frc.robot.commands.GroundIntake.GroundIntakeCoralRPMDetect;
 import frc.robot.commands.swervedrive.drivebase.AbsoluteDriveAdv;
 import frc.robot.commands.swervedrive.drivebase.TeleopSwerve;
+import frc.robot.commands.swervedrive.drivebase.TeleopSwerveStation;
 import frc.robot.commands.teleopAutos.GetNearestCoralStationPose;
 import frc.robot.commands.teleopAutos.GetNearestReefZonePose;
 import frc.robot.commands.teleopAutos.PIDDriveToGroundCoralNoRotation;
@@ -335,7 +336,7 @@ public class RobotContainer implements Logged {
                         NamedCommands.registerCommand("DelayStartIntakeToPreSwitch",
                                         Commands.sequence(
                                                         Commands.waitSeconds(.5),
-                                                         new IntakeCoralToPreSwitch(gamepieces))
+                                                        new IntakeCoralToPreSwitch(gamepieces))
                                                         .withName("DelayedIntakeCoralToPreSwitch"));
 
                         NamedCommands.registerCommand("IntakeCoralToSwitch",
@@ -392,11 +393,10 @@ public class RobotContainer implements Logged {
                 driverXbox.leftTrigger().onFalse(gis.goHome());
                 driverXbox.leftTrigger().onTrue(
                                 Commands.either(
-                                                Commands.sequence(
-                                                                new IntakeCoralToPreSwitch(gamepieces),
-                                                                new IntakeCoralToSwitch(gamepieces,
-                                                                                true)
-                                                                                .withName("IntakeCoral")),
+
+                                                new IntakeCoralToSwitch(gamepieces,
+                                                                false)
+                                                                .withName("IntakeCoral"),
 
                                                 Commands.parallel(gis.goPickup(),
                                                                 new GroundIntakeCoralRPMDetect(gis)),
@@ -404,13 +404,13 @@ public class RobotContainer implements Logged {
                                                 () -> !gis.groundCoralMode))
                                 .whileTrue(
                                                 Commands.either(
-                                                                new PIDDriveToPoseCoralStation(drivebase),
-                                                                // new TeleopSwerveStation(drivebase,
-                                                                // () -> driverXbox.getLeftY()
-                                                                // * getAllianceFactor(),
-                                                                // () -> driverXbox.getLeftX()
-                                                                // * getAllianceFactor(),
-                                                                // () -> driverXbox.getRightX()),
+                                                                // new PIDDriveToPoseCoralStation(drivebase),
+                                                                new TeleopSwerveStation(drivebase,
+                                                                                () -> driverXbox.getLeftY()
+                                                                                                * getAllianceFactor(),
+                                                                                () -> driverXbox.getLeftX()
+                                                                                                * getAllianceFactor(),
+                                                                                () -> driverXbox.getRightX()),
                                                                 Commands.deadline(
                                                                                 new GroundIntakeCoralRPMDetect(gis),
                                                                                 Commands.either(
@@ -766,7 +766,9 @@ public class RobotContainer implements Logged {
                 reefZoneChange.onTrue(CommandFactory.rumbleDriver(RumbleType.kBothRumble, .4, .1, 0))
                                 .onTrue(Commands.runOnce(() -> drivebase.reefZoneLast = drivebase.reefZone));
 
-                coralAtIntake.onTrue(ls.getCoralIntakeLEDsCommand())
+                coralAtIntake.onTrue(
+                                Commands.parallel(ls.getCoralIntakeLEDsCommand(),
+                                                Commands.runOnce(() -> arm.setGoalDegrees(ArmSetpoints.kTravel))))
                                 .onFalse(ls.getCoralDeliverLEDsCommand());
 
                 lastCallForPark.onTrue(CommandFactory.rumbleDriver(RumbleType.kLeftRumble, 1, 1.5, 0))

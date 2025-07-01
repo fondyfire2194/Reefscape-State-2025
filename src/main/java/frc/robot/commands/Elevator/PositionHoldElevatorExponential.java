@@ -19,7 +19,7 @@ public class PositionHoldElevatorExponential extends Command {
     private ExponentialProfile.State m_setpoint = new ExponentialProfile.State(0, 0);
 
     private PIDController pidController;
-    private double kp = 25.;
+    private double kp = 5.;
     private double ki = 0;
     private double kd = 0.;
 
@@ -65,7 +65,7 @@ public class PositionHoldElevatorExponential extends Command {
             if (!toggle) {
                 SD.sd2("Elevator/EXP/nextstatepos", next.position);
                 SD.sd2("Elevator/EXP/nextstatevel", next.velocity);
-                SD.sd2("Elevator/EXP/nextleftposmeteers", elevator.getLeftPositionMeters());
+                SD.sd2("Elevator/EXP/nextleftposmeters", elevator.getLeftPositionMeters());
             }
         }
         // With the setpoint value we run PID control like normal
