@@ -330,7 +330,7 @@ public class RobotContainer implements Logged {
                         eventTriggerL4.onTrue(cf.setSetpointCommand(Setpoint.kLevel4));
                         eventTriggerL2.onTrue(cf.setSetpointCommand(Setpoint.kLevel2));
                         eventTriggerAlgaeL3.onTrue(cf.pickupAlgaeL3());
-                        eventTriggerL4.onTrue(cf.elevatorL4IfCoral());
+                        eventTriggerL4WaitCoral.onTrue(cf.elevatorL4IfCoral());
 
                         NamedCommands.registerCommand("DelayStartIntakeToPreswitch",
                                         Commands.sequence(
@@ -395,7 +395,7 @@ public class RobotContainer implements Logged {
                                 Commands.either(
 
                                                 new IntakeCoralToSwitch(gamepieces,
-                                                                true)
+                                                                false)
                                                                 .withName("IntakeCoral"),
 
                                                 Commands.parallel(gis.goPickup(),

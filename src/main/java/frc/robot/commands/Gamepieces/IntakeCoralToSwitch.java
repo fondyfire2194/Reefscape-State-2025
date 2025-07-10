@@ -23,7 +23,7 @@ public class IntakeCoralToSwitch extends Command {
   private double waitForCoralTime = 1;
 
   private Timer coralUnstickTimer;
-  private double unstickReverseTime = .25;
+  private double unstickReverseTime = .1;
 
   private Timer noCoralLoadedTimer;// coral never loaded
   private double noCoralLoadedTime = 15;
@@ -64,7 +64,7 @@ public class IntakeCoralToSwitch extends Command {
     coralUnstickTimer = new Timer();
     m_gamepiece.enableLimitSwitch();
     state = 0;
-    coralWasSeenAtPreswitch=false;
+    coralWasSeenAtPreswitch = false;
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -91,7 +91,7 @@ public class IntakeCoralToSwitch extends Command {
      * state 1 look for coral at preswitch
      * keep motors running forward
      */
-    if (state == 1 &&  m_gamepiece.coralAtPreIntake())
+    if (state == 1 && m_gamepiece.coralAtPreIntake())
       coralWasSeenAtPreswitch = true;
 
     SmartDashboard.putBoolean("PIM/csapsw", coralWasSeenAtPreswitch);
@@ -101,8 +101,7 @@ public class IntakeCoralToSwitch extends Command {
      * start timer for reaching second switch
      */
 
-    if (state == 1 && coralWasSeenAtPreswitch)
-    {
+    if (state == 1 && coralWasSeenAtPreswitch) {
       m_gamepiece.runGamepieceMotor(gamepieceMotorIntakeSpeed); // 0.25
       m_gamepiece.runCoralIntakeMotor(coralIntakeSpeed);
       waitForCoralAtIntakeTimer.reset();
@@ -115,6 +114,11 @@ public class IntakeCoralToSwitch extends Command {
      * coral didn't reach second switch in time
      * try to unstick it
      */
+
+    if (state == 2) {
+      m_gamepiece.runGamepieceMotor(gamepieceMotorIntakeSpeed); // 0.25
+      m_gamepiece.runCoralIntakeMotor(coralIntakeSpeed);
+    }
 
     if (state == 2 && waitForCoralAtIntakeTimer.hasElapsed(waitForCoralTime)) {
       coralUnstickTimer.reset();
@@ -142,7 +146,7 @@ public class IntakeCoralToSwitch extends Command {
     }
 
     if (RobotBase.isSimulation()) {
-      m_gamepiece.simcoralatpreintake =  noCoralLoadedTimer.get() > 3;
+      m_gamepiece.simcoralatpreintake = noCoralLoadedTimer.get() > 3;
       m_gamepiece.simcoralatswitch = state == 2 && noCoralLoadedTimer.get() > 10;
     }
   }
@@ -154,7 +158,7 @@ public class IntakeCoralToSwitch extends Command {
     m_gamepiece.runGamepieceMotor(0);
     m_gamepiece.runCoralIntakeMotor(0);
     state = 0;
-    coralWasSeenAtPreswitch=false;
+    coralWasSeenAtPreswitch = false;
   }
 
   // Returns true when the command should end.
