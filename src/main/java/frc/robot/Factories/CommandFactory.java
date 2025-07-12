@@ -164,7 +164,7 @@ public class CommandFactory {
                 public static final double kTravel = 100 - armCompOffset;
                 public static final double kProcessorDeliver = 15 - armCompOffset;
                 public static final double kBargeDeliver = 85 - armCompOffset;
-                public static final double kCoralStation = 132 - armCompOffset;
+                public static final double kCoralStation = ArmSubsystem.startDegrees - armCompOffset;
                 public static final double kLevel1 = 97 - armCompOffset;
                 public static final double kLevel2 = 97 - armCompOffset;
                 public static final double kLevel3 = 97 - armCompOffset;
@@ -321,7 +321,7 @@ public class CommandFactory {
         public Command deliverCoralFasterCommand() {
                 return Commands.sequence(
                                 Commands.runOnce(() -> m_gamepieces.disableLimitSwitch()),
-                               // Commands.waitUntil(() -> m_arm.targetRadians == ArmSetpoints.kLevel4_2),
+                                // Commands.waitUntil(() -> m_arm.targetRadians == ArmSetpoints.kLevel4_2),
                                 Commands.runOnce(() -> m_gamepieces.gamepieceMotor
                                                 .set(m_gamepieces.coralFastDeliverSpeed)),
                                 Commands.runOnce(() -> m_gamepieces.simcoralatswitch = false),

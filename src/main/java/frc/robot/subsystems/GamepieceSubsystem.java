@@ -135,6 +135,8 @@ public class GamepieceSubsystem extends SubsystemBase implements Logged {
     coralPreDetectSwitch = coralIntakeMotor.getForwardLimitSwitch();
 
     
+
+    
   }
 
   public void runCoralIntakeMotor(double speed){
@@ -217,6 +219,11 @@ public class GamepieceSubsystem extends SubsystemBase implements Logged {
   public void disableLimitSwitch() {
     gamepieceConfig.limitSwitch.forwardLimitSwitchEnabled(false);
     gamepieceMotor.configure(gamepieceConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
+  }
+
+  public void disablePreLimitSwitch() {
+    coralIntakeConfig.limitSwitch.forwardLimitSwitchEnabled(false);
+    coralIntakeMotor.configure(coralIntakeConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
   }
 
   @Log(key = "gpswitchenabled")

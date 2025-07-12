@@ -35,8 +35,8 @@ import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.Constants.FieldConstants.Side;
 import frc.robot.Constants.CANIDConstants;
+import frc.robot.Constants.FieldConstants.Side;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.VisionConstants.CameraConstants;
 import frc.robot.Factories.CommandFactory;
@@ -44,7 +44,7 @@ import frc.robot.Factories.CommandFactory.ArmSetpoints;
 import frc.robot.Factories.CommandFactory.ElevatorSetpoints;
 import frc.robot.Factories.CommandFactory.Setpoint;
 import frc.robot.commands.Arm.JogArm;
-import frc.robot.commands.Arm.PositionHoldArm;
+import frc.robot.commands.Arm.PositionHoldArmPID;
 import frc.robot.commands.Elevator.JogElevator;
 import frc.robot.commands.Elevator.PositionHoldElevatorPID;
 import frc.robot.commands.Gamepieces.DetectAlgaeWhileIntaking;
@@ -57,7 +57,6 @@ import frc.robot.commands.swervedrive.drivebase.TeleopSwerveStation;
 import frc.robot.commands.teleopAutos.GetNearestCoralStationPose;
 import frc.robot.commands.teleopAutos.GetNearestReefZonePose;
 import frc.robot.commands.teleopAutos.PIDDriveToGroundCoralNoRotation;
-import frc.robot.commands.teleopAutos.PIDDriveToPoseCoralStation;
 import frc.robot.commands.teleopAutos.PIDDriveToReefZone;
 import frc.robot.commands.teleopAutos.PIDDriveToReefZoneL1;
 import frc.robot.subsystems.AlgaeSubsystem;
@@ -304,7 +303,7 @@ public class RobotContainer implements Logged {
                                         Commands.sequence(
                                                         Commands.waitSeconds(.5),
                                                         new IntakeCoralToPreSwitch(gamepieces),
-                                                        new IntakeCoralToSwitch(gamepieces, true))
+                                                        new IntakeCoralToSwitch(gamepieces, false))
                                                         .withName("DelayedIntakeCoral"));
 
                         NamedCommands.registerCommand("Intake Algae L2",
@@ -340,7 +339,7 @@ public class RobotContainer implements Logged {
                    
 
                         NamedCommands.registerCommand("IntakeCoralToSwitch",
-                                        new IntakeCoralToSwitch(gamepieces, true)
+                                        new IntakeCoralToSwitch(gamepieces, false)
                                                         .withName("IntakeCoralToSwitch"));
 
                 }
@@ -362,11 +361,11 @@ public class RobotContainer implements Logged {
 
                 elevator.setDefaultCommand(new PositionHoldElevatorPID(elevator));
 
-                // arm.setDefaultCommand(new PositionHoldArmPID(arm));
+                 arm.setDefaultCommand(new PositionHoldArmPID(arm));
 
                 // elevator.setDefaultCommand(new PositionHoldElevator(elevator));
 
-                arm.setDefaultCommand(new PositionHoldArm(arm));
+              //  arm.setDefaultCommand(new PositionHoldArm(arm));
 
                 // preIn.setDefaultCommand(preIn.positionCommand());
 
@@ -605,7 +604,7 @@ public class RobotContainer implements Logged {
                                                 Commands.runOnce(() -> arm.enableSoftLimits()),
                                                 Commands.runOnce(() -> arm.stop()),
                                                 Commands.runOnce(() -> arm.armMotor.getEncoder()
-                                                                .setPosition(Units.degreesToRadians(134)))));
+                                                                .setPosition(Units.degreesToRadians(107)))));
 
         }
 
@@ -630,7 +629,7 @@ public class RobotContainer implements Logged {
 
                 coCoDriverXbox.x().onTrue(elevator.setGoalInchesCommand(ElevatorSetpoints.kLevel3));
 
-                coCoDriverXbox.y().onTrue(elevator.setGoalInchesCommand(ElevatorSetpoints.kLevel4));
+                coCoDriverXbox.y().onTrue(cf.setSetpointCommand(Setpoint.kLevel4));
 
                 // coCoDriverXbox.leftTrigger().onTrue(elevator.setGoalInchesCommand(ElevatorSetpoints.kLevel4));
 
@@ -749,7 +748,7 @@ public class RobotContainer implements Logged {
 
         private void setShowTelemetry() {
                 drivebase.showTelemetry = false;
-                elevator.showTelemetry = true;
+                elevator.showTelemetry = false;
                 arm.showTelemetry = false;
                 gamepieces.showTelemetry = false;
                 preIn.showTelemetry = false;

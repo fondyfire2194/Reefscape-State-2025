@@ -63,27 +63,14 @@
                 "data": {
                   "name": "IntakeCoralToSwitch"
                 }
-              },
-              {
-                "type": "sequential",
-                "data": {
-                  "commands": [
-                    {
-                      "type": "named",
-                      "data": {
-                        "name": "WaitElevatorWithCoral"
-                      }
-                    },
-                    {
-                      "type": "named",
-                      "data": {
-                        "name": "Deliver Coral"
-                      }
-                    }
-                  ]
-                }
               }
             ]
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Deliver Coral"
           }
         },
         {
@@ -137,13 +124,13 @@
               {
                 "type": "named",
                 "data": {
-                  "name": "WaitElevatorWithCoral"
+                  "name": "Deliver Coral"
                 }
               },
               {
                 "type": "named",
                 "data": {
-                  "name": "Deliver Coral"
+                  "name": "DelayElevatorToHome"
                 }
               },
               {

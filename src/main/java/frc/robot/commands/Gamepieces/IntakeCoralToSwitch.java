@@ -63,6 +63,7 @@ public class IntakeCoralToSwitch extends Command {
     noCoralLoadedTimer.start();
     coralUnstickTimer = new Timer();
     m_gamepiece.enableLimitSwitch();
+    m_gamepiece.disablePreLimitSwitch();
     state = 0;
     coralWasSeenAtPreswitch = false;
   }
@@ -81,10 +82,12 @@ public class IntakeCoralToSwitch extends Command {
     if (state == 0) {
       m_gamepiece.runGamepieceMotor(gamepieceMotorIntakeSpeed); // 0.25
       m_gamepiece.runCoralIntakeMotor(coralIntakeSpeed);
-      waitForCoralAtIntakeTimer.reset();
-      waitForCoralAtIntakeTimer.start();
-      if (m_autoUnstick)
+
+      if (m_autoUnstick) {
         state = 1;
+        waitForCoralAtIntakeTimer.reset();
+        waitForCoralAtIntakeTimer.start();
+      }
     }
 
     /**

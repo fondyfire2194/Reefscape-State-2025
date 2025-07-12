@@ -8,8 +8,8 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 5.680818109949784,
-        "y": 2.519240834573665
+        "x": 5.908499999999999,
+        "y": 2.1237499999999994
       },
       "isLocked": false,
       "linkedName": null
@@ -20,8 +20,8 @@
         "y": 2.898073630136986
       },
       "prevControl": {
-        "x": 5.740622186406318,
-        "y": 2.329407882527288
+        "x": 6.113250000000001,
+        "y": 1.8799999999999997
       },
       "nextControl": null,
       "isLocked": false,
@@ -35,7 +35,7 @@
       "minWaypointRelativePos": 0.4576271186440678,
       "maxWaypointRelativePos": 1.0,
       "constraints": {
-        "maxVelocity": 1.5,
+        "maxVelocity": 1.0,
         "maxAcceleration": 2.0,
         "maxAngularVelocity": 540.0,
         "maxAngularAcceleration": 720.0,
@@ -48,7 +48,7 @@
   "eventMarkers": [
     {
       "name": "ElevatorL4Event",
-      "waypointRelativePos": 0.44745762711864406,
+      "waypointRelativePos": 0.44712230215827226,
       "endWaypointRelativePos": null,
       "command": null
     }

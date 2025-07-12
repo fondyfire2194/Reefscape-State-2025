@@ -96,12 +96,12 @@ public class ArmSubsystem extends SubsystemBase implements Logged {
      * This means kg will act equally on both sides of top center
      * 
      */
-
-    public final Angle armStartupOffset = Degrees.of(134 - CommandFactory.armCompOffset);
+    public static final double startDegrees = 134;
+    public final Angle armStartupOffset = Degrees.of(startDegrees - CommandFactory.armCompOffset);
     public final Angle minAngle = Degrees.of(-10 - CommandFactory.armCompOffset);
     public final Angle maxAngle = armStartupOffset;
 
-    public double armClearAngleDeg = 104 - CommandFactory.armCompOffset;
+    public double armClearAngleDeg = 110 - CommandFactory.armCompOffset;
 
     double TRAJECTORY_VEL = 2 * Math.PI;
     double TRAJECTORY_ACCEL = 6 * Math.PI;

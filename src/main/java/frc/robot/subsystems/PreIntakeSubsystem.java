@@ -7,7 +7,6 @@ import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkClosedLoopController;
-import com.revrobotics.spark.SparkLimitSwitch;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
@@ -18,9 +17,7 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
-import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.RobotController;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -36,7 +33,6 @@ public class PreIntakeSubsystem extends SubsystemBase implements Logged {
 
     private SparkClosedLoopController preIntakeArmClosedLoopController = preIntakeArmMotor.getClosedLoopController();
 
-  
     @Log(key = "alert warning")
     private Alert allWarnings = new Alert("AllWarnings", AlertType.kWarning);
     @Log(key = "alert error")
@@ -46,7 +42,6 @@ public class PreIntakeSubsystem extends SubsystemBase implements Logged {
 
     SparkMaxConfig preintakeArmConfig;
 
-  
     public boolean atUpperLimit;
 
     public boolean atLowerLimit;
@@ -101,8 +96,6 @@ public class PreIntakeSubsystem extends SubsystemBase implements Logged {
 
     public PreIntakeSubsystem() {
 
-      
-
         preintakeArmConfig = new SparkMaxConfig();
 
         preintakeArmConfig
@@ -147,7 +140,6 @@ public class PreIntakeSubsystem extends SubsystemBase implements Logged {
         return preIntakeArmMotor.hasActiveWarning();
     }
 
-   
     public void position() {
         // Send setpoint to spark max controller
         nextSetpoint = m_profile.calculate(.02, currentSetpoint, m_goal);
@@ -200,12 +192,10 @@ public class PreIntakeSubsystem extends SubsystemBase implements Logged {
                         this);
     }
 
-   
     public Command stopArmMotorCommand() {
         return Commands.runOnce(() -> preIntakeArmMotor.stopMotor());
     }
 
-  
     @Override
     public void periodic() {
 
@@ -216,13 +206,14 @@ public class PreIntakeSubsystem extends SubsystemBase implements Logged {
 
         atUpperLimit = getAngle() > maxAngle;
         atLowerLimit = getAngle() < minAngle;
-        SD.sd2("PreIn/pos", preIntakeArmMotor.getEncoder().getPosition());
-        // SmartDashboard.putBoolean("PreIn/atpos", preintakeAtStartPosition());
-        SD.sd2("PreIn/vel", preIntakeArmMotor.getEncoder().getVelocity());
-        SD.sd2("PreIn/volts",
-                preIntakeArmMotor.getAppliedOutput() * RobotController.getBatteryVoltage());
-        SD.sd2("PreIn/amps", getAmps());
-      
+        if (showTelemetry) {
+            SD.sd2("PreIn/pos", preIntakeArmMotor.getEncoder().getPosition());
+            // SmartDashboard.putBoolean("PreIn/atpos", preintakeAtStartPosition());
+            SD.sd2("PreIn/vel", preIntakeArmMotor.getEncoder().getVelocity());
+            SD.sd2("PreIn/volts",
+                    preIntakeArmMotor.getAppliedOutput() * RobotController.getBatteryVoltage());
+            SD.sd2("PreIn/amps", getAmps());
+        }
 
     }
 

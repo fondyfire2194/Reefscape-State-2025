@@ -22,9 +22,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.Constants.FieldConstants;
 import frc.robot.VisionConstants.CameraConstants;
-import frc.robot.commands.Arm.PositionHoldArm;
-import frc.robot.commands.Elevator.PositionHoldElevator;
-import frc.robot.commands.Elevator.PositionHoldElevatorExponential;
+import frc.robot.commands.Arm.PositionHoldArmPID;
 import frc.robot.commands.Elevator.PositionHoldElevatorPID;
 import frc.robot.utils.LimelightHelpers;
 import frc.robot.utils.SD;
@@ -86,9 +84,9 @@ public class Robot extends TimedRobot implements Logged {
     for (int port = 5800; port <= 5809; port++) {
       PortForwarder.add(port, "limelight.local", port);
     }
-    if (RobotBase.isReal()) {
-      URCL.start();
-    }
+    // if (RobotBase.isReal()) {
+    //   URCL.start();
+    // }
 
     oneShotTimer = new Timer();
     oneShotTimer.start();
@@ -122,17 +120,17 @@ public class Robot extends TimedRobot implements Logged {
     // process properly.
     Monologue.updateAll();
 
-    if (oneShotTimer.hasElapsed(5)) {
-      // Get the voltage going into the PDP, in Volts.
-      // The PDP returns the voltage in increments of 0.05 Volts.
-      double voltage = m_robotContainer.pdp.getVoltage();
-      SD.sd2("PDP/Voltage", voltage);
-      // Retrieves the temperature of the PDP, in degrees Celsius.
-      double temperatureCelsius = m_robotContainer.pdp.getTemperature();
-      SD.sd2("PDP/TemperatureF", temperatureCelsius);
- 
-      oneShotTimer.restart();
-    }
+    // if (oneShotTimer.hasElapsed(5)) {
+    // // Get the voltage going into the PDP, in Volts.
+    // // The PDP returns the voltage in increments of 0.05 Volts.
+    // double voltage = m_robotContainer.pdp.getVoltage();
+    // SD.sd2("PDP/Voltage", voltage);
+    // // Retrieves the temperature of the PDP, in degrees Celsius.
+    // double temperatureCelsius = m_robotContainer.pdp.getTemperature();
+    // SD.sd2("PDP/TemperatureF", temperatureCelsius);
+
+    // oneShotTimer.restart();
+    // }
 
   }
 
@@ -206,7 +204,7 @@ public class Robot extends TimedRobot implements Logged {
 
     m_robotContainer.preIn.preIntakeToStartCommand().schedule();
 
-    new PositionHoldArm(m_robotContainer.arm).schedule();
+    new PositionHoldArmPID(m_robotContainer.arm).schedule();
     new PositionHoldElevatorPID(m_robotContainer.elevator).schedule();
     // m_robotContainer.preIn.preIntakeToStartCommand().schedule();
 
@@ -245,7 +243,7 @@ public class Robot extends TimedRobot implements Logged {
       CommandScheduler.getInstance().cancelAll();
     }
 
-    new PositionHoldArm(m_robotContainer.arm).schedule();
+    new PositionHoldArmPID(m_robotContainer.arm).schedule();
     new PositionHoldElevatorPID(m_robotContainer.elevator).schedule();
 
     m_robotContainer.setMotorBrake(true);
@@ -286,12 +284,12 @@ public class Robot extends TimedRobot implements Logged {
     // Cancels all running commands at the start of test mode.
     CommandScheduler.getInstance().cancelAll();
 
-    new PositionHoldArm(m_robotContainer.arm).schedule();
+    new PositionHoldArmPID(m_robotContainer.arm).schedule();
 
     // new PositionHoldElevatorStateSpace(m_robotContainer.elevator).schedule();
-     //new PositionHoldElevatorExponential(m_robotContainer.elevator).schedule();
-   // new PositionHoldElevator(m_robotContainer.elevator).schedule();
-     new PositionHoldElevatorPID(m_robotContainer.elevator).schedule();
+    // new PositionHoldElevatorExponential(m_robotContainer.elevator).schedule();
+    // new PositionHoldElevator(m_robotContainer.elevator).schedule();
+    new PositionHoldElevatorPID(m_robotContainer.elevator).schedule();
 
     m_robotContainer.configureCoDriverTestBindings();
   }

@@ -56,7 +56,9 @@ public class LimelightTagsUpdate {
             if (m_useMegaTag2) {
                 setLLRobotorientation();
                 LimelightHelpers.PoseEstimate mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(m_cam.camname);
-                m_swerve.distanceLimelightToEstimator = mt2.rawFiducials[0].distToCamera;
+                
+                if (mt2.rawFiducials.length > 0)
+                    m_swerve.distanceLimelightToEstimator = mt2.rawFiducials[0].distToCamera;
 
                 rejectUpdate = mt2.tagCount == 0
                         || Math.abs(m_swerve.getGyroRate()) > ROTATION_RATE_CUTOFF
