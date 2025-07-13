@@ -258,7 +258,6 @@ public class AlgaeSubsystem extends SubsystemBase implements Logged {
     }
   }
 
-  @Log(key = "algae rpm")
   public double getRPM() {
     if (RobotBase.isReal())
       return algaeRightMotor.getEncoder().getVelocity();

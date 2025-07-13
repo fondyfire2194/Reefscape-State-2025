@@ -4,8 +4,6 @@
 
 package frc.robot;
 
-import org.littletonrobotics.urcl.URCL;
-
 import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.util.FlippingUtil;
 
@@ -14,7 +12,6 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.net.PortForwarder;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -85,7 +82,7 @@ public class Robot extends TimedRobot implements Logged {
       PortForwarder.add(port, "limelight.local", port);
     }
     // if (RobotBase.isReal()) {
-    //   URCL.start();
+    // URCL.start();
     // }
 
     oneShotTimer = new Timer();
@@ -120,18 +117,6 @@ public class Robot extends TimedRobot implements Logged {
     // process properly.
     Monologue.updateAll();
 
-    // if (oneShotTimer.hasElapsed(5)) {
-    // // Get the voltage going into the PDP, in Volts.
-    // // The PDP returns the voltage in increments of 0.05 Volts.
-    // double voltage = m_robotContainer.pdp.getVoltage();
-    // SD.sd2("PDP/Voltage", voltage);
-    // // Retrieves the temperature of the PDP, in degrees Celsius.
-    // double temperatureCelsius = m_robotContainer.pdp.getTemperature();
-    // SD.sd2("PDP/TemperatureF", temperatureCelsius);
-
-    // oneShotTimer.restart();
-    // }
-
   }
 
   /**
@@ -156,29 +141,28 @@ public class Robot extends TimedRobot implements Logged {
       m_robotContainer.setMotorBrake(false);
       disabledTimer.stop();
     }
+    if (oneShotTimer.advanceIfElapsed(.5)) {
+      String autname = m_robotContainer.autoChooser.getSelected().getName();
 
-    String autname = m_robotContainer.autoChooser.getSelected().getName();
+      SmartDashboard.putString("AUT/name", autname);
 
-    SmartDashboard.putString("AUT/name", autname);
+      if (DriverStation.isAutonomous() && !autname.contains("Instant")) {
+        if (m_robotContainer.drivebase.isBlueAlliance())
+          startingPoseAtBlueAlliance = new PathPlannerAuto(autname).getStartingPose();
+        m_robotContainer.drivebase.startingPose = m_robotContainer.drivebase.isRedAlliance()
+            ? FlippingUtil.flipFieldPose(startingPoseAtBlueAlliance)
+            : startingPoseAtBlueAlliance;
 
-    if (DriverStation.isAutonomous() && !DriverStation.isEnabled() && !autname.contains("Instant")) {
-
-      if (m_robotContainer.drivebase.isBlueAlliance())
-        startingPoseAtBlueAlliance = new PathPlannerAuto(autname).getStartingPose();
-      m_robotContainer.drivebase.startingPose = m_robotContainer.drivebase.isRedAlliance()
-          ? FlippingUtil.flipFieldPose(startingPoseAtBlueAlliance)
-          : startingPoseAtBlueAlliance;
-
-      m_robotContainer.drivebase.startPoseDifferenceX = Units.metersToInches(
-          m_robotContainer.drivebase.startingPose.getX()
-              - m_robotContainer.drivebase.getPose().getX());
-      m_robotContainer.drivebase.startPoseDifferenceY = Units.metersToInches(
-          m_robotContainer.drivebase.startingPose.getY()
-              - m_robotContainer.drivebase.getPose().getY());
-      m_robotContainer.drivebase.startPoseDifferenceTheta = m_robotContainer.drivebase.startingPose.getRotation()
-          .getDegrees()
-          - m_robotContainer.drivebase.getPose().getRotation().getDegrees();
-
+        m_robotContainer.drivebase.startPoseDifferenceX = Units.metersToInches(
+            m_robotContainer.drivebase.startingPose.getX()
+                - m_robotContainer.drivebase.getPose().getX());
+        m_robotContainer.drivebase.startPoseDifferenceY = Units.metersToInches(
+            m_robotContainer.drivebase.startingPose.getY()
+                - m_robotContainer.drivebase.getPose().getY());
+        m_robotContainer.drivebase.startPoseDifferenceTheta = m_robotContainer.drivebase.startingPose.getRotation()
+            .getDegrees()
+            - m_robotContainer.drivebase.getPose().getRotation().getDegrees();
+      }
     }
 
     // m_robotContainer.drivebase.resetOdometry(startingPose);
@@ -262,21 +246,6 @@ public class Robot extends TimedRobot implements Logged {
   @Override
   public void teleopPeriodic() {
 
-    SmartDashboard.putNumber("MatchTime", Timer.getMatchTime());
-
-    if (!DriverStation.isTeleopEnabled()) {
-      double totalAmps = m_robotContainer.pdp.getTotalCurrent();
-      SD.sd2("PDP/TotalAmps", totalAmps);
-      // Get the total power of all channels.
-      // Power is the bus voltage multiplied by the current with the units Watts.
-      double totalPower = m_robotContainer.pdp.getTotalPower();
-      SD.sd2("PDP/TotalPower", totalPower);
-
-      // Get the total energy of all channels.
-      // Energy is the power summed over time with units Joules.
-      double totalEnergy = m_robotContainer.pdp.getTotalEnergy();
-      SD.sd2("PDP/TotalEnergy", totalEnergy);
-    }
   }
 
   @Override
@@ -286,9 +255,6 @@ public class Robot extends TimedRobot implements Logged {
 
     new PositionHoldArmPID(m_robotContainer.arm).schedule();
 
-    // new PositionHoldElevatorStateSpace(m_robotContainer.elevator).schedule();
-    // new PositionHoldElevatorExponential(m_robotContainer.elevator).schedule();
-    // new PositionHoldElevator(m_robotContainer.elevator).schedule();
     new PositionHoldElevatorPID(m_robotContainer.elevator).schedule();
 
     m_robotContainer.configureCoDriverTestBindings();

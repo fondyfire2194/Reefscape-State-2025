@@ -277,7 +277,8 @@ public class ArmSubsystem extends SubsystemBase implements Logged {
         m_goal.position = targetRads;
         currentSetpoint.position = getAngle().in(Radians);
         targetRadians = targetRads;
-        SD.sd2("Arm/Trap/targetdeg", Units.radiansToDegrees(targetRads));
+        if (showTelemetry)
+            SD.sd2("Arm/Trap/targetdeg", Units.radiansToDegrees(targetRads));
         // inPositionCtr = 0;
     }
 

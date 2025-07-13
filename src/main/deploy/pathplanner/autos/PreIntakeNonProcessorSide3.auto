@@ -63,27 +63,14 @@
                 "data": {
                   "name": "IntakeCoralToSwitch"
                 }
-              },
-              {
-                "type": "sequential",
-                "data": {
-                  "commands": [
-                    {
-                      "type": "named",
-                      "data": {
-                        "name": "WaitElevatorWithCoral"
-                      }
-                    },
-                    {
-                      "type": "named",
-                      "data": {
-                        "name": "Deliver Coral"
-                      }
-                    }
-                  ]
-                }
               }
             ]
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Deliver Coral"
           }
         },
         {
@@ -131,25 +118,25 @@
           }
         },
         {
-          "type": "sequential",
+          "type": "named",
+          "data": {
+            "name": "Deliver Coral"
+          }
+        },
+        {
+          "type": "parallel",
           "data": {
             "commands": [
-              {
-                "type": "named",
-                "data": {
-                  "name": "WaitElevatorWithCoral"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "Deliver Coral"
-                }
-              },
               {
                 "type": "path",
                 "data": {
                   "pathName": "PreIntakeKToCoSt"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "DelayElevatorToHome"
                 }
               }
             ]
