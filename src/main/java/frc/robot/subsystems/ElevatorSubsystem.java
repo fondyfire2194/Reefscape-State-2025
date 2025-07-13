@@ -129,10 +129,8 @@ public class ElevatorSubsystem extends SubsystemBase implements Logged {
 
   Alert elevatorError = new Alert("Elevator/DifferenceHigh", AlertType.kError);
 
-  @Log.NT(key = "at upper limit")
   public boolean atUpperLimit;
 
-  @Log.NT(key = "at lower limit")
   public boolean atLowerLimit;
 
   private double targetMeters;
@@ -140,7 +138,6 @@ public class ElevatorSubsystem extends SubsystemBase implements Logged {
   @Log.NT(key = "target inches")
   private double targetInches;
 
-  @Log.NT(key = "left ff")
 public double leftff;
 
   public boolean showTelemetry;
@@ -337,7 +334,6 @@ public double leftff;
     return Units.metersToInches(getLeftPositionMeters());
   }
 
-  @Log.NT(key = "left applied output")
   public double getLeftAppliedOutput() {
     return leftMotor.getAppliedOutput();
   }
@@ -351,12 +347,10 @@ public double leftff;
     return Units.metersToInches(getRightPositionMeters());
   }
 
-  @Log.NT(key = "left position error inches")
   public double getLeftPositionError() {
     return getGoalInches() - getLeftPositionInches();
   }
 
-  @Log.NT(key = "left right position diffinches")
   public double getLeftRightDiffInches() {
     return getLeftPositionInches() - getRightPositionInches();
   }
@@ -379,7 +373,6 @@ public double leftff;
     return leftMotor.configAccessor.softLimit.getForwardSoftLimit();
   }
 
-  @Log.NT(key = "reset position")
   public void resetPosition(double val) {
     leftEncoder.setPosition(val);
     rightEncoder.setPosition(val);

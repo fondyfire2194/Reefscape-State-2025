@@ -58,6 +58,9 @@ public class ArmSubsystem extends SubsystemBase implements Logged {
 
     public boolean presetOnce;
 
+    @Log.NT(key = "goal degrees")
+    public double goalDegrees;
+
     public double gearReduction = 20.;
     public double beltPulleyRatio = 1.5;
     public double armLength = Units.inchesToMeters(20);
@@ -277,14 +280,15 @@ public class ArmSubsystem extends SubsystemBase implements Logged {
         m_goal.position = targetRads;
         currentSetpoint.position = getAngle().in(Radians);
         targetRadians = targetRads;
+        goalDegrees= Units.radiansToDegrees(targetRads);
         if (showTelemetry)
             SD.sd2("Arm/Trap/targetdeg", Units.radiansToDegrees(targetRads));
         // inPositionCtr = 0;
     }
 
-    @Log.NT(key = "goal degrees")
     public void setGoalDegrees(double targetDegrees) {
         double targetRads = Units.degreesToRadians(targetDegrees);
+        goalDegrees= targetDegrees;
         setGoalRadians(targetRads);
     }
 
