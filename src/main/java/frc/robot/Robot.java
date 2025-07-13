@@ -6,7 +6,6 @@ package frc.robot;
 
 import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.util.FlippingUtil;
-
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.net.PortForwarder;
@@ -22,7 +21,7 @@ import frc.robot.VisionConstants.CameraConstants;
 import frc.robot.commands.Arm.PositionHoldArmPID;
 import frc.robot.commands.Elevator.PositionHoldElevatorPID;
 import frc.robot.utils.LimelightHelpers;
-import frc.robot.utils.SD;
+import monologue.Annotations.Log;
 import monologue.Logged;
 import monologue.Monologue;
 
@@ -141,28 +140,29 @@ public class Robot extends TimedRobot implements Logged {
       m_robotContainer.setMotorBrake(false);
       disabledTimer.stop();
     }
-    if (oneShotTimer.advanceIfElapsed(.5)) {
-      String autname = m_robotContainer.autoChooser.getSelected().getName();
+     if (oneShotTimer.advanceIfElapsed(.5)) {
+    String autname = m_robotContainer.autoChooser.getSelected().getName();
 
-      SmartDashboard.putString("AUT/name", autname);
+    SmartDashboard.putString("AUT/name", autname);
 
-      if (DriverStation.isAutonomous() && !autname.contains("Instant")) {
-        if (m_robotContainer.drivebase.isBlueAlliance())
-          startingPoseAtBlueAlliance = new PathPlannerAuto(autname).getStartingPose();
-        m_robotContainer.drivebase.startingPose = m_robotContainer.drivebase.isRedAlliance()
-            ? FlippingUtil.flipFieldPose(startingPoseAtBlueAlliance)
-            : startingPoseAtBlueAlliance;
+    if (DriverStation.isAutonomous() && !autname.contains("Instant")) {
 
-        m_robotContainer.drivebase.startPoseDifferenceX = Units.metersToInches(
-            m_robotContainer.drivebase.startingPose.getX()
-                - m_robotContainer.drivebase.getPose().getX());
-        m_robotContainer.drivebase.startPoseDifferenceY = Units.metersToInches(
-            m_robotContainer.drivebase.startingPose.getY()
-                - m_robotContainer.drivebase.getPose().getY());
-        m_robotContainer.drivebase.startPoseDifferenceTheta = m_robotContainer.drivebase.startingPose.getRotation()
-            .getDegrees()
-            - m_robotContainer.drivebase.getPose().getRotation().getDegrees();
-      }
+      startingPoseAtBlueAlliance = new PathPlannerAuto(autname).getStartingPose();
+
+      m_robotContainer.drivebase.startingPose = m_robotContainer.drivebase.isRedAlliance()
+          ? FlippingUtil.flipFieldPose(startingPoseAtBlueAlliance)
+          : startingPoseAtBlueAlliance;
+
+      m_robotContainer.drivebase.startPoseDifferenceX = Units.metersToInches(
+          m_robotContainer.drivebase.startingPose.getX()
+              - m_robotContainer.drivebase.getPose().getX());
+      m_robotContainer.drivebase.startPoseDifferenceY = Units.metersToInches(
+          m_robotContainer.drivebase.startingPose.getY()
+              - m_robotContainer.drivebase.getPose().getY());
+      m_robotContainer.drivebase.startPoseDifferenceTheta = m_robotContainer.drivebase.startingPose.getRotation()
+          .getDegrees()
+          - m_robotContainer.drivebase.getPose().getRotation().getDegrees();
+       }
     }
 
     // m_robotContainer.drivebase.resetOdometry(startingPose);

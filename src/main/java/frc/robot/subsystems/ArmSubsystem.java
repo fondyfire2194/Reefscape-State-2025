@@ -122,7 +122,7 @@ public class ArmSubsystem extends SubsystemBase implements Logged {
 
     private double armff;
 
-    public boolean showTelemetry = true;
+    public boolean showTelemetry;
 
     public ArmSubsystem() {
 

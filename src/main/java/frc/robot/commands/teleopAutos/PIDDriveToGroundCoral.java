@@ -24,7 +24,7 @@ public class PIDDriveToGroundCoral extends Command {
   CommandXboxController m_controller;
   String m_camname;
   DoubleSupplier m_fwd;
-  public boolean showTelemetry = true;
+  public boolean showTelemetry;
   private double imageWidth = 640;
   MedianFilter topLeftXFilter = new MedianFilter(5);
   MedianFilter topRightXFilter = new MedianFilter(5);

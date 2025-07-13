@@ -100,7 +100,6 @@ public class GamepieceSubsystem extends SubsystemBase implements Logged {
     gamepieceConfig.limitSwitch.forwardLimitSwitchEnabled(false);
     gamepieceConfig.limitSwitch.reverseLimitSwitchEnabled(false);
 
-
     gamepieceConfig.signals.primaryEncoderPositionPeriodMs(20);
 
     gamepieceMotor.configure(gamepieceConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
@@ -134,12 +133,9 @@ public class GamepieceSubsystem extends SubsystemBase implements Logged {
 
     coralPreDetectSwitch = coralIntakeMotor.getForwardLimitSwitch();
 
-    
-
-    
   }
 
-  public void runCoralIntakeMotor(double speed){
+  public void runCoralIntakeMotor(double speed) {
     SD.sd2("Gamepiece/cimtgtspd", speed);
     coralIntakeMotor.set(speed);
   }
@@ -199,9 +195,8 @@ public class GamepieceSubsystem extends SubsystemBase implements Logged {
     allWarnings.set(getWarnings());
     allErrors.set(getActiveFault());
     allStickyFaults.set(getStickyFault());
-
-    SmartDashboard.putBoolean("Gamepiece/CoralAtIntake", coralAtIntake());
     if (showTelemetry) {
+      SmartDashboard.putBoolean("Gamepiece/CoralAtIntake", coralAtIntake());
       SD.sd2("Gamepiece/GPVelocity", gamepieceMotor.getEncoder().getVelocity());
       SD.sd2("Gamepiece/GPAmps", gamepieceMotor.getOutputCurrent());
       SmartDashboard.putBoolean("PreIn/CoralAtPreIntake", coralAtPreIntake());
