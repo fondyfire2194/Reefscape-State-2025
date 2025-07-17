@@ -240,6 +240,11 @@ public class ArmSubsystem extends SubsystemBase implements Logged {
         return Math.abs(m_goal.position - getAngle().in(Radians)) < toleranceAngle.in(Radians);
     }
 
+    @Log(key = "armstopped")
+    public boolean armStopped() {
+        return Math.abs(getMotorEncoderDegsPerSec()) < 5;
+    }
+
     public void position() {
         if (inPositionCtr != 3)
             inPositionCtr++;
@@ -280,7 +285,7 @@ public class ArmSubsystem extends SubsystemBase implements Logged {
         m_goal.position = targetRads;
         currentSetpoint.position = getAngle().in(Radians);
         targetRadians = targetRads;
-        goalDegrees= Units.radiansToDegrees(targetRads);
+        goalDegrees = Units.radiansToDegrees(targetRads);
         if (showTelemetry)
             SD.sd2("Arm/Trap/targetdeg", Units.radiansToDegrees(targetRads));
         // inPositionCtr = 0;
@@ -288,7 +293,7 @@ public class ArmSubsystem extends SubsystemBase implements Logged {
 
     public void setGoalDegrees(double targetDegrees) {
         double targetRads = Units.degreesToRadians(targetDegrees);
-        goalDegrees= targetDegrees;
+        goalDegrees = targetDegrees;
         setGoalRadians(targetRads);
     }
 

@@ -201,7 +201,7 @@ public class AlgaeSubsystem extends SubsystemBase implements Logged {
                 Commands.none(),
                 () -> RobotBase.isReal()),
             Commands.runOnce(() -> runalgaeMotorAtVelocity(AlgaeRPMSetpoints.kProcessorDeliver))),
-        new WaitCommand(2.5),
+        new WaitCommand(1.0),
         Commands.runOnce(() -> stopalgaeMotor()));
 
   }

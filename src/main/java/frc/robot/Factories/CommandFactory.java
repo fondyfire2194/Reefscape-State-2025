@@ -215,7 +215,8 @@ public class CommandFactory {
                                 new WaitCommand(0.2),
                                 Commands.waitUntil(() -> m_elevator.atPosition(10)),
                                 Commands.runOnce(() -> m_arm.setGoalDegrees(degrees_second)),
-                                Commands.waitUntil(() -> m_arm.inPosition(Degrees.of(3))));
+                                Commands.waitUntil(() -> m_arm.inPosition(Degrees.of(3))),
+                                Commands.waitUntil(() -> m_arm.armStopped()));
         }
 
         public Command homeElevatorAndArm() {

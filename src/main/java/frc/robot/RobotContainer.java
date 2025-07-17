@@ -310,6 +310,9 @@ public class RobotContainer implements Logged {
                                         cf.pickupAlgaeL2()
                                                         .withName("IntakeAlgaeL2"));
 
+                        NamedCommands.registerCommand("ArmClear",
+                                        arm.setGoalDegreesCommand(ArmSetpoints.kLevel4_1));
+
                         NamedCommands.registerCommand("Intake Algae L3",
                                         cf.pickupAlgaeL3()
                                                         .withName("IntakeAlgaeL3"));
@@ -336,7 +339,6 @@ public class RobotContainer implements Logged {
                                                         Commands.waitSeconds(.5),
                                                         new IntakeCoralToPreSwitch(gamepieces))
                                                         .withName("DelayedIntakeCoralToPreSwitch"));
-                   
 
                         NamedCommands.registerCommand("IntakeCoralToSwitch",
                                         new IntakeCoralToSwitch(gamepieces, false)
@@ -361,11 +363,11 @@ public class RobotContainer implements Logged {
 
                 elevator.setDefaultCommand(new PositionHoldElevatorPID(elevator));
 
-                 arm.setDefaultCommand(new PositionHoldArmPID(arm));
+                arm.setDefaultCommand(new PositionHoldArmPID(arm));
 
                 // elevator.setDefaultCommand(new PositionHoldElevator(elevator));
 
-              //  arm.setDefaultCommand(new PositionHoldArm(arm));
+                // arm.setDefaultCommand(new PositionHoldArm(arm));
 
                 // preIn.setDefaultCommand(preIn.positionCommand());
 

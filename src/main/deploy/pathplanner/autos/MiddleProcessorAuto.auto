@@ -5,15 +5,21 @@
     "data": {
       "commands": [
         {
-          "type": "path",
+          "type": "named",
           "data": {
-            "pathName": "CenterToH"
+            "name": "ArmClear"
           }
         },
         {
-          "type": "named",
+          "type": "wait",
           "data": {
-            "name": "DelayElevatorToL4"
+            "waitTime": 0.5
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "CenterToH"
           }
         },
         {
@@ -52,9 +58,22 @@
                 }
               },
               {
-                "type": "named",
+                "type": "sequential",
                 "data": {
-                  "name": "ElevatorToProcessor"
+                  "commands": [
+                    {
+                      "type": "wait",
+                      "data": {
+                        "waitTime": 0.25
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "ElevatorToProcessor"
+                      }
+                    }
+                  ]
                 }
               }
             ]
@@ -96,9 +115,22 @@
                 }
               },
               {
-                "type": "named",
+                "type": "sequential",
                 "data": {
-                  "name": "ElevatorToProcessor"
+                  "commands": [
+                    {
+                      "type": "wait",
+                      "data": {
+                        "waitTime": 0.25
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "ElevatorToProcessor"
+                      }
+                    }
+                  ]
                 }
               }
             ]
@@ -108,12 +140,6 @@
           "type": "named",
           "data": {
             "name": "DeliverAlgaeToProcessor"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "ElevatorToHome"
           }
         }
       ]
