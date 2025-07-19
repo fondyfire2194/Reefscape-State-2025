@@ -128,18 +128,56 @@
                 }
               },
               {
-                "type": "named",
+                "type": "parallel",
                 "data": {
-                  "name": "DelayElevatorToHome"
-                }
-              },
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "PreIntakeDToCoSt"
+                  "commands": [
+                    {
+                      "type": "path",
+                      "data": {
+                        "pathName": "PreIntakeDToCoSt"
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "DelayElevatorToHome"
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "DelayStartIntakeToPreswitch"
+                      }
+                    }
+                  ]
                 }
               }
             ]
+          }
+        },
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "PreIntakeCoStToEnd"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "IntakeCoralToSwitch"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Deliver Coral"
           }
         }
       ]

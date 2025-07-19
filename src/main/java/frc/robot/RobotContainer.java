@@ -137,6 +137,8 @@ public class RobotContainer implements Logged {
         EventTrigger eventTriggerL2 = new EventTrigger("ElevatorL2Event");
         EventTrigger eventTriggerAlgaeL3 = new EventTrigger("IntakeAlgaeL3Event");
         EventTrigger eventTriggerL4WaitCoral = new EventTrigger("ElevatorL4EventWaitCoral");
+        EventTrigger eventTriggerL2WaitCoral = new EventTrigger("ElevatorL2EventWaitCoral");
+
         // Applies deadbands and inverts controls because joysticks
         // are back-right positive while robot
         // controls are front-left positive
@@ -333,6 +335,8 @@ public class RobotContainer implements Logged {
                         eventTriggerL2.onTrue(cf.setSetpointCommand(Setpoint.kLevel2));
                         eventTriggerAlgaeL3.onTrue(cf.pickupAlgaeL3());
                         eventTriggerL4WaitCoral.onTrue(cf.elevatorL4IfCoral());
+                        eventTriggerL2WaitCoral.onTrue(cf.elevatorL2IfCoral());
+
 
                         NamedCommands.registerCommand("DelayStartIntakeToPreswitch",
                                         Commands.sequence(
@@ -494,7 +498,7 @@ public class RobotContainer implements Logged {
 
                 driverXbox.povDown().onTrue(
                                 Commands.sequence(
-                                                Commands.runOnce(() -> arm.setGoalDegrees(0)),
+                                                Commands.runOnce(() -> arm.setGoalDegrees(-25)),
                                                 new DetectAlgaeWhileIntaking(algae)));
 
                 driverXbox.povLeft().onTrue(

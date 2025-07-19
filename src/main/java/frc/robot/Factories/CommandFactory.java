@@ -338,4 +338,12 @@ public class CommandFactory {
 
         }
 
+        public Command elevatorL2IfCoral() {
+                return Commands.sequence(
+                                Commands.waitUntil(() -> m_gamepieces.coralAtIntake()),
+                                setSetpointCommand(Setpoint.kLevel2));
+
+        }
+
+
 }

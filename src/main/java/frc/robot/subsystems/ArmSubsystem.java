@@ -242,7 +242,7 @@ public class ArmSubsystem extends SubsystemBase implements Logged {
 
     @Log(key = "armstopped")
     public boolean armStopped() {
-        return Math.abs(getMotorEncoderDegsPerSec()) < 5;
+        return Math.abs(getMotorEncoderDegsPerSec()) < 15;
     }
 
     public void position() {
