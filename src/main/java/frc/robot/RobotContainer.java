@@ -69,6 +69,7 @@ import frc.robot.subsystems.GroundIntakeSubsystem;
 import frc.robot.subsystems.LimelightVision;
 import frc.robot.subsystems.PreIntakeSubsystem;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
+import frc.robot.utils.ButtonBox;
 import frc.robot.utils.LedStrip;
 import monologue.Annotations.Log;
 import monologue.Logged;
@@ -110,7 +111,7 @@ public class RobotContainer implements Logged {
         final CommandXboxController driverXbox = new CommandXboxController(0);
         CommandXboxController coDriverXbox = new CommandXboxController(1);
         CommandXboxController coCoDriverXbox = new CommandXboxController(2);
-
+        ButtonBox buttonBox = new ButtonBox(3);
         // The robot's subsystems and commands are defined here...
         final SwerveSubsystem drivebase = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(),
                         "swerve")); // "swerve"));
@@ -241,6 +242,8 @@ public class RobotContainer implements Logged {
 
                 configureDriverBindings();
 
+                configureButtonBoxBindings();
+
                 configureCoCoDriverBindings();
 
                 buildAutoChooser();
@@ -336,7 +339,6 @@ public class RobotContainer implements Logged {
                         eventTriggerAlgaeL3.onTrue(cf.pickupAlgaeL3());
                         eventTriggerL4WaitCoral.onTrue(cf.elevatorL4IfCoral());
                         eventTriggerL2WaitCoral.onTrue(cf.elevatorL2IfCoral());
-
 
                         NamedCommands.registerCommand("DelayStartIntakeToPreswitch",
                                         Commands.sequence(
@@ -612,6 +614,33 @@ public class RobotContainer implements Logged {
                                                 Commands.runOnce(() -> arm.armMotor.getEncoder()
                                                                 .setPosition(Units.degreesToRadians(107)))));
 
+        }
+
+        public void configureButtonBoxBindings() {
+
+                buttonBox.getButtonX().onTrue(setSetpointPositionCommand(Setpoint.kLevel2).withName("Set L2"));
+
+                buttonBox.getButtonY().onTrue(setSetpointPositionCommand(Setpoint.kLevel3).withName("Set L3"));
+
+                buttonBox.getButtonR1().onTrue(setSetpointPositionCommand(Setpoint.kLevel4).withName("Set L4"));
+
+                buttonBox.getButtonL1().onTrue(cf.homeElevatorAndArm().withName("Home Elevator Arm"));
+
+                buttonBox.getButtonA().whileTrue(
+                                Commands.defer(
+                                                () -> preIn.jogMotorCommand(
+                                                                () -> -0.25),
+                                                Set.of(preIn)))
+                                .onFalse(Commands.runOnce(() -> preIn.stop()));
+
+                buttonBox.getButtonB().whileTrue(
+                                Commands.defer(
+                                                () -> preIn.jogMotorCommand(
+                                                                () -> -0.25),
+                                                Set.of(preIn)))
+                                .onFalse(Commands.runOnce(() -> preIn.stop()));
+
+                buttonBox.getLeftTriggerClick().onTrue(arm.setGoalDegreesCommand(ArmSetpoints.kProcessorDeliver));
         }
 
         public void configureCoCoDriverBindings() {
